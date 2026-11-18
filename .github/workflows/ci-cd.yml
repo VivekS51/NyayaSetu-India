@@ -1,11 +1,13 @@
 name: NyayaSetu India CI/CD Pipeline
 
 on:
-  push:
-    branches: [main, develop]
-  pull_request:
-    branches: [main]
+  # Trigger manually from GitHub Actions tab once billing is active
   workflow_dispatch:
+  # Uncomment below to re-enable automated runs on push:
+  # push:
+  #   branches: [main, develop]
+  # pull_request:
+  #   branches: [main]
 
 jobs:
   # =========================================================================
