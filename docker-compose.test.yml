@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  # Isolated PostgreSQL Test Instance
+  postgres-test:
+    image: postgres:16-alpine
+    container_name: nyayasetu-postgres-test
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: nyayasetu_test_db
+      POSTGRES_USER: test_user
+      POSTGRES_PASSWORD: test_password
+    ports:
+      - '5433:5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U test_user -d nyayasetu_test_db']
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - nyayasetu-test-network
+
+  # Isolated Redis Test Instance
+  redis-test:
+    image: redis:7-alpine
+    container_name: nyayasetu-redis-test
+    restart: unless-stopped
+    command: redis-server --requirepass test_redis_secret
+    ports:
+      - '6380:6379'
+    healthcheck:
+      test: ['CMD', 'redis-cli', '-a', 'test_redis_secret', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - nyayasetu-test-network
+
+  # Automated Test Runner Container
+  test-runner:
+    build:
+      context: .
+      dockerfile: apps/backend/Dockerfile
+    container_name: nyayasetu-test-runner
+    environment:
+      NODE_ENV: test
+      DATABASE_URL: postgresql://test_user:test_password@postgres-test:5432/nyayasetu_test_db?schema=public
+      REDIS_URL: redis://:test_redis_secret@redis-test:6379
+      JWT_ACCESS_SECRET: test_access_secret_key_nyayasetu_india_2026_test_mode
+      JWT_REFRESH_SECRET: test_refresh_secret_key_nyayasetu_india_2026_test_mode
+      BCI_COMPLIANCE_MODE: 'true'
+    depends_on:
+      postgres-test:
+        condition: service_healthy
+      redis-test:
+        condition: service_healthy
+    command: ["pnpm", "test"]
+    networks:
+      - nyayasetu-test-network
+
+networks:
+  nyayasetu-test-network:
+    driver: bridge
+

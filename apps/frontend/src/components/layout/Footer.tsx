@@ -1,0 +1,108 @@
+import React from 'react';
+import Link from 'next/link';
+import { ShieldCheck, PhoneCall, Scale, AlertCircle, FileText } from 'lucide-react';
+
+export const Footer: React.FC = () => {
+  return (
+    <footer className="bg-govnavy-900 text-slate-300 border-t border-govnavy-700 text-xs">
+      {/* Statutory Regulatory Banner */}
+      <div className="bg-govnavy-950 border-b border-govnavy-800 py-4 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto flex items-start space-x-3">
+          <AlertCircle className="w-5 h-5 text-saffron-500 shrink-0 mt-0.5" />
+          <p className="text-slate-400 leading-relaxed">
+            <strong className="text-white">Statutory Regulatory Notice (Bar Council of India Rule 36):</strong> Under the
+            Advocates Act 1961 and BCI Rules, advocates are legally prohibited from advertising, touting, or soliciting work.
+            NyayaSetu operates strictly as a neutral technological directory and communications infrastructure. Listings are
+            factual (qualifications, year enrolled, courts admitted, statutory fees) and do not constitute recommendations,
+            rankings, or endorsements. The platform does not take commissions from legal consultation fees.
+          </p>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 grid grid-cols-1 md:grid-cols-4 gap-8">
+        {/* Brand & Mandate */}
+        <div className="space-y-3">
+          <div className="flex items-center space-x-2">
+            <div className="w-8 h-8 rounded bg-saffron-600 flex items-center justify-center text-white font-bold">
+              <Scale className="w-5 h-5" />
+            </div>
+            <span className="text-base font-bold text-white tracking-wide">NyayaSetu India</span>
+          </div>
+          <p className="text-slate-400 leading-relaxed">
+            National digital justice facilitation bridge connecting citizens with verified advocates, notaries, mediators,
+            and legal aid clinics across all 28 states and 8 union territories.
+          </p>
+          <div className="flex items-center space-x-2 text-govgreen-600 font-semibold">
+            <ShieldCheck className="w-4 h-4" />
+            <span>DPDP Act 2023 Sovereign Data Storage (Mumbai)</span>
+          </div>
+        </div>
+
+        {/* Legal & Regulatory Framework */}
+        <div className="space-y-2">
+          <h4 className="text-white font-semibold uppercase tracking-wider text-xs">Statutory Frameworks</h4>
+          <ul className="space-y-1.5 text-slate-400">
+            <li>Advocates Act, 1961 (Section 35 & Rule 36)</li>
+            <li>Notaries Act, 1952 (Official Gazette Rates)</li>
+            <li>Mediation Act, 2023 (Sec 20 Empanelment)</li>
+            <li>Arbitration & Conciliation Act, 1996</li>
+            <li>Legal Services Authorities Act, 1987 (NALSA)</li>
+            <li>Digital Personal Data Protection Act, 2023</li>
+          </ul>
+        </div>
+
+        {/* Citizen Services */}
+        <div className="space-y-2">
+          <h4 className="text-white font-semibold uppercase tracking-wider text-xs">Citizen Services</h4>
+          <ul className="space-y-1.5 text-slate-400">
+            <li>
+              <Link href="/providers" className="hover:text-saffron-500 transition-colors">
+                Find Bar Council Verified Advocate
+              </Link>
+            </li>
+            <li>
+              <Link href="/providers?providerType=NOTARY" className="hover:text-saffron-500 transition-colors">
+                Find Gazette Commissioned Notary
+              </Link>
+            </li>
+            <li>
+              <Link href="/providers?providerType=MEDIATOR" className="hover:text-saffron-500 transition-colors">
+                Accredited Commercial Mediator
+              </Link>
+            </li>
+            <li>
+              <Link href="/onboarding" className="hover:text-saffron-500 transition-colors">
+                Legal Service Provider Onboarding Wizard
+              </Link>
+            </li>
+          </ul>
+        </div>
+
+        {/* Emergency Helplines & Redressal */}
+        <div className="space-y-2">
+          <h4 className="text-white font-semibold uppercase tracking-wider text-xs">Support & Grievances</h4>
+          <div className="bg-govnavy-800 p-3 rounded-lg border border-govnavy-700 space-y-1.5">
+            <div className="flex items-center space-x-2 text-saffron-500 font-bold">
+              <PhoneCall className="w-4 h-4" />
+              <span>NALSA Legal Aid: 15100 (Toll-Free)</span>
+            </div>
+            <p className="text-slate-400 text-[11px]">
+              National Legal Services Authority (NALSA) 24x7 helpline for free legal representation to eligible citizens.
+            </p>
+          </div>
+          <div className="text-[11px] text-slate-400">
+            <span>Data Protection Grievance Officer:</span>
+            <br />
+            <span className="text-slate-200">grievance-officer@nyayasetu.gov.in</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom Copyright & Disclaimer */}
+      <div className="border-t border-govnavy-800 py-4 px-4 sm:px-6 lg:px-8 text-center text-slate-400 text-[11px]">
+        <p>© 2026 NyayaSetu India Platform. Built for academic, research, and public interest justice enablement.</p>
+      </div>
+    </footer>
+  );
+};
+

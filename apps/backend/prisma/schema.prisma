@@ -1,0 +1,590 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch"]
+}
+
+// -------------------------------------------------------------
+// ENUMS
+// -------------------------------------------------------------
+
+enum RoleType {
+  CITIZEN
+  LSP
+  ADMIN
+  VERIFIER
+  DLSA_PARTNER
+}
+
+enum ProviderType {
+  ADVOCATE
+  ARBITRATOR
+  MEDIATOR
+  NOTARY
+  DOCUMENT_WRITER
+  LEGAL_CONSULTANT
+}
+
+enum AccountStatus {
+  ACTIVE
+  SUSPENDED
+  DEACTIVATED
+  PENDING_VERIFICATION
+}
+
+enum VerificationStatus {
+  DRAFT
+  PENDING
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+}
+
+enum CredentialType {
+  BAR_COUNCIL_ENROLMENT
+  CERTIFICATE_OF_PRACTICE
+  NOTARY_COMMISSION
+  MEDIATOR_CERTIFICATE
+  ARBITRATION_EMPANELMENT
+  DOCUMENT_WRITER_LICENSE
+  PHOTO_ID
+}
+
+enum ServiceDeliveryMode {
+  ONLINE_VIDEO
+  ONLINE_AUDIO
+  ONLINE_CHAT
+  OFFLINE_IN_PERSON
+  DOCUMENT_REVIEW
+}
+
+enum BookingStatus {
+  PENDING_PAYMENT
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED_BY_CITIZEN
+  CANCELLED_BY_PROVIDER
+  DISPUTED
+  REFUNDED
+}
+
+enum PaymentStatus {
+  INITIATED
+  CAPTURED_IN_ESCROW
+  RELEASED_TO_PROVIDER
+  REFUNDED
+  FAILED
+}
+
+enum PaymentGateway {
+  RAZORPAY
+  PHONEPE
+  UPI_DIRECT
+  SYSTEM_MOCK
+}
+
+enum DisputeStatus {
+  OPEN
+  UNDER_INVESTIGATION
+  RESOLVED_REFUNDED
+  RESOLVED_SETTLED
+  REJECTED
+}
+
+enum TriggerEvent {
+  PROFILE_COMPLETION
+  VERIFICATION_APPROVED
+  PRO_BONO_CASE_COMPLETED
+  FAST_RESPONSE_RATE
+  BOOKING_COMPLETED
+  HIGH_RATING_RECEIVED
+  PROVIDER_REFERRAL_SUCCESS
+  CITIZEN_FIRST_BOOKING
+}
+
+enum PointsType {
+  CREDIT
+  DEBIT
+  EXPIRED
+}
+
+enum TierLevel {
+  BRONZE
+  SILVER
+  GOLD
+  PLATINUM
+}
+
+// -------------------------------------------------------------
+// USERS & ROLES
+// -------------------------------------------------------------
+
+model User {
+  id                String         @id @default(uuid())
+  phone             String         @unique
+  email             String?        @unique
+  passwordHash      String
+  fullName          String
+  avatarUrl         String?
+  preferredLanguage String         @default("en")
+  status            AccountStatus  @default(ACTIVE)
+  isPhoneVerified   Boolean        @default(false)
+  isEmailVerified   Boolean        @default(false)
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  roles             UserRole[]
+  providerProfile   ProviderProfile?
+  bookingsAsCitizen Booking[]      @relation("CitizenBookings")
+  reviewsAuthored   Review[]       @relation("AuthoredReviews")
+  notifications     Notification[]
+  auditLogs         AuditLog[]
+  wallet            Wallet?
+  sentMessages      Message[]
+  createdDisputes   Dispute[]      @relation("CitizenDisputes")
+
+  @@index([phone, email])
+}
+
+model UserRole {
+  id        String   @id @default(uuid())
+  userId    String
+  role      RoleType
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, role])
+  @@index([role])
+}
+
+// -------------------------------------------------------------
+// PROVIDER PROFILES & CREDENTIALS
+// -------------------------------------------------------------
+
+model ProviderProfile {
+  id                   String              @id @default(uuid())
+  userId               String              @unique
+  providerType         ProviderType
+  enrolmentYear        Int?
+  stateBarCouncil      String?
+  barRegistrationNo    String?             @unique
+  notaryAppointmentNo  String?             @unique
+  primaryCourt         String?
+  district             String
+  state                String
+  pincode              String
+  experienceYears      Int                 @default(0)
+  languagesSpoken      String[]
+  practiceAreas        String[]
+  bio                  String?             @db.Text
+  consultationFeeINR   Decimal             @default(0.00) @db.Decimal(10, 2)
+  isAvailableForProBono Boolean            @default(false)
+  verificationStatus   VerificationStatus  @default(DRAFT)
+  rejectionReason      String?             @db.Text
+  verifiedAt           DateTime?
+  complianceAccepted   Boolean             @default(false)
+  complianceAcceptedAt DateTime?
+  totalPoints          Int                 @default(0)
+  tierId               String?
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
+
+  user                 User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tier                 Tier?               @relation(fields: [tierId], references: [id])
+  credentials          ProviderCredential[]
+  verificationRequests VerificationRequest[]
+  services             Service[]
+  bookings             Booking[]           @relation("ProviderBookings")
+  badges               ProviderBadge[]
+  referralsMade        Referral[]          @relation("ReferrerProvider")
+  referredEntry        Referral?           @relation("ReferredProvider")
+  reviewsReceived      Review[]            @relation("ProviderReviews")
+
+  @@index([providerType, verificationStatus, state, district])
+}
+
+model ProviderCredential {
+  id                  String          @id @default(uuid())
+  providerProfileId   String
+  credentialType      CredentialType
+  certificateNumber   String
+  issuingAuthority    String
+  documentUrl         String
+  validFrom           DateTime?
+  validUntil          DateTime?
+  isVerified          Boolean         @default(false)
+  createdAt           DateTime        @default(now())
+
+  providerProfile     ProviderProfile @relation(fields: [providerProfileId], references: [id], onDelete: Cascade)
+
+  @@index([providerProfileId, credentialType])
+}
+
+model VerificationRequest {
+  id                  String             @id @default(uuid())
+  providerProfileId   String
+  submittedAt         DateTime           @default(now())
+  reviewedAt          DateTime?
+  reviewedByUserId    String?
+  status              VerificationStatus @default(PENDING)
+  reviewNotes         String?            @db.Text
+  ocrPayload          Json?
+
+  providerProfile     ProviderProfile    @relation(fields: [providerProfileId], references: [id], onDelete: Cascade)
+
+  @@index([status, submittedAt])
+}
+
+// -------------------------------------------------------------
+// SERVICES, CATALOG & BOOKINGS
+// -------------------------------------------------------------
+
+model ServiceCategory {
+  id          String    @id @default(uuid())
+  code        String    @unique
+  titleEn     String
+  titleHi     String
+  titlePa     String
+  description String?   @db.Text
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+
+  services    Service[]
+}
+
+model Service {
+  id                String              @id @default(uuid())
+  providerProfileId String
+  categoryId        String
+  title             String
+  description       String              @db.Text
+  deliveryMode      ServiceDeliveryMode
+  durationMinutes   Int                 @default(30)
+  basePriceINR      Decimal             @db.Decimal(10, 2)
+  isActive          Boolean             @default(true)
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  providerProfile   ProviderProfile     @relation(fields: [providerProfileId], references: [id], onDelete: Cascade)
+  category          ServiceCategory     @relation(fields: [categoryId], references: [id])
+  bookings          Booking[]
+
+  @@index([providerProfileId, categoryId])
+}
+
+model Booking {
+  id                  String              @id @default(uuid())
+  bookingReference    String              @unique
+  citizenId           String
+  providerProfileId   String
+  serviceId           String
+  deliveryMode        ServiceDeliveryMode
+  scheduledStartTime  DateTime
+  scheduledEndTime    DateTime
+  bookingStatus       BookingStatus       @default(PENDING_PAYMENT)
+  totalAmountINR      Decimal             @db.Decimal(10, 2)
+  platformFeeINR      Decimal             @db.Decimal(10, 2)
+  gstAmountINR        Decimal             @db.Decimal(10, 2)
+  providerEarningsINR Decimal             @db.Decimal(10, 2)
+  cancellationReason  String?             @db.Text
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+
+  citizen             User                @relation("CitizenBookings", fields: [citizenId], references: [id])
+  provider            ProviderProfile     @relation("ProviderBookings", fields: [providerProfileId], references: [id])
+  service             Service             @relation(fields: [serviceId], references: [id])
+  payment             Payment?
+  invoices            Invoice[]
+  review              Review?
+  dispute             Dispute?
+  conversation        Conversation?
+
+  @@index([citizenId, providerProfileId, bookingStatus])
+  @@index([scheduledStartTime])
+}
+
+// -------------------------------------------------------------
+// PAYMENTS, ESCROW & INVOICING
+// -------------------------------------------------------------
+
+model Payment {
+  id                String         @id @default(uuid())
+  bookingId         String         @unique
+  amountINR         Decimal        @db.Decimal(10, 2)
+  status            PaymentStatus  @default(INITIATED)
+  gateway           PaymentGateway @default(RAZORPAY)
+  gatewayOrderId    String?
+  gatewayPaymentId  String?
+  escrowCapturedAt  DateTime?
+  escrowReleasedAt  DateTime?
+  refundedAt        DateTime?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  booking           Booking        @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@index([status, gatewayPaymentId])
+}
+
+model Invoice {
+  id              String   @id @default(uuid())
+  invoiceNumber   String   @unique
+  bookingId       String
+  subTotalINR     Decimal  @db.Decimal(10, 2)
+  cgstAmountINR   Decimal  @db.Decimal(10, 2)
+  sgstAmountINR   Decimal  @db.Decimal(10, 2)
+  totalAmountINR  Decimal  @db.Decimal(10, 2)
+  invoicePdfUrl   String?
+  issuedAt        DateTime @default(now())
+
+  booking         Booking  @relation(fields: [bookingId], references: [id])
+
+  @@index([invoiceNumber])
+}
+
+// -------------------------------------------------------------
+// REVIEWS, DISPUTES & REDRESSAL
+// -------------------------------------------------------------
+
+model Review {
+  id                String          @id @default(uuid())
+  bookingId         String          @unique
+  citizenId         String
+  providerProfileId String
+  rating            Int
+  feedbackText      String?         @db.Text
+  providerResponse  String?         @db.Text
+  isFlagged         Boolean         @default(false)
+  isVerifiedBooking Boolean         @default(true)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  booking           Booking         @relation(fields: [bookingId], references: [id])
+  citizen           User            @relation("AuthoredReviews", fields: [citizenId], references: [id])
+  provider          ProviderProfile @relation("ProviderReviews", fields: [providerProfileId], references: [id])
+
+  @@index([providerProfileId, rating])
+}
+
+model Dispute {
+  id              String        @id @default(uuid())
+  bookingId       String        @unique
+  raisedByUserId  String
+  reasonCode      String
+  description     String        @db.Text
+  status          DisputeStatus @default(OPEN)
+  resolutionNotes String?       @db.Text
+  resolvedByAdmin String?
+  resolvedAt      DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  booking         Booking       @relation(fields: [bookingId], references: [id])
+  claimant        User          @relation("CitizenDisputes", fields: [raisedByUserId], references: [id])
+
+  @@index([status, createdAt])
+}
+
+// -------------------------------------------------------------
+// COMMUNICATIONS, MESSAGING & VAULT
+// -------------------------------------------------------------
+
+model Conversation {
+  id         String     @id @default(uuid())
+  bookingId  String     @unique
+  isActive   Boolean    @default(true)
+  createdAt  DateTime   @default(now())
+
+  booking    Booking    @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  messages   Message[]
+}
+
+model Message {
+  id             String       @id @default(uuid())
+  conversationId String
+  senderUserId   String
+  content        String       @db.Text
+  isRead         Boolean      @default(false)
+  sentAt         DateTime     @default(now())
+
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender         User         @relation(fields: [senderUserId], references: [id])
+  documents      Document[]
+
+  @@index([conversationId, sentAt])
+}
+
+model Document {
+  id               String    @id @default(uuid())
+  messageId        String?
+  uploaderUserId   String
+  fileName         String
+  mimeType         String
+  fileSize         Int
+  encryptedS3Key   String
+  isAadhaarSigned  Boolean   @default(false)
+  uploadedAt       DateTime  @default(now())
+
+  message          Message?  @relation(fields: [messageId], references: [id], onDelete: SetNull)
+
+  @@index([uploaderUserId, uploadedAt])
+}
+
+// -------------------------------------------------------------
+// INCENTIVE ENGINE: RULES, POINTS LEDGER, TIERS, BADGES
+// -------------------------------------------------------------
+
+model Tier {
+  id                          String            @id @default(uuid())
+  level                       TierLevel         @unique
+  name                        String
+  minPoints                   Int
+  platformFeeDiscountPercent  Decimal           @default(0.00) @db.Decimal(5, 2)
+  prioritySupportLevel        Int               @default(1)
+  freeEsignCreditsMonthly     Int               @default(5)
+  perks                       Json?
+  createdAt                   DateTime          @default(now())
+
+  providers                   ProviderProfile[]
+}
+
+model Badge {
+  id             String          @id @default(uuid())
+  code           String          @unique
+  title          String
+  description    String          @db.Text
+  iconSlug       String
+  isSystemIssued Boolean         @default(true)
+  createdAt      DateTime        @default(now())
+
+  providerBadges ProviderBadge[]
+}
+
+model ProviderBadge {
+  id                String          @id @default(uuid())
+  providerProfileId String
+  badgeId           String
+  awardedAt         DateTime        @default(now())
+  metadata          Json?
+
+  provider          ProviderProfile @relation(fields: [providerProfileId], references: [id], onDelete: Cascade)
+  badge             Badge           @relation(fields: [badgeId], references: [id])
+
+  @@unique([providerProfileId, badgeId])
+}
+
+model IncentiveRule {
+  id                  String           @id @default(uuid())
+  ruleCode            String           @unique
+  name                String
+  triggerEvent        TriggerEvent
+  pointsAwarded       Int
+  isActive            Boolean          @default(true)
+  validFrom           DateTime         @default(now())
+  validUntil          DateTime?
+  eligibilityCriteria Json?
+  createdAt           DateTime         @default(now())
+
+  events              IncentiveEvent[]
+
+  @@index([triggerEvent, isActive])
+}
+
+model IncentiveEvent {
+  id                String          @id @default(uuid())
+  ruleId            String
+  providerProfileId String
+  triggerReference  String
+  payloadSnapshot   Json?
+  processedAt       DateTime        @default(now())
+
+  rule              IncentiveRule   @relation(fields: [ruleId], references: [id])
+  ledgerEntries     PointsLedger[]
+
+  @@index([providerProfileId, triggerReference])
+}
+
+model Wallet {
+  id                   String         @id @default(uuid())
+  userId               String         @unique
+  monetaryBalanceINR   Decimal        @default(0.00) @db.Decimal(10, 2)
+  rewardPointsBalance  Int            @default(0)
+  updatedAt            DateTime       @updatedAt
+
+  user                 User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ledger               PointsLedger[]
+}
+
+model PointsLedger {
+  id               String          @id @default(uuid())
+  walletId         String
+  incentiveEventId String?
+  points           Int
+  type             PointsType
+  referenceType    String
+  referenceId      String
+  description      String
+  balanceAfter     Int
+  createdAt        DateTime        @default(now())
+
+  wallet           Wallet          @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  incentiveEvent   IncentiveEvent? @relation(fields: [incentiveEventId], references: [id])
+
+  @@index([walletId, createdAt])
+}
+
+model Referral {
+  id                 String          @id @default(uuid())
+  referrerProviderId String
+  referredProviderId String          @unique
+  referralCodeUsed   String
+  isQualified        Boolean         @default(false)
+  bonusAwardedAt     DateTime?
+  createdAt          DateTime        @default(now())
+
+  referrer           ProviderProfile @relation("ReferrerProvider", fields: [referrerProviderId], references: [id])
+  referred           ProviderProfile @relation("ReferredProvider", fields: [referredProviderId], references: [id])
+
+  @@index([referrerProviderId, isQualified])
+}
+
+// -------------------------------------------------------------
+// NOTIFICATIONS & AUDIT TRAILS (DPDP & STATUTORY COMPLIANCE)
+// -------------------------------------------------------------
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  title     String
+  message   String   @db.Text
+  link      String?
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+}
+
+model AuditLog {
+  id           String   @id @default(uuid())
+  userId       String?
+  action       String
+  resourceType String
+  resourceId   String
+  ipAddress    String?
+  userAgent    String?
+  diffPayload  Json?
+  createdAt    DateTime @default(now())
+
+  user         User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([resourceType, resourceId, createdAt])
+}
+

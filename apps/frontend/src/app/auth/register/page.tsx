@@ -1,0 +1,243 @@
+'use client';
+
+import React, { useState, Suspense } from 'react';
+import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { ApiClient } from '../../../lib/api-client';
+import { Scale, ShieldCheck, UserCheck, Briefcase, AlertCircle, CheckCircle2 } from 'lucide-react';
+
+function RegisterForm() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const initialRole = searchParams.get('role') === 'LSP' ? 'LSP' : 'CITIZEN';
+
+  const [role, setRole] = useState<'CITIZEN' | 'LSP'>(initialRole);
+  const [fullName, setFullName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [preferredLanguage, setPreferredLanguage] = useState<'en' | 'hi' | 'pa'>('en');
+  const [dpdpConsent, setDpdpConsent] = useState(false);
+
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMsg(null);
+
+    if (!dpdpConsent) {
+      setErrorMsg('DPDP Act 2023 Statutory Consent is required to process legal account registration.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await fetch('http://localhost:5000/api/v1/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fullName,
+          phone,
+          email: email || undefined,
+          password,
+          role,
+          preferredLanguage,
+          dpdpConsentAcknowledged: true,
+        }),
+      });
+      const data = await res.json();
+
+      if (data.success && data.data) {
+        ApiClient.setSession(data.data.accessToken, data.data.user);
+        if (role === 'LSP') {
+          router.push('/onboarding');
+        } else {
+          router.push('/providers');
+        }
+      } else {
+        setErrorMsg(data.message || 'Registration failed');
+      }
+    } catch {
+      // Local fallback simulation for demo
+      ApiClient.setSession('mock_token_register', {
+        id: 'usr-new-001',
+        fullName,
+        phone,
+        roles: [role],
+      });
+      if (role === 'LSP') {
+        router.push('/onboarding');
+      } else {
+        router.push('/providers');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-lg border border-slate-200">
+      {/* Role Selection Tabs */}
+      <div className="grid grid-cols-2 gap-3 mb-6">
+        <button
+          type="button"
+          onClick={() => setRole('CITIZEN')}
+          className={`p-3 rounded-xl border text-left flex items-start space-x-2.5 transition-all ${
+            role === 'CITIZEN'
+              ? 'border-saffron-500 bg-saffron-50/50 text-govnavy-900 ring-2 ring-saffron-500/20'
+              : 'border-slate-200 bg-slate-50 text-slate-600 hover:border-slate-300'
+          }`}
+        >
+          <UserCheck className={`w-5 h-5 shrink-0 mt-0.5 ${role === 'CITIZEN' ? 'text-saffron-600' : 'text-slate-400'}`} />
+          <div>
+            <div className="text-xs font-bold">Citizen / Client</div>
+            <div className="text-[10px] text-slate-500 leading-tight">Seek legal assistance</div>
+          </div>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setRole('LSP')}
+          className={`p-3 rounded-xl border text-left flex items-start space-x-2.5 transition-all ${
+            role === 'LSP'
+              ? 'border-govnavy-700 bg-govnavy-50 text-govnavy-900 ring-2 ring-govnavy-700/20'
+              : 'border-slate-200 bg-slate-50 text-slate-600 hover:border-slate-300'
+          }`}
+        >
+          <Briefcase className={`w-5 h-5 shrink-0 mt-0.5 ${role === 'LSP' ? 'text-govnavy-800' : 'text-slate-400'}`} />
+          <div>
+            <div className="text-xs font-bold">Legal Provider</div>
+            <div className="text-[10px] text-slate-500 leading-tight">Advocate / Notary</div>
+          </div>
+        </button>
+      </div>
+
+      {errorMsg && (
+        <div className="mb-4 p-3 rounded-xl bg-rose-50 border border-rose-200 flex items-start space-x-2 text-rose-700 text-xs">
+          <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+          <span>{errorMsg}</span>
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block text-xs font-semibold text-slate-700 mb-1">
+            {role === 'LSP' ? 'Full Legal Name (as per Bar Council)' : 'Full Name'}
+          </label>
+          <input
+            type="text"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            placeholder={role === 'LSP' ? 'Adv. Harpreet Singh' : 'Sunita Devi'}
+            className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-saffron-500 focus:outline-none"
+            required
+          />
+        </div>
+
+        <div>
+          <label className="block text-xs font-semibold text-slate-700 mb-1">Mobile Number (+91)</label>
+          <input
+            type="tel"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            placeholder="+91 98765 43210"
+            className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-saffron-500 focus:outline-none"
+            required
+          />
+        </div>
+
+        <div>
+          <label className="block text-xs font-semibold text-slate-700 mb-1">Email Address (Optional)</label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="counsel@delhibar.org.in"
+            className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-saffron-500 focus:outline-none"
+          />
+        </div>
+
+        <div>
+          <label className="block text-xs font-semibold text-slate-700 mb-1">Password</label>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Min. 8 chars, 1 uppercase, 1 number"
+            className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-saffron-500 focus:outline-none"
+            required
+          />
+        </div>
+
+        <div>
+          <label className="block text-xs font-semibold text-slate-700 mb-1">Preferred UI Language</label>
+          <select
+            value={preferredLanguage}
+            onChange={(e) => setPreferredLanguage(e.target.value as any)}
+            className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-saffron-500 focus:outline-none"
+          >
+            <option value="en">English</option>
+            <option value="hi">हिंदी (Hindi)</option>
+            <option value="pa">ਪੰਜਾਬੀ (Punjabi)</option>
+          </select>
+        </div>
+
+        {/* DPDP Act 2023 Explicit Digital Consent */}
+        <div className="pt-2 border-t border-slate-100">
+          <label className="flex items-start space-x-2.5 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={dpdpConsent}
+              onChange={(e) => setDpdpConsent(e.target.checked)}
+              className="mt-1 h-4 w-4 rounded border-slate-300 text-saffron-600 focus:ring-saffron-500"
+            />
+            <span className="text-[11px] text-slate-600 leading-tight">
+              I give explicit consent under <strong className="text-slate-800">DPDP Act 2023</strong> for NyayaSetu to
+              process and store my identity data in Indian sovereign infrastructure for legal service facilitation.
+            </span>
+          </label>
+        </div>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full py-2.5 bg-saffron-600 hover:bg-saffron-700 text-white rounded-xl text-xs font-bold shadow transition-colors flex items-center justify-center space-x-1.5"
+        >
+          <CheckCircle2 className="w-4 h-4" />
+          <span>{loading ? 'Creating Account...' : 'Agree & Create Account'}</span>
+        </button>
+      </form>
+
+      <div className="mt-6 pt-4 border-t border-slate-100 text-center text-xs text-slate-600">
+        Already registered?{' '}
+        <Link href="/auth/login" className="text-saffron-600 font-bold hover:underline">
+          Sign In
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <div className="min-h-screen bg-slate-100 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md mx-auto">
+        <div className="text-center mb-6">
+          <Link href="/" className="inline-flex items-center space-x-2">
+            <div className="w-10 h-10 rounded-xl bg-govnavy-900 flex items-center justify-center text-white">
+              <Scale className="w-6 h-6 text-saffron-500" />
+            </div>
+            <span className="text-2xl font-bold text-govnavy-900 tracking-tight">NyayaSetu India</span>
+          </Link>
+          <h2 className="mt-3 text-xl font-bold text-slate-900">Create Verified Platform Account</h2>
+          <p className="text-xs text-slate-500">Government of India Digital Justice Sandbox</p>
+        </div>
+
+        <Suspense fallback={<div className="text-center py-10 text-xs text-slate-500">Loading form...</div>}>
+          <RegisterForm />
+        </Suspense>
+      </div>
+    </div>
+  );
+}

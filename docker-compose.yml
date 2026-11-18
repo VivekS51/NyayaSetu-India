@@ -1,0 +1,107 @@
+version: '3.8'
+
+services:
+  # =========================================================================
+  # 1. PostgreSQL Database Service (India Mumbai Cloud Region)
+  # =========================================================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: nyayasetu-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: nyayasetu_db
+      POSTGRES_USER: nyayasetu_admin
+      POSTGRES_PASSWORD: SovereignSecurePassword2026!
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U nyayasetu_admin -d nyayasetu_db']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - nyayasetu-network
+
+  # =========================================================================
+  # 2. Redis In-Memory Cache & OTP Rate Limiter Store
+  # =========================================================================
+  redis:
+    image: redis:7-alpine
+    container_name: nyayasetu-redis
+    restart: always
+    command: redis-server --appendonly yes --requirepass SovereignRedisSecret2026!
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', '-a', 'SovereignRedisSecret2026!', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - nyayasetu-network
+
+  # =========================================================================
+  # 3. Backend REST API Service
+  # =========================================================================
+  backend:
+    build:
+      context: .
+      dockerfile: apps/backend/Dockerfile
+    container_name: nyayasetu-backend
+    restart: always
+    environment:
+      NODE_ENV: production
+      PORT: 5000
+      DATABASE_URL: postgresql://nyayasetu_admin:SovereignSecurePassword2026!@postgres:5432/nyayasetu_db?schema=public
+      REDIS_URL: redis://:SovereignRedisSecret2026!@redis:6379
+      JWT_ACCESS_SECRET: SovereignAccessSecretKeyAdvocatesAct1961MumbaiDC2026!
+      JWT_REFRESH_SECRET: SovereignRefreshSecretKeyDPDPAct2023Compliant2026!
+      JWT_ACCESS_EXPIRY: 15m
+      JWT_REFRESH_EXPIRY: 7d
+      BCI_COMPLIANCE_MODE: 'true'
+      CORS_ORIGIN: http://localhost:3000
+    ports:
+      - '5000:5000'
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - nyayasetu-network
+
+  # =========================================================================
+  # 4. Web Frontend (Next.js 14 App Router)
+  # =========================================================================
+  frontend:
+    build:
+      context: .
+      dockerfile: apps/frontend/Dockerfile
+    container_name: nyayasetu-frontend
+    restart: always
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      NEXT_PUBLIC_API_URL: http://localhost:5000/api/v1
+    ports:
+      - '3000:3000'
+    depends_on:
+      - backend
+    networks:
+      - nyayasetu-network
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  nyayasetu-network:
+    driver: bridge
+
