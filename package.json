@@ -1,0 +1,19 @@
+{
+  "name": "nyayasetu-india-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Incentive-Based eMarketplace for Legal Service Providers in India",
+  "scripts": {
+    "dev:backend": "pnpm --filter @legal-marketplace/backend run dev",
+    "dev:frontend": "pnpm --filter @legal-marketplace/frontend run dev",
+    "build:backend": "pnpm --filter @legal-marketplace/backend run build",
+    "build:frontend": "pnpm --filter @legal-marketplace/frontend run build",
+    "build": "pnpm build:backend && pnpm build:frontend",
+    "test": "pnpm --filter @legal-marketplace/backend run test:all",
+    "test:unit": "pnpm --filter @legal-marketplace/backend run test:unit",
+    "test:api": "pnpm --filter @legal-marketplace/backend run test:api",
+    "test:security": "pnpm --filter @legal-marketplace/backend run test:security",
+    "test:coverage": "pnpm --filter @legal-marketplace/backend run test:coverage",
+    "test:e2e": "playwright test"
+  }
+}
