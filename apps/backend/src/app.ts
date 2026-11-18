@@ -22,8 +22,13 @@ export const createApp = (): Application => {
   // Standard Security & Body Parsers
   app.use(
     cors({
-      origin: '*', // Configurable in production
+      origin: (origin, callback) => {
+        // Allow all origins (Vercel, localhost, mobile, etc.)
+        callback(null, true);
+      },
       credentials: true,
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
     })
   );
   app.use(

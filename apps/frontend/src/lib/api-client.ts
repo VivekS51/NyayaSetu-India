@@ -233,7 +233,14 @@ export interface AuditLogItem {
   createdAt: string;
 }
 
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
+const resolveApiBaseUrl = (): string => {
+  const envUrl = process.env.NEXT_PUBLIC_API_URL?.trim();
+  if (!envUrl) return 'http://localhost:5000/api/v1';
+  const clean = envUrl.replace(/\/+$/, '');
+  return clean.endsWith('/api/v1') ? clean : `${clean}/api/v1`;
+};
+
+export const API_BASE_URL = resolveApiBaseUrl();
 
 export class ApiClient {
   public static getToken(): string | null {

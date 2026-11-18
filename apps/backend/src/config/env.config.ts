@@ -21,14 +21,14 @@ export const envConfig = {
     keySecret: process.env.RAZORPAY_KEY_SECRET || '',
   },
   msg91: {
-    authKey: process.env.MSG91_AUTH_KEY || '',
-    templateId: process.env.MSG91_TEMPLATE_ID || '',
+    authKey: process.env.MSG91_AUTH_KEY || '591061ACiMZyf3sdSa6afc971eP1',
+    templateId: process.env.MSG91_TEMPLATE_ID || '6afc949984b612b5030babc2',
   },
   email: {
     apiKey: process.env.EMAIL_API_KEY || '',
   },
   sms: {
-    provider: process.env.SMS_GATEWAY_PROVIDER || (process.env.MSG91_AUTH_KEY ? 'MSG91' : 'MOCK'),
+    provider: process.env.SMS_GATEWAY_PROVIDER || 'MSG91',
     otpExpiryMinutes: parseInt(process.env.OTP_EXPIRY_MINUTES || '5', 10),
     devMockOtp: process.env.DEV_MOCK_OTP || '123456',
   },

@@ -38,6 +38,12 @@ services:
         value: "50.00"
       - key: GST_RATE_PERCENT
         value: "18.00"
+      - key: MSG91_AUTH_KEY
+        value: "591061ACiMZyf3sdSa6afc971eP1"
+      - key: MSG91_TEMPLATE_ID
+        value: "6afc949984b612b5030babc2"
+      - key: SMS_GATEWAY_PROVIDER
+        value: "MSG91"
 
   # =========================================================================
   # 2. NyayaSetu Frontend Web Portal (Next.js 14 App Router) - Direct No-Docker

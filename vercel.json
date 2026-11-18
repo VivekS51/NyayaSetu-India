@@ -3,12 +3,5 @@
   "framework": "nextjs",
   "buildCommand": "pnpm --filter @legal-marketplace/frontend build",
   "outputDirectory": "apps/frontend/.next",
-  "installCommand": "pnpm install",
-  "rewrites": [
-    {
-      "source": "/api/v1/:path*",
-      "destination": "http://localhost:5000/api/v1/:path*"
-    }
-  ]
+  "installCommand": "pnpm install"
 }
-

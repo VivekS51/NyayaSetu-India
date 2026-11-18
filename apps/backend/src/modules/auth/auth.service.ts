@@ -30,13 +30,50 @@ export class AuthService {
       lastSentAt: new Date(),
     });
 
-    console.log(`[SMS Gateway Simulated] OTP sent to ${SecurityUtils.maskPhoneNumber(formattedPhone)}: ${otpCode}`);
+    // Dispatch real SMS via MSG91
+    if (envConfig.msg91.authKey && envConfig.msg91.templateId) {
+      await this.dispatchMsg91Otp(formattedPhone, otpCode);
+    } else {
+      console.log(`[SMS Gateway Simulated] OTP sent to ${SecurityUtils.maskPhoneNumber(formattedPhone)}: ${otpCode}`);
+    }
 
     return {
       message: `OTP successfully dispatched to ${SecurityUtils.maskPhoneNumber(formattedPhone)}`,
       expiresInMinutes: envConfig.sms.otpExpiryMinutes,
       mockOtp: envConfig.nodeEnv === 'development' ? otpCode : undefined,
     };
+  }
+
+  private async dispatchMsg91Otp(formattedPhone: string, otpCode: string): Promise<void> {
+    try {
+      let cleanMobile = formattedPhone.replace(/\D/g, '');
+      if (cleanMobile.length === 10) {
+        cleanMobile = `91${cleanMobile}`;
+      } else if (cleanMobile.startsWith('0') && cleanMobile.length === 11) {
+        cleanMobile = `91${cleanMobile.slice(1)}`;
+      }
+
+      const url = `https://control.msg91.com/api/v5/otp?template_id=${encodeURIComponent(envConfig.msg91.templateId)}&mobile=${encodeURIComponent(cleanMobile)}&otp=${encodeURIComponent(otpCode)}`;
+
+      console.log(`[MSG91 Gateway] Dispatching OTP ${otpCode} to ${cleanMobile}...`);
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          authkey: envConfig.msg91.authKey,
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+      });
+
+      const resData = (await response.json()) as any;
+      console.log(`[MSG91 Gateway] Response for ${cleanMobile}:`, resData);
+
+      if (resData.type === 'error') {
+        console.warn(`[MSG91 Gateway Warning] ${resData.message}`);
+      }
+    } catch (err: any) {
+      console.error(`[MSG91 Gateway Failure] Could not connect to MSG91: ${err.message}`);
+    }
   }
 
   public async verifyOtp(input: VerifyOtpInput): Promise<{

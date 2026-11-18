@@ -39,14 +39,16 @@ export default function LoginPage() {
         setOtpSent(true);
         if (data.data?.mockOtp) {
           setMockOtpHint(data.data.mockOtp);
+        } else {
+          setMockOtpHint(null);
         }
       } else {
         setErrorMsg(data.message || 'Failed to dispatch OTP');
       }
-    } catch {
-      // Local fallback simulation
-      setOtpSent(true);
-      setMockOtpHint('123456');
+    } catch (err: any) {
+      console.error('OTP Send Error:', err);
+      // If deployed backend is temporarily unreachable, notify citizen clearly
+      setErrorMsg('Unable to connect to authentication server. Please check your internet connection or backend status.');
     } finally {
       setLoading(false);
     }
@@ -74,18 +76,11 @@ export default function LoginPage() {
           router.push('/providers');
         }
       } else {
-        setErrorMsg(data.message || 'Invalid OTP code');
+        setErrorMsg(data.message || 'Invalid OTP code entered');
       }
-    } catch {
-      // Offline fallback login for demo
-      const mockUser = {
-        id: 'usr-simulated-01',
-        phone,
-        fullName: 'Citizen (Demo User)',
-        roles: ['CITIZEN'],
-      };
-      ApiClient.setSession('mock_jwt_token_2026', mockUser);
-      router.push('/providers');
+    } catch (err: any) {
+      console.error('OTP Verify Error:', err);
+      setErrorMsg('Verification failed. Unable to communicate with authentication server.');
     } finally {
       setLoading(false);
     }
@@ -249,9 +244,13 @@ export default function LoginPage() {
                     className="w-full text-center tracking-widest text-lg font-bold py-2 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-saffron-500 focus:outline-none"
                     required
                   />
-                  {mockOtpHint && (
+                  {mockOtpHint ? (
                     <p className="text-[11px] text-emerald-600 font-semibold mt-1.5 text-center">
                       Sandbox Development OTP: <code className="bg-emerald-50 px-1.5 py-0.5 rounded">{mockOtpHint}</code>
+                    </p>
+                  ) : (
+                    <p className="text-[11px] text-slate-500 font-medium mt-1.5 text-center">
+                      6-digit OTP dispatched via SMS to your mobile number.
                     </p>
                   )}
                 </div>
