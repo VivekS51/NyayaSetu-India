@@ -61,3 +61,4 @@ services:
           property: host
       - key: NEXT_PUBLIC_APP_URL
         value: https://nyayasetu-frontend.onrender.com
+

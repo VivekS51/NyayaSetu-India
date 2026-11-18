@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ApiClient } from '../../../lib/api-client';
+import { ApiClient, API_BASE_URL } from '../../../lib/api-client';
 import { Scale, Phone, KeyRound, ArrowRight, ShieldCheck, AlertCircle } from 'lucide-react';
 
 export default function LoginPage() {
@@ -29,7 +29,7 @@ export default function LoginPage() {
 
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:5000/api/v1/auth/otp/send', {
+      const res = await fetch(`${API_BASE_URL}/auth/otp/send`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phone }),
@@ -58,7 +58,7 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const res = await fetch('http://localhost:5000/api/v1/auth/otp/verify', {
+      const res = await fetch(`${API_BASE_URL}/auth/otp/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phone, otp }),
@@ -97,7 +97,7 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const res = await fetch('http://localhost:5000/api/v1/auth/login', {
+      const res = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ identifier: passwordEmail, password }),

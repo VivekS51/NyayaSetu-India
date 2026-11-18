@@ -114,3 +114,4 @@ You can use any free-tier or production cloud PostgreSQL provider (such as [Neon
 - [ ] Visit `/providers` — verified practitioners load from the database.
 - [ ] Complete a test registration at `/auth/register` and verify record is inserted into the cloud PostgreSQL database.
 - [ ] Complete a test onboarding workflow at `/onboarding`.
+

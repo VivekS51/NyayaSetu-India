@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ApiClient } from '../../lib/api-client';
+import { ApiClient, API_BASE_URL } from '../../lib/api-client';
 import {
   Scale,
   CheckCircle2,
@@ -162,7 +162,7 @@ export default function OnboardingWizardPage() {
 
     try {
       const token = ApiClient.getToken();
-      await fetch('http://localhost:5000/api/v1/onboarding/step-4/submit', {
+      await fetch(`${API_BASE_URL}/onboarding/step-4/submit`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

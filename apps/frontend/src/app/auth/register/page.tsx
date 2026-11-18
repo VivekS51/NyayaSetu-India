@@ -3,7 +3,7 @@
 import React, { useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ApiClient } from '../../../lib/api-client';
+import { ApiClient, API_BASE_URL } from '../../../lib/api-client';
 import { Scale, ShieldCheck, UserCheck, Briefcase, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 function RegisterForm() {
@@ -33,7 +33,7 @@ function RegisterForm() {
 
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:5000/api/v1/auth/register', {
+      const res = await fetch(`${API_BASE_URL}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
