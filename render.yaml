@@ -1,0 +1,63 @@
+services:
+  # =========================================================================
+  # 1. NyayaSetu Backend API (Node.js Express + Prisma) - Direct No-Docker
+  # =========================================================================
+  - type: web
+    name: nyayasetu-backend
+    env: node
+    plan: free
+    region: singapore
+    buildCommand: pnpm install && pnpm build:backend
+    startCommand: pnpm start:backend
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: API_PREFIX
+        value: /api/v1
+      # Direct Cloud Database Connection (e.g. Neon, Supabase, Render Postgres)
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: JWT_ACCESS_EXPIRY
+        value: 15m
+      - key: JWT_REFRESH_EXPIRY
+        value: 7d
+      - key: BCI_COMPLIANCE_MODE
+        value: "true"
+      - key: DPDP_AUDIT_LOG_ENABLED
+        value: "true"
+      - key: PLATFORM_FEE_INR
+        value: "50.00"
+      - key: GST_RATE_PERCENT
+        value: "18.00"
+
+  # =========================================================================
+  # 2. NyayaSetu Frontend Web Portal (Next.js 14 App Router) - Direct No-Docker
+  # =========================================================================
+  - type: web
+    name: nyayasetu-frontend
+    env: node
+    plan: free
+    region: singapore
+    buildCommand: pnpm install && pnpm build:frontend
+    startCommand: pnpm start:frontend
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: NEXT_PUBLIC_API_URL
+        fromService:
+          type: web
+          name: nyayasetu-backend
+          property: host
+      - key: NEXT_PUBLIC_APP_URL
+        value: https://nyayasetu-frontend.onrender.com

@@ -48,3 +48,4 @@ pnpm dev:frontend
 # Execute full automated test suite
 pnpm test
 ```
+

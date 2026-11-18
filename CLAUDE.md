@@ -13,3 +13,4 @@
 2. **0% Legal Fee Commission**: Platform fees are strictly limited to statutory flat facilitation fees; professional advocate fees must remain 100% pass-through without deduction.
 3. **DPDP Act 2023**: Every citizen data mutation must log an audit trail entry. Anonymization on account decommissioning must clear personal data while retaining statutory transaction records.
 4. **Escrow Locking**: Booking fees are held in statutory escrow until consultation sign-off or mutual resolution. If a dispute is raised, funds remain frozen until resolved by the admin desk.
+
