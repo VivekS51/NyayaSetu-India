@@ -40,7 +40,6 @@ export class AuthService {
     return {
       message: `OTP successfully dispatched to ${SecurityUtils.maskPhoneNumber(formattedPhone)}`,
       expiresInMinutes: envConfig.sms.otpExpiryMinutes,
-      mockOtp: envConfig.nodeEnv === 'development' ? otpCode : undefined,
     };
   }
 

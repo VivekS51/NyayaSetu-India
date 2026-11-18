@@ -58,19 +58,9 @@ function RegisterForm() {
       } else {
         setErrorMsg(data.message || 'Registration failed');
       }
-    } catch {
-      // Local fallback simulation for demo
-      ApiClient.setSession('mock_token_register', {
-        id: 'usr-new-001',
-        fullName,
-        phone,
-        roles: [role],
-      });
-      if (role === 'LSP') {
-        router.push('/onboarding');
-      } else {
-        router.push('/providers');
-      }
+    } catch (err: any) {
+      console.error('Registration network error:', err);
+      setErrorMsg('Unable to connect to registration server. Please check your internet connection and try again.');
     } finally {
       setLoading(false);
     }
@@ -231,7 +221,7 @@ export default function RegisterPage() {
             <span className="text-2xl font-bold text-govnavy-900 tracking-tight">NyayaSetu India</span>
           </Link>
           <h2 className="mt-3 text-xl font-bold text-slate-900">Create Verified Platform Account</h2>
-          <p className="text-xs text-slate-500">Government of India Digital Justice Sandbox</p>
+          <p className="text-xs text-slate-500">Ministry of Law & Justice • Digital India Initiative</p>
         </div>
 
         <Suspense fallback={<div className="text-center py-10 text-xs text-slate-500">Loading form...</div>}>

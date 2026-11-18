@@ -99,8 +99,8 @@ export const Navbar: React.FC = () => {
             <div>
               <div className="flex items-center space-x-2">
                 <span className="text-xl font-bold tracking-tight text-white">{t.nav.brand}</span>
-                <span className="text-xs px-2 py-0.5 rounded-full bg-saffron-500/20 text-saffron-500 border border-saffron-500/30 font-medium">
-                  Govtech Sandbox
+                <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-semibold">
+                  National Portal
                 </span>
               </div>
               <p className="text-xs text-slate-300 font-medium tracking-wide">{t.nav.tagline}</p>

@@ -170,7 +170,7 @@ export default function HomePage() {
             </div>
             <h3 className="text-base font-bold text-govnavy-900 mb-2">Escrow Payment Security</h3>
             <p className="text-xs text-slate-600 leading-relaxed">
-              Citizen payments are locked securely in sandbox escrow and released only upon verified completion of the consultation or draft delivery.
+              Citizen payments are locked securely in statutory escrow and released only upon verified completion of the consultation or draft delivery.
             </p>
           </div>
 

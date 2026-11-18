@@ -51,7 +51,7 @@ export const translations = {
     compliance: {
       banner:
         'Regulatory Compliance: NyayaSetu operates strictly as a digital directory and communications infrastructure pursuant to Bar Council of India Rule 36 & DPDP Act 2023. The platform does not solicit work, rank lawyers by commercial payment, or offer legal advice.',
-      rightsReserved: 'Government of India Digital Justice Initiative / Govtech Sandbox Framework.',
+      rightsReserved: 'NyayaSetu India • National Digital Legal Services eMarketplace • Ministry of Law & Justice.',
     },
   },
   hi: {

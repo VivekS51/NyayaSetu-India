@@ -100,7 +100,7 @@ export const Footer: React.FC = () => {
 
       {/* Bottom Copyright & Disclaimer */}
       <div className="border-t border-govnavy-800 py-4 px-4 sm:px-6 lg:px-8 text-center text-slate-400 text-[11px]">
-        <p>© 2026 NyayaSetu India Platform. Built for academic, research, and public interest justice enablement.</p>
+        <p>© 2026 NyayaSetu India (न्यायसेतु) • Ministry of Law & Justice • Bar Council of India Rule 36 & DPDP Act 2023 Compliant.</p>
       </div>
     </footer>
   );

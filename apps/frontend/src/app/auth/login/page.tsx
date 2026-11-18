@@ -12,15 +12,28 @@ export default function LoginPage() {
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
   const [otpSent, setOtpSent] = useState(false);
-  const [mockOtpHint, setMockOtpHint] = useState<string | null>(null);
+  const [resendCooldown, setResendCooldown] = useState(0);
 
   const [passwordEmail, setPasswordEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const handleSendOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const startCooldown = () => {
+    setResendCooldown(30);
+    const interval = setInterval(() => {
+      setResendCooldown((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
+  const handleSendOtp = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     setErrorMsg(null);
     if (!phone || phone.length < 10) {
       setErrorMsg('Please enter a valid 10-digit Indian mobile number');
@@ -37,18 +50,13 @@ export default function LoginPage() {
       const data = await res.json();
       if (data.success) {
         setOtpSent(true);
-        if (data.data?.mockOtp) {
-          setMockOtpHint(data.data.mockOtp);
-        } else {
-          setMockOtpHint(null);
-        }
+        startCooldown();
       } else {
-        setErrorMsg(data.message || 'Failed to dispatch OTP');
+        setErrorMsg(data.message || 'Unable to dispatch verification SMS. Please try again.');
       }
     } catch (err: any) {
       console.error('OTP Send Error:', err);
-      // If deployed backend is temporarily unreachable, notify citizen clearly
-      setErrorMsg('Unable to connect to authentication server. Please check your internet connection or backend status.');
+      setErrorMsg('Could not connect to authentication gateway. Please check your network connection.');
     } finally {
       setLoading(false);
     }
@@ -57,8 +65,12 @@ export default function LoginPage() {
   const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
-    setLoading(true);
+    if (!otp || otp.length !== 6) {
+      setErrorMsg('Please enter the full 6-digit verification code received on your phone.');
+      return;
+    }
 
+    setLoading(true);
     try {
       const res = await fetch(`${API_BASE_URL}/auth/otp/verify`, {
         method: 'POST',
@@ -76,7 +88,7 @@ export default function LoginPage() {
           router.push('/providers');
         }
       } else {
-        setErrorMsg(data.message || 'Invalid OTP code entered');
+        setErrorMsg(data.message || 'Invalid or expired OTP code entered. Please verify or request a new code.');
       }
     } catch (err: any) {
       console.error('OTP Verify Error:', err);
@@ -110,24 +122,10 @@ export default function LoginPage() {
           router.push('/providers');
         }
       } else {
-        setErrorMsg(data.message || 'Invalid login credentials');
+        setErrorMsg(data.message || 'Invalid login credentials. Please check your email and password.');
       }
     } catch {
-      // Local fallback for admin or advocate demo
-      if (passwordEmail.includes('admin')) {
-        ApiClient.setSession('admin_mock_token', {
-          id: 'usr-admin-001',
-          fullName: 'Smt. Priya Sharma (Joint Registrar)',
-          roles: ['ADMIN', 'VERIFIER'],
-        });
-      } else {
-        ApiClient.setSession('lsp_mock_token', {
-          id: 'usr-lsp-003',
-          fullName: 'Adv. Rajesh Varma',
-          roles: ['LSP'],
-        });
-      }
-      router.push('/providers');
+      setErrorMsg('Connection error. Unable to verify credentials with authentication server.');
     } finally {
       setLoading(false);
     }
@@ -165,7 +163,7 @@ export default function LoginPage() {
                   : 'border-transparent text-slate-500 hover:text-slate-800'
               }`}
             >
-              Mobile OTP (Citizens & LSPs)
+              Mobile OTP Login
             </button>
             <button
               onClick={() => {
@@ -178,7 +176,7 @@ export default function LoginPage() {
                   : 'border-transparent text-slate-500 hover:text-slate-800'
               }`}
             >
-              Password / Admin
+              Password Login
             </button>
           </div>
 
@@ -238,21 +236,30 @@ export default function LoginPage() {
                   <input
                     type="text"
                     value={otp}
-                    onChange={(e) => setOtp(e.target.value)}
-                    placeholder="123456"
+                    onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+                    placeholder="• • • • • •"
                     maxLength={6}
-                    className="w-full text-center tracking-widest text-lg font-bold py-2 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-saffron-500 focus:outline-none"
+                    autoFocus
+                    className="w-full text-center tracking-widest text-2xl font-bold py-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-saffron-500 focus:outline-none"
                     required
                   />
-                  {mockOtpHint ? (
-                    <p className="text-[11px] text-emerald-600 font-semibold mt-1.5 text-center">
-                      Sandbox Development OTP: <code className="bg-emerald-50 px-1.5 py-0.5 rounded">{mockOtpHint}</code>
-                    </p>
-                  ) : (
-                    <p className="text-[11px] text-slate-500 font-medium mt-1.5 text-center">
-                      6-digit OTP dispatched via SMS to your mobile number.
-                    </p>
-                  )}
+                  <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200 mt-2 text-center text-xs text-slate-600">
+                    <p>Enter the 6-digit verification code sent to <strong className="text-slate-900">+91 {phone}</strong>.</p>
+                  </div>
+                  <div className="flex justify-between items-center text-xs text-slate-500 pt-1">
+                    <span>Didn&apos;t receive SMS?</span>
+                    {resendCooldown > 0 ? (
+                      <span className="text-slate-400 font-medium">Resend in {resendCooldown}s</span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => handleSendOtp()}
+                        className="text-saffron-600 font-bold hover:underline"
+                      >
+                        Resend OTP
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 <button

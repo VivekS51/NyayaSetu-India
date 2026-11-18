@@ -45,7 +45,7 @@ export default function CitizenDashboardPage() {
           <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-1">
             <div className="text-xs text-slate-500 font-semibold">Active Escrow Protection</div>
             <div className="text-2xl font-extrabold text-govgreen-700">{formatINR(859)}</div>
-            <div className="text-[11px] text-slate-500">Held in sandbox escrow until you confirm completion</div>
+            <div className="text-[11px] text-slate-500">Held in statutory escrow until you confirm completion</div>
           </div>
 
           <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-1">
