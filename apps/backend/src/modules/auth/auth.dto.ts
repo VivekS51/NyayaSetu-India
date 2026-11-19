@@ -92,6 +92,14 @@ export const passwordResetConfirmSchema = z.object({
     .regex(/[^A-Za-z0-9]/, 'Must contain at least one special character'),
 });
 
+export const googleAuthSchema = z.object({
+  credential: z.string().optional(),
+  email: z.string().email(),
+  fullName: z.string().min(1, 'Full name required'),
+  avatarUrl: z.string().optional().nullable(),
+  role: z.enum([RoleType.CITIZEN, RoleType.LSP]).default(RoleType.CITIZEN),
+});
+
 export type SendOtpInput = z.infer<typeof sendOtpSchema>;
 export type VerifyOtpInput = z.infer<typeof verifyOtpSchema>;
 export type RegisterInput = z.infer<typeof registerSchema>;
@@ -100,4 +108,5 @@ export type RefreshTokenInput = z.infer<typeof refreshTokenSchema>;
 export type LogoutInput = z.infer<typeof logoutSchema>;
 export type PasswordResetRequestInput = z.infer<typeof passwordResetRequestSchema>;
 export type PasswordResetConfirmInput = z.infer<typeof passwordResetConfirmSchema>;
+export type GoogleAuthInput = z.infer<typeof googleAuthSchema>;
 

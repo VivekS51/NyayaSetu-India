@@ -1,9 +1,10 @@
 import { v4 as uuidv4 } from 'uuid';
 import { dbStore, UserRecord } from '../../config/database';
+import { prisma } from '../../config/prisma';
 import { SecurityUtils } from '../../common/utils/security.utils';
 import { RoleType, AccountStatus, PointsType, UserSessionPayload } from '../../common/types';
 import { envConfig } from '../../config/env.config';
-import { SendOtpInput, VerifyOtpInput, RegisterInput, LoginWithPasswordInput } from './auth.dto';
+import { SendOtpInput, VerifyOtpInput, RegisterInput, LoginWithPasswordInput, GoogleAuthInput } from './auth.dto';
 import { notificationsService } from '../notifications/notifications.service';
 
 export class AuthService {
@@ -169,9 +170,50 @@ export class AuthService {
 
       // Multi-channel welcome notification
       await notificationsService.triggerSignupNotification(newUserId);
+
+      // Persist to Neon PostgreSQL Database
+      try {
+        await prisma.user.create({
+          data: {
+            id: newUserId,
+            phone: formattedPhone,
+            email: null,
+            passwordHash: defaultPasswordHash,
+            fullName: user.fullName,
+            preferredLanguage: 'en',
+            status: 'ACTIVE',
+            isPhoneVerified: true,
+            isEmailVerified: false,
+            roles: {
+              create: {
+                role: 'CITIZEN',
+              },
+            },
+            wallet: {
+              create: {
+                monetaryBalanceINR: 0,
+                rewardPointsBalance: 25,
+              },
+            },
+          },
+        });
+        console.log(`[Neon DB Sync] Persisted OTP user ${formattedPhone} to Neon PostgreSQL.`);
+      } catch (dbErr: any) {
+        console.error('[Neon DB Error] Could not persist OTP user:', dbErr.message);
+      }
     } else {
       user.isPhoneVerified = true;
       user.updatedAt = new Date();
+
+      // Update phone verification in Neon PostgreSQL
+      try {
+        await prisma.user.updateMany({
+          where: { phone: formattedPhone },
+          data: { isPhoneVerified: true },
+        });
+      } catch (dbErr: any) {
+        console.error('[Neon DB Error] Could not update phone verification:', dbErr.message);
+      }
     }
 
     const roles = dbStore.userRoles.filter((r) => r.userId === user!.id).map((r) => r.role);
@@ -236,6 +278,21 @@ export class AuthService {
         existingPhone.email = input.email ? input.email.toLowerCase().trim() : existingPhone.email;
         existingPhone.preferredLanguage = input.preferredLanguage;
         existingPhone.updatedAt = new Date();
+
+        // Update in Neon PostgreSQL
+        try {
+          await prisma.user.updateMany({
+            where: { phone: formattedPhone },
+            data: {
+              fullName: existingPhone.fullName,
+              passwordHash: existingPhone.passwordHash,
+              email: existingPhone.email,
+              preferredLanguage: existingPhone.preferredLanguage,
+            },
+          });
+        } catch (dbErr: any) {
+          console.error('[Neon DB Error] Could not update user in Neon:', dbErr.message);
+        }
 
         if (input.role === RoleType.LSP) {
           existingPhone.status = AccountStatus.PENDING_VERIFICATION;
@@ -404,6 +461,37 @@ export class AuthService {
     // Multi-channel welcome notification
     await notificationsService.triggerSignupNotification(userId);
 
+    // Persist to Neon PostgreSQL Database
+    try {
+      await prisma.user.create({
+        data: {
+          id: userId,
+          phone: formattedPhone,
+          email: normalizedEmail,
+          passwordHash,
+          fullName: newUser.fullName,
+          preferredLanguage: newUser.preferredLanguage,
+          status: newUser.status as any,
+          isPhoneVerified: false,
+          isEmailVerified: !!normalizedEmail,
+          roles: {
+            create: {
+              role: input.role,
+            },
+          },
+          wallet: {
+            create: {
+              monetaryBalanceINR: 0,
+              rewardPointsBalance: 50,
+            },
+          },
+        },
+      });
+      console.log(`[Neon DB Sync] Persisted registered user ${newUser.fullName} (${formattedPhone}) to Neon PostgreSQL.`);
+    } catch (dbErr: any) {
+      console.error('[Neon DB Error] Could not persist registered user:', dbErr.message);
+    }
+
     return {
       user: {
         id: newUser.id,
@@ -433,12 +521,54 @@ export class AuthService {
     }
 
     const normalizedPhone = this.normalizePhone(input.identifier);
-    const user = dbStore.users.find(
+    let user = dbStore.users.find(
       (u) =>
         (u.email && u.email.toLowerCase() === cleanIdentifier) ||
         u.phone === input.identifier ||
         u.phone === normalizedPhone
     );
+
+    if (!user) {
+      try {
+        const dbUser = await prisma.user.findFirst({
+          where: {
+            OR: [
+              { email: { equals: cleanIdentifier, mode: 'insensitive' } },
+              { phone: input.identifier },
+              { phone: normalizedPhone },
+            ],
+          },
+          include: { roles: true },
+        });
+
+        if (dbUser) {
+          user = {
+            id: dbUser.id,
+            phone: dbUser.phone || normalizedPhone,
+            email: dbUser.email,
+            passwordHash: dbUser.passwordHash,
+            fullName: dbUser.fullName,
+            preferredLanguage: dbUser.preferredLanguage,
+            status: dbUser.status as any,
+            isPhoneVerified: dbUser.isPhoneVerified,
+            isEmailVerified: dbUser.isEmailVerified,
+            createdAt: dbUser.createdAt,
+            updatedAt: dbUser.updatedAt,
+          };
+          dbStore.users.push(user);
+          for (const r of dbUser.roles) {
+            dbStore.userRoles.push({
+              id: r.id,
+              userId: r.userId,
+              role: r.role as any,
+              createdAt: r.createdAt,
+            });
+          }
+        }
+      } catch (dbErr: any) {
+        console.error('[Neon DB Query Error]:', dbErr.message);
+      }
+    }
 
     if (!user) {
       const count = (attemptRecord?.count || 0) + 1;
@@ -617,6 +747,151 @@ export class AuthService {
     });
 
     return { message: 'Password has been reset successfully. Please sign in with your new password.' };
+  }
+
+  public async googleAuth(input: GoogleAuthInput): Promise<{
+    user: Partial<UserRecord>;
+    roles: RoleType[];
+    accessToken: string;
+    refreshToken: string;
+    isNewUser: boolean;
+  }> {
+    const normalizedEmail = input.email.toLowerCase().trim();
+    let user = dbStore.users.find((u) => u.email?.toLowerCase() === normalizedEmail);
+    let isNewUser = false;
+
+    if (!user) {
+      try {
+        const dbUser = await prisma.user.findFirst({
+          where: { email: { equals: normalizedEmail, mode: 'insensitive' } },
+          include: { roles: true },
+        });
+        if (dbUser) {
+          user = {
+            id: dbUser.id,
+            phone: dbUser.phone || '',
+            email: dbUser.email,
+            passwordHash: dbUser.passwordHash,
+            fullName: dbUser.fullName,
+            avatarUrl: dbUser.avatarUrl,
+            preferredLanguage: dbUser.preferredLanguage,
+            status: dbUser.status as any,
+            isPhoneVerified: dbUser.isPhoneVerified,
+            isEmailVerified: dbUser.isEmailVerified,
+            createdAt: dbUser.createdAt,
+            updatedAt: dbUser.updatedAt,
+          };
+          dbStore.users.push(user);
+          for (const r of dbUser.roles) {
+            dbStore.userRoles.push({
+              id: r.id,
+              userId: r.userId,
+              role: r.role as any,
+              createdAt: r.createdAt,
+            });
+          }
+        }
+      } catch (err: any) {
+        console.error('[Neon DB Error]:', err.message);
+      }
+    }
+
+    if (!user) {
+      isNewUser = true;
+      const userId = uuidv4();
+      const defaultPasswordHash = await SecurityUtils.hashPassword(uuidv4());
+      const now = new Date();
+
+      user = {
+        id: userId,
+        phone: `+91-GOOGLE-${userId.slice(0, 8)}`,
+        email: normalizedEmail,
+        passwordHash: defaultPasswordHash,
+        fullName: input.fullName.trim(),
+        avatarUrl: input.avatarUrl || null,
+        preferredLanguage: 'en',
+        status: AccountStatus.ACTIVE,
+        isPhoneVerified: false,
+        isEmailVerified: true,
+        createdAt: now,
+        updatedAt: now,
+      };
+      dbStore.users.push(user);
+
+      dbStore.userRoles.push({
+        id: uuidv4(),
+        userId,
+        role: input.role,
+        createdAt: now,
+      });
+
+      const walletId = uuidv4();
+      dbStore.wallets.push({
+        id: walletId,
+        userId,
+        monetaryBalanceINR: 0,
+        rewardPointsBalance: 50,
+        updatedAt: now,
+      });
+
+      try {
+        await prisma.user.create({
+          data: {
+            id: userId,
+            email: normalizedEmail,
+            phone: user.phone,
+            passwordHash: defaultPasswordHash,
+            fullName: user.fullName,
+            avatarUrl: user.avatarUrl,
+            preferredLanguage: 'en',
+            status: 'ACTIVE',
+            isPhoneVerified: false,
+            isEmailVerified: true,
+            roles: {
+              create: {
+                role: input.role,
+              },
+            },
+            wallet: {
+              create: {
+                monetaryBalanceINR: 0,
+                rewardPointsBalance: 50,
+              },
+            },
+          },
+        });
+        console.log(`[Neon DB Sync] Persisted Google user ${normalizedEmail} to Neon PostgreSQL!`);
+      } catch (dbErr: any) {
+        console.error('[Neon DB Error] Failed to persist Google user:', dbErr.message);
+      }
+    }
+
+    const roles = dbStore.userRoles.filter((r) => r.userId === user!.id).map((r) => r.role);
+    const sessionPayload: UserSessionPayload = {
+      userId: user.id,
+      phone: user.phone,
+      email: user.email,
+      roles,
+      fullName: user.fullName,
+    };
+
+    const accessToken = SecurityUtils.generateAccessToken(sessionPayload);
+    const refreshToken = SecurityUtils.generateRefreshToken({ userId: user.id });
+
+    return {
+      user: {
+        id: user.id,
+        phone: user.phone,
+        email: user.email,
+        fullName: user.fullName,
+        preferredLanguage: user.preferredLanguage,
+        status: user.status,
+      },
+      roles,
+      accessToken,
+      refreshToken,
+      isNewUser,
+    };
   }
 
   public async getMe(userId: string) {

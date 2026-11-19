@@ -1,7 +1,42 @@
 import { createApp } from './app';
 import { envConfig } from './config/env.config';
+import { prisma } from './config/prisma';
+import { dbStore } from './config/database';
 
-const bootstrap = () => {
+const syncNeon = async () => {
+  if (!envConfig.databaseUrl) return;
+  try {
+    const adminEmail = 'admin@legalmarketplace.gov.in';
+    const existing = await prisma.user.findFirst({ where: { email: adminEmail } });
+    if (!existing) {
+      const admin = dbStore.users.find((u) => u.email === adminEmail);
+      if (admin) {
+        await prisma.user.create({
+          data: {
+            id: admin.id,
+            email: admin.email,
+            phone: admin.phone,
+            passwordHash: admin.passwordHash,
+            fullName: admin.fullName,
+            preferredLanguage: admin.preferredLanguage,
+            status: 'ACTIVE',
+            isPhoneVerified: true,
+            isEmailVerified: true,
+            roles: {
+              create: [{ role: 'ADMIN' }, { role: 'VERIFIER' }],
+            },
+          },
+        });
+        console.log('⚡ [Neon Database] Initialized default Admin user in Neon PostgreSQL.');
+      }
+    }
+  } catch (err: any) {
+    console.warn('⚠️ [Neon Database] Startup sync notice:', err.message);
+  }
+};
+
+const bootstrap = async () => {
+  await syncNeon();
   const app = createApp();
   const server = app.listen(envConfig.port, () => {
     console.log('================================================================');

@@ -7,6 +7,7 @@ import {
   registerSchema,
   loginWithPasswordSchema,
   refreshTokenSchema,
+  googleAuthSchema,
 } from './auth.dto';
 import { ApiResponseUtils } from '../../common/utils/api-response.utils';
 import { authenticateJwt } from '../../common/middleware/auth.middleware';
@@ -76,6 +77,22 @@ authRouter.post('/login', async (req: Request, res: Response, next: NextFunction
   } catch (error: any) {
     if (error instanceof ZodError) return next(error);
     ApiResponseUtils.badRequest(res, error.message || 'Login failed');
+  }
+});
+
+/**
+ * @route   POST /api/v1/auth/google
+ * @desc    Authenticate with Google Sign-In (Citizen or LSP)
+ * @access  Public
+ */
+authRouter.post('/google', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const validatedData = googleAuthSchema.parse(req.body);
+    const result = await authService.googleAuth(validatedData);
+    ApiResponseUtils.success(res, result, 'Google authentication successful');
+  } catch (error: any) {
+    if (error instanceof ZodError) return next(error);
+    ApiResponseUtils.badRequest(res, error.message || 'Google authentication failed');
   }
 });
 
