@@ -3,12 +3,15 @@ import path from 'path';
 
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
+const DEFAULT_NEON_DB_URL =
+  'postgresql://neondb_owner:npg_MYs4BmpHL0Ed@ep-blue-credit-bdfp4ylx-pooler.c-8.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require';
+
 export const envConfig = {
   port: parseInt(process.env.PORT || '5000', 10),
   nodeEnv: process.env.NODE_ENV || 'development',
   appName: process.env.APP_NAME || 'Incentive-Based Legal Marketplace India',
   apiPrefix: process.env.API_PREFIX || '/api/v1',
-  databaseUrl: process.env.DATABASE_URL || '',
+  databaseUrl: process.env.DATABASE_URL || DEFAULT_NEON_DB_URL,
   jwt: {
     secret: process.env.JWT_SECRET || process.env.JWT_ACCESS_SECRET || 'legaltech_dev_access_secret_2026',
     accessSecret: process.env.JWT_ACCESS_SECRET || process.env.JWT_SECRET || 'legaltech_dev_access_secret_2026',
