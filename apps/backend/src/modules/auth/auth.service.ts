@@ -52,7 +52,7 @@ export class AuthService {
         cleanMobile = `91${cleanMobile.slice(1)}`;
       }
 
-      const url = `https://control.msg91.com/api/v5/otp?template_id=${encodeURIComponent(envConfig.msg91.templateId)}&mobile=${encodeURIComponent(cleanMobile)}&otp=${encodeURIComponent(otpCode)}`;
+      const url = `https://control.msg91.com/api/v5/otp?template_id=${encodeURIComponent(envConfig.msg91.templateId)}&mobile=${encodeURIComponent(cleanMobile)}&authkey=${encodeURIComponent(envConfig.msg91.authKey)}&otp=${encodeURIComponent(otpCode)}&otp_length=6&otp_expiry=10`;
 
       console.log(`[MSG91 Gateway] Dispatching OTP ${otpCode} to ${cleanMobile}...`);
       const response = await fetch(url, {
@@ -62,6 +62,12 @@ export class AuthService {
           'Content-Type': 'application/json',
           Accept: 'application/json',
         },
+        body: JSON.stringify({
+          otp: otpCode,
+          OTP: otpCode,
+          var1: otpCode,
+          code: otpCode,
+        }),
       });
 
       const resData = (await response.json()) as any;
@@ -223,6 +229,56 @@ export class AuthService {
     // Check unique constraints
     const existingPhone = dbStore.users.find((u) => u.phone === formattedPhone);
     if (existingPhone) {
+      // If the user was auto-created during OTP login without completing profile, upgrade it
+      if (existingPhone.fullName.startsWith('Citizen-')) {
+        existingPhone.fullName = input.fullName.trim();
+        existingPhone.passwordHash = await SecurityUtils.hashPassword(input.password);
+        existingPhone.email = input.email ? input.email.toLowerCase().trim() : existingPhone.email;
+        existingPhone.preferredLanguage = input.preferredLanguage;
+        existingPhone.updatedAt = new Date();
+
+        if (input.role === RoleType.LSP) {
+          existingPhone.status = AccountStatus.PENDING_VERIFICATION;
+          const hasLspRole = dbStore.userRoles.some((r) => r.userId === existingPhone.id && r.role === RoleType.LSP);
+          if (!hasLspRole) {
+            dbStore.userRoles.push({
+              id: uuidv4(),
+              userId: existingPhone.id,
+              role: RoleType.LSP,
+              createdAt: new Date(),
+            });
+          }
+        }
+
+        const roles = dbStore.userRoles.filter((r) => r.userId === existingPhone.id).map((r) => r.role);
+        const providerProfile = dbStore.providerProfiles.find((p) => p.userId === existingPhone.id);
+
+        const sessionPayload: UserSessionPayload = {
+          userId: existingPhone.id,
+          phone: formattedPhone,
+          email: existingPhone.email,
+          roles,
+          fullName: existingPhone.fullName,
+          providerProfileId: providerProfile?.id,
+        };
+
+        const accessToken = SecurityUtils.generateAccessToken(sessionPayload);
+        const refreshToken = SecurityUtils.generateRefreshToken({ userId: existingPhone.id });
+
+        return {
+          user: {
+            id: existingPhone.id,
+            phone: existingPhone.phone,
+            email: existingPhone.email,
+            fullName: existingPhone.fullName,
+            preferredLanguage: existingPhone.preferredLanguage,
+            status: existingPhone.status,
+          },
+          roles,
+          accessToken,
+          refreshToken,
+        };
+      }
       throw new Error('A user with this mobile number already exists. Please log in.');
     }
 

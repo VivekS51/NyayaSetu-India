@@ -2,19 +2,25 @@ import { z } from 'zod';
 import { RoleType } from '../../common/types';
 
 export const sendOtpSchema = z.object({
-  phone: z
-    .string()
-    .min(10, 'Phone number must be at least 10 digits')
-    .max(15, 'Phone number format invalid')
-    .regex(/^(\+91[\-\s]?)?[0]?(91)?[6789]\d{9}$/, 'Invalid Indian mobile number (+91 format)'),
+  phone: z.preprocess(
+    (val) => (typeof val === 'string' ? val.replace(/[\s\-\(\)]/g, '') : val),
+    z
+      .string()
+      .min(10, 'Phone number must be at least 10 digits')
+      .max(15, 'Phone number format invalid')
+      .regex(/^(\+91)?[0]?(91)?[6789]\d{9}$/, 'Invalid Indian mobile number (+91 format)')
+  ),
   purpose: z.enum(['LOGIN', 'REGISTER', 'VERIFY_PHONE']).default('LOGIN'),
 });
 
 export const verifyOtpSchema = z.object({
-  phone: z
-    .string()
-    .min(10, 'Phone number required')
-    .regex(/^(\+91[\-\s]?)?[0]?(91)?[6789]\d{9}$/, 'Invalid Indian mobile number'),
+  phone: z.preprocess(
+    (val) => (typeof val === 'string' ? val.replace(/[\s\-\(\)]/g, '') : val),
+    z
+      .string()
+      .min(10, 'Phone number required')
+      .regex(/^(\+91)?[0]?(91)?[6789]\d{9}$/, 'Invalid Indian mobile number')
+  ),
   otp: z
     .string()
     .length(6, 'OTP must be exactly 6 digits')
@@ -26,10 +32,20 @@ export const registerSchema = z.object({
     .string()
     .min(3, 'Full name must be at least 3 characters')
     .max(100, 'Full name cannot exceed 100 characters'),
-  phone: z
+  phone: z.preprocess(
+    (val) => (typeof val === 'string' ? val.replace(/[\s\-\(\)]/g, '') : val),
+    z
+      .string()
+      .min(10, 'Phone number required')
+      .regex(/^(\+91)?[0]?(91)?[6789]\d{9}$/, 'Invalid Indian mobile number')
+  ),
+  email: z
     .string()
-    .regex(/^(\+91[\-\s]?)?[0]?(91)?[6789]\d{9}$/, 'Invalid Indian mobile number'),
-  email: z.string().email('Invalid email address').optional(),
+    .trim()
+    .email('Invalid email address')
+    .optional()
+    .or(z.literal(''))
+    .nullable(),
   password: z
     .string()
     .min(8, 'Password must be at least 8 characters')
@@ -62,7 +78,10 @@ export const passwordResetRequestSchema = z.object({
 });
 
 export const passwordResetConfirmSchema = z.object({
-  phone: z.string().regex(/^(\+91[\-\s]?)?[0]?(91)?[6789]\d{9}$/, 'Invalid Indian mobile number'),
+  phone: z.preprocess(
+    (val) => (typeof val === 'string' ? val.replace(/[\s\-\(\)]/g, '') : val),
+    z.string().regex(/^(\+91)?[0]?(91)?[6789]\d{9}$/, 'Invalid Indian mobile number')
+  ),
   otp: z.string().length(6, 'OTP must be exactly 6 digits').regex(/^\d{6}$/, 'OTP must be numeric'),
   newPassword: z
     .string()

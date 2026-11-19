@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ApiClient, API_BASE_URL } from '../../../lib/api-client';
+import { ApiClient, getApiBaseUrl } from '../../../lib/api-client';
 import { Scale, Phone, KeyRound, ArrowRight, ShieldCheck, AlertCircle } from 'lucide-react';
 
 export default function LoginPage() {
@@ -35,17 +35,19 @@ export default function LoginPage() {
   const handleSendOtp = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     setErrorMsg(null);
-    if (!phone || phone.length < 10) {
+    const cleanPhone = phone.replace(/[\s\-\(\)]/g, '');
+    if (!cleanPhone || cleanPhone.length < 10) {
       setErrorMsg('Please enter a valid 10-digit Indian mobile number');
       return;
     }
 
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/auth/otp/send`, {
+      const baseUrl = getApiBaseUrl();
+      const res = await fetch(`${baseUrl}/auth/otp/send`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone }),
+        body: JSON.stringify({ phone: cleanPhone }),
       });
       const data = await res.json();
       if (data.success) {
@@ -70,12 +72,14 @@ export default function LoginPage() {
       return;
     }
 
+    const cleanPhone = phone.replace(/[\s\-\(\)]/g, '');
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/auth/otp/verify`, {
+      const baseUrl = getApiBaseUrl();
+      const res = await fetch(`${baseUrl}/auth/otp/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone, otp }),
+        body: JSON.stringify({ phone: cleanPhone, otp: otp.trim() }),
       });
       const data = await res.json();
 
@@ -104,10 +108,11 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const res = await fetch(`${API_BASE_URL}/auth/login`, {
+      const baseUrl = getApiBaseUrl();
+      const res = await fetch(`${baseUrl}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ identifier: passwordEmail, password }),
+        body: JSON.stringify({ identifier: passwordEmail.trim(), password }),
       });
       const data = await res.json();
 
@@ -122,7 +127,7 @@ export default function LoginPage() {
           router.push('/providers');
         }
       } else {
-        setErrorMsg(data.message || 'Invalid login credentials. Please check your email and password.');
+        setErrorMsg(data.message || 'Invalid login credentials. Please check your identifier and password.');
       }
     } catch {
       setErrorMsg('Connection error. Unable to verify credentials with authentication server.');
@@ -247,7 +252,16 @@ export default function LoginPage() {
                     <p>Enter the 6-digit verification code sent to <strong className="text-slate-900">+91 {phone}</strong>.</p>
                   </div>
                   <div className="flex justify-between items-center text-xs text-slate-500 pt-1">
-                    <span>Didn&apos;t receive SMS?</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAuthMode('PASSWORD');
+                        setPasswordEmail(phone);
+                      }}
+                      className="text-slate-600 font-semibold hover:text-saffron-600 underline"
+                    >
+                      Sign in with password instead
+                    </button>
                     {resendCooldown > 0 ? (
                       <span className="text-slate-400 font-medium">Resend in {resendCooldown}s</span>
                     ) : (
@@ -276,13 +290,13 @@ export default function LoginPage() {
             <form onSubmit={handlePasswordLogin} className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Email or Mobile Number
+                  Mobile Number or Email
                 </label>
                 <input
                   type="text"
                   value={passwordEmail}
                   onChange={(e) => setPasswordEmail(e.target.value)}
-                  placeholder="admin@legalmarketplace.gov.in"
+                  placeholder="e.g. 9876543210 or counsel@bar.org.in"
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-saffron-500 focus:outline-none"
                   required
                 />

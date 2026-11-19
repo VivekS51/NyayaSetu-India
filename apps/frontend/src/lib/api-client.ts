@@ -233,14 +233,22 @@ export interface AuditLogItem {
   createdAt: string;
 }
 
-const resolveApiBaseUrl = (): string => {
+export const getApiBaseUrl = (): string => {
+  // If explicitly configured with a non-localhost remote URL, use that
   const envUrl = process.env.NEXT_PUBLIC_API_URL?.trim();
-  if (!envUrl) return 'http://localhost:5000/api/v1';
-  const clean = envUrl.replace(/\/+$/, '');
-  return clean.endsWith('/api/v1') ? clean : `${clean}/api/v1`;
+  if (envUrl && !envUrl.includes('localhost:5000') && !envUrl.includes('127.0.0.1:5000')) {
+    const clean = envUrl.replace(/\/+$/, '');
+    return clean.endsWith('/api/v1') ? clean : `${clean}/api/v1`;
+  }
+  // When running in the browser on a deployed domain (like *.vercel.app or custom domain),
+  // use relative '/api/v1' so requests are proxied by Next.js rewrites with zero CORS issues
+  if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+    return '/api/v1';
+  }
+  return 'http://localhost:5000/api/v1';
 };
 
-export const API_BASE_URL = resolveApiBaseUrl();
+export const API_BASE_URL = getApiBaseUrl();
 
 export class ApiClient {
   public static getToken(): string | null {

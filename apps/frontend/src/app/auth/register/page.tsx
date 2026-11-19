@@ -3,8 +3,8 @@
 import React, { useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ApiClient, API_BASE_URL } from '../../../lib/api-client';
-import { Scale, ShieldCheck, UserCheck, Briefcase, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { ApiClient, getApiBaseUrl } from '../../../lib/api-client';
+import { Scale, ShieldCheck, UserCheck, Briefcase, AlertCircle, CheckCircle2, Lock } from 'lucide-react';
 
 function RegisterForm() {
   const router = useRouter();
@@ -31,15 +31,29 @@ function RegisterForm() {
       return;
     }
 
+    const cleanPhone = phone.replace(/[\s\-\(\)]/g, '');
+    if (!cleanPhone || cleanPhone.length < 10) {
+      setErrorMsg('Please enter a valid 10-digit Indian mobile number.');
+      return;
+    }
+
+    if (password.length < 8) {
+      setErrorMsg('Password must be at least 8 characters long.');
+      return;
+    }
+
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/auth/register`, {
+      const baseUrl = getApiBaseUrl();
+      const cleanEmail = email.trim() ? email.trim().toLowerCase() : undefined;
+
+      const res = await fetch(`${baseUrl}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          fullName,
-          phone,
-          email: email || undefined,
+          fullName: fullName.trim(),
+          phone: cleanPhone,
+          email: cleanEmail,
           password,
           role,
           preferredLanguage,
@@ -56,7 +70,8 @@ function RegisterForm() {
           router.push('/providers');
         }
       } else {
-        setErrorMsg(data.message || 'Registration failed');
+        const errorDetail = data.errors?.[0]?.message || data.message || 'Registration failed';
+        setErrorMsg(errorDetail);
       }
     } catch (err: any) {
       console.error('Registration network error:', err);
@@ -106,7 +121,16 @@ function RegisterForm() {
       {errorMsg && (
         <div className="mb-4 p-3 rounded-xl bg-rose-50 border border-rose-200 flex items-start space-x-2 text-rose-700 text-xs">
           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-          <span>{errorMsg}</span>
+          <div className="flex-1">
+            <span>{errorMsg}</span>
+            {errorMsg.toLowerCase().includes('already exists') && (
+              <div className="mt-1">
+                <Link href="/auth/login" className="font-bold underline text-rose-800">
+                  Click here to Sign In with your password →
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
@@ -149,15 +173,18 @@ function RegisterForm() {
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1">Password</label>
+          <label className="block text-xs font-semibold text-slate-700 mb-1">Create Password</label>
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="Min. 8 chars, 1 uppercase, 1 number"
+            placeholder="e.g. NyayaSetu@2026"
             className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-saffron-500 focus:outline-none"
             required
           />
+          <p className="text-[11px] text-slate-500 mt-1">
+            Min. 8 characters with 1 uppercase, 1 lowercase, 1 number, and 1 special symbol (@, #, $, !).
+          </p>
         </div>
 
         <div>
