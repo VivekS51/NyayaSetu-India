@@ -156,26 +156,26 @@ export default function HomePage() {
             </div>
 
             {/* Right Column: Prominent Lady Justice in Gold & Blue + Glass Assistant Card */}
-            <div className="lg:col-span-6 xl:col-span-6 relative flex items-end justify-center lg:justify-end min-h-[380px] sm:min-h-[420px] lg:min-h-[460px] xl:min-h-[500px] select-none">
+            <div className="lg:col-span-6 xl:col-span-6 relative flex items-end justify-center min-h-[420px] sm:min-h-[460px] lg:min-h-[520px] xl:min-h-[580px] select-none">
               {/* Radial Cyan & Indigo Glow Spotlight behind Lady Justice */}
-              <div className="absolute inset-0 flex items-center justify-center lg:justify-end pointer-events-none -z-10">
-                <div className="w-[420px] h-[460px] lg:w-[480px] lg:h-[520px] bg-gradient-to-tr from-sky-500/25 via-indigo-600/15 to-transparent rounded-full blur-3xl pointer-events-none" />
+              <div className="absolute inset-0 flex items-center justify-center lg:-translate-x-10 xl:-translate-x-14 pointer-events-none -z-10">
+                <div className="w-[480px] h-[520px] lg:w-[560px] lg:h-[600px] bg-gradient-to-tr from-sky-500/25 via-indigo-600/15 to-transparent rounded-full blur-3xl pointer-events-none" />
               </div>
 
-              {/* Lady Justice Character Image (Cleanly isolated, zero wave glitch, crisp aspect ratio) */}
-              <div className="relative z-10 flex items-end justify-center lg:justify-end w-full">
+              {/* Lady Justice Character Image (Enlarged and positioned at the indicated small character spot) */}
+              <div className="relative z-10 flex items-end justify-center w-full lg:-translate-x-10 xl:-translate-x-14">
                 <Image
                   src="/images/lady-justice.png"
                   alt="Statue of Lady Justice - NyayaSetu India"
                   width={850}
                   height={1260}
                   priority
-                  className="h-[360px] sm:h-[420px] lg:h-[460px] xl:h-[510px] 2xl:h-[560px] max-h-[66vh] w-auto object-contain object-bottom drop-shadow-[0_20px_50px_rgba(0,0,0,0.95)] drop-shadow-[0_0_35px_rgba(56,189,248,0.25)]"
+                  className="h-[420px] sm:h-[480px] lg:h-[530px] xl:h-[590px] 2xl:h-[650px] max-h-[74vh] w-auto object-contain object-bottom drop-shadow-[0_25px_60px_rgba(0,0,0,0.95)] drop-shadow-[0_0_40px_rgba(56,189,248,0.25)]"
                 />
               </div>
 
               {/* Floating Glassmorphic Card (Center-Left): Interactive Citizen Justice Desk */}
-              <div className="absolute bottom-1 sm:bottom-2 lg:bottom-3 left-0 sm:-left-3 lg:-left-6 sm:w-[275px] lg:w-[295px] backdrop-blur-2xl bg-slate-950/90 border border-sky-500/40 rounded-2xl p-2.5 sm:p-3 shadow-[0_20px_50px_rgba(0,0,0,0.95)] z-20 text-left">
+              <div className="absolute bottom-1 sm:bottom-2 lg:bottom-3 left-0 sm:-left-4 lg:-left-12 sm:w-[280px] lg:w-[305px] backdrop-blur-2xl bg-slate-950/90 border border-sky-500/40 rounded-2xl p-2.5 sm:p-3 shadow-[0_20px_50px_rgba(0,0,0,0.95)] z-20 text-left">
                 <div className="flex items-center space-x-2 text-sky-400 text-xs font-bold mb-1">
                   <Sparkles className="w-3.5 h-3.5 text-sky-400" />
                   <span>Citizen Legal Assistant</span>
