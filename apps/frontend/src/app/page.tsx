@@ -156,13 +156,13 @@ export default function HomePage() {
             </div>
 
             {/* Right Column: Prominent Lady Justice in Gold & Blue + Glass Assistant Card */}
-            <div className="lg:col-span-6 xl:col-span-6 relative flex items-end justify-center min-h-[420px] sm:min-h-[460px] lg:min-h-[520px] xl:min-h-[580px] select-none">
+            <div className="lg:col-span-6 xl:col-span-6 relative flex items-end justify-center min-h-[460px] sm:min-h-[520px] lg:min-h-[calc(100vh-120px)] xl:min-h-[calc(100vh-115px)] select-none">
               {/* Radial Cyan & Indigo Glow Spotlight behind Lady Justice */}
               <div className="absolute inset-0 flex items-center justify-center lg:-translate-x-10 xl:-translate-x-14 pointer-events-none -z-10">
-                <div className="w-[480px] h-[520px] lg:w-[560px] lg:h-[600px] bg-gradient-to-tr from-sky-500/25 via-indigo-600/15 to-transparent rounded-full blur-3xl pointer-events-none" />
+                <div className="w-[520px] h-[580px] lg:w-[620px] lg:h-[700px] bg-gradient-to-tr from-sky-500/30 via-indigo-600/20 to-transparent rounded-full blur-3xl pointer-events-none" />
               </div>
 
-              {/* Lady Justice Character Image (Enlarged and positioned at the indicated small character spot) */}
+              {/* Lady Justice Character Image (Enlarged to fit from navbar to bottom) */}
               <div className="relative z-10 flex items-end justify-center w-full lg:-translate-x-10 xl:-translate-x-14">
                 <Image
                   src="/images/lady-justice.png"
@@ -170,7 +170,7 @@ export default function HomePage() {
                   width={850}
                   height={1260}
                   priority
-                  className="h-[420px] sm:h-[480px] lg:h-[530px] xl:h-[590px] 2xl:h-[650px] max-h-[74vh] w-auto object-contain object-bottom drop-shadow-[0_25px_60px_rgba(0,0,0,0.95)] drop-shadow-[0_0_40px_rgba(56,189,248,0.25)]"
+                  className="h-[460px] sm:h-[520px] lg:h-[calc(100vh-120px)] xl:h-[calc(100vh-115px)] max-h-[850px] w-auto object-contain object-bottom drop-shadow-[0_25px_60px_rgba(0,0,0,0.95)] drop-shadow-[0_0_45px_rgba(56,189,248,0.30)]"
                 />
               </div>
 
