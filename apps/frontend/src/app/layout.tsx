@@ -2,6 +2,7 @@ import React from 'react';
 import type { Metadata } from 'next';
 import Script from 'next/script';
 import './globals.css';
+import { ThemeProvider } from '../lib/theme';
 import { I18nProvider } from '../lib/i18n';
 import { Navbar } from '../components/layout/Navbar';
 import { Footer } from '../components/layout/Footer';
@@ -22,11 +23,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className="antialiased flex flex-col min-h-screen">
-        <I18nProvider>
-          <Navbar />
-          <main className="flex-grow">{children}</main>
-          <Footer />
-        </I18nProvider>
+        <ThemeProvider>
+          <I18nProvider>
+            <Navbar />
+            <main className="flex-grow">{children}</main>
+            <Footer />
+          </I18nProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

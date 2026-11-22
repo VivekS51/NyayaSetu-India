@@ -88,7 +88,9 @@ export const ConstellationField: React.FC<ConstellationFieldProps> = ({
 
     const getColors = () => {
       if (palette === 'saffron') {
-        return ['#ff9933', '#f59e0b', '#fbbf24', '#ffedd5'];
+        return isDark
+          ? ['#ff9933', '#f59e0b', '#fbbf24', '#ffedd5']
+          : ['#ea580c', '#d97706', '#b45309', '#475569'];
       }
       if (palette === 'emerald') {
         return ['#10b981', '#059669', '#34d399', '#a7f3d0'];

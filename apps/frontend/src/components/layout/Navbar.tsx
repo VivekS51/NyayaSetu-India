@@ -26,13 +26,17 @@ import {
   Phone,
   Mail,
   Users2,
+  Sun,
+  Moon,
 } from 'lucide-react';
+import { useTheme } from '../../lib/theme';
 import { createTopDockController } from '../../shaders/animated-top-dock/topDockController';
 import "../../shaders/threeui.css";
 
 export const Navbar: React.FC = () => {
   const pathname = usePathname();
   const { t, language, setLanguage } = useI18n();
+  const { theme, toggleTheme } = useTheme();
   const [currentUser, setCurrentUser] = useState<any | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [notifDropdownOpen, setNotifDropdownOpen] = useState(false);
@@ -165,8 +169,8 @@ export const Navbar: React.FC = () => {
               <Scale className="w-3.5 h-3.5 text-white group-hover:scale-105 transition-transform" />
             </div>
             <div className="flex items-center space-x-1.5">
-              <span className="text-xs font-bold tracking-tight text-white font-sans">{t.nav.brand}</span>
-              <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-semibold hidden xl:inline-block font-sans">
+              <span className="text-xs font-bold tracking-tight text-slate-900 dark:text-white font-sans">{t.nav.brand}</span>
+              <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 font-semibold hidden xl:inline-block font-sans">
                 National Portal
               </span>
             </div>
@@ -177,14 +181,25 @@ export const Navbar: React.FC = () => {
             className="hidden lg:inline-flex portal-dock-track"
             aria-label="Primary Navigation"
           >
-            <Link
-              href="/"
-              className={`animated-top-dock__item animated-top-dock__logo ${pathname === '/' ? 'is-active ring-2 ring-saffron-500' : ''}`}
+            {/* Light / Dark Mode Toggle Button */}
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className={`animated-top-dock__item animated-top-dock__logo transition-all ring-2 ${
+                theme === 'dark'
+                  ? 'ring-amber-500/60 hover:ring-amber-400 bg-amber-500/10'
+                  : 'ring-saffron-500/70 hover:ring-saffron-500 bg-saffron-500/10'
+              }`}
               data-dock-item
-              aria-label="Home"
+              aria-label={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+              title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
             >
-              <Scale className="w-3.5 h-3.5 text-govnavy-900" />
-            </Link>
+              {theme === 'dark' ? (
+                <Sun className="w-3.5 h-3.5 text-amber-400 transition-transform group-hover:rotate-45" />
+              ) : (
+                <Moon className="w-3.5 h-3.5 text-amber-600 transition-transform group-hover:-rotate-12" />
+              )}
+            </button>
 
             <Link
               href="/providers"
@@ -326,7 +341,7 @@ export const Navbar: React.FC = () => {
             </div>
 
             {/* Language Selector with ThreeUI animation */}
-            <div className="flex items-center bg-slate-950/70 rounded-full p-0.5 border border-govnavy-700/80">
+            <div className="flex items-center bg-slate-100/90 dark:bg-slate-950/70 rounded-full p-0.5 border border-slate-300 dark:border-govnavy-700/80">
               <span className="pl-1.5 pr-0.5 text-slate-400 flex items-center">
                 <Globe className="w-3 h-3" />
               </span>
@@ -507,22 +522,41 @@ export const Navbar: React.FC = () => {
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="lg:hidden bg-slate-950/95 border-t border-slate-800 px-4 py-4 space-y-3 backdrop-blur-2xl animate-in slide-in-from-top-2">
+        <div className="lg:hidden bg-white/95 dark:bg-slate-950/95 border-t border-slate-200 dark:border-slate-800 px-4 py-4 space-y-3 backdrop-blur-2xl animate-in slide-in-from-top-2 text-slate-800 dark:text-slate-200 shadow-2xl rounded-b-2xl">
+          {/* Mobile Theme Switcher Toggle */}
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="w-full flex items-center justify-between px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-xs font-bold transition-colors"
+          >
+            <div className="flex items-center space-x-2">
+              {theme === 'dark' ? (
+                <Sun className="w-4 h-4 text-amber-400" />
+              ) : (
+                <Moon className="w-4 h-4 text-amber-600" />
+              )}
+              <span>Color Mode</span>
+            </div>
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-500/20 text-amber-700 dark:text-amber-300">
+              {theme === 'dark' ? 'Dark Mode' : 'Light Mode'}
+            </span>
+          </button>
+
           {currentUser ? (
-            <div className="p-3 bg-govnavy-800 rounded-xl border border-govnavy-700 mb-3 space-y-2">
+            <div className="p-3 bg-slate-100 dark:bg-govnavy-800 rounded-xl border border-slate-300 dark:border-govnavy-700 mb-3 space-y-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <div className="w-7 h-7 rounded-full bg-saffron-500 text-white flex items-center justify-center font-bold text-xs">
                     {currentUser.fullName ? currentUser.fullName.charAt(0).toUpperCase() : 'U'}
                   </div>
                   <div>
-                    <div className="text-xs font-bold text-white">{currentUser.fullName}</div>
-                    <div className="text-[10px] text-slate-400">{currentUser.phone || currentUser.email}</div>
+                    <div className="text-xs font-bold text-slate-900 dark:text-white">{currentUser.fullName}</div>
+                    <div className="text-[10px] text-slate-500 dark:text-slate-400">{currentUser.phone || currentUser.email}</div>
                   </div>
                 </div>
                 <button
                   onClick={handleLogout}
-                  className="p-1.5 rounded-lg bg-rose-500/10 text-rose-400 text-xs"
+                  className="p-1.5 rounded-lg bg-rose-500/10 text-rose-500 text-xs"
                   title="Logout"
                 >
                   <LogOut className="w-3.5 h-3.5" />
@@ -539,7 +573,7 @@ export const Navbar: React.FC = () => {
                 <Link
                   href={currentUser.roles?.includes('LSP') ? '/lsp/dashboard' : '/citizen/dashboard'}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex-1 py-1.5 bg-govnavy-700 text-slate-200 text-center rounded-lg text-xs font-bold"
+                  className="flex-1 py-1.5 bg-slate-200 dark:bg-govnavy-700 text-slate-800 dark:text-slate-200 text-center rounded-lg text-xs font-bold"
                 >
                   Dashboard
                 </Link>
@@ -550,7 +584,7 @@ export const Navbar: React.FC = () => {
               <Link
                 href="/auth/login"
                 onClick={() => setMobileMenuOpen(false)}
-                className="py-2 bg-govnavy-800 border border-govnavy-700 rounded-lg text-center text-xs font-bold text-slate-200"
+                className="py-2 bg-slate-100 dark:bg-govnavy-800 border border-slate-300 dark:border-govnavy-700 rounded-lg text-center text-xs font-bold text-slate-800 dark:text-slate-200"
               >
                 Sign In
               </Link>
@@ -567,40 +601,40 @@ export const Navbar: React.FC = () => {
           <Link
             href="/providers"
             onClick={() => setMobileMenuOpen(false)}
-            className="block text-sm font-medium text-slate-200 py-1"
+            className="block text-sm font-medium text-slate-700 dark:text-slate-200 py-1"
           >
             {t.nav.findProvider}
           </Link>
           <Link
             href="/onboarding"
             onClick={() => setMobileMenuOpen(false)}
-            className="block text-sm font-medium text-slate-200 py-1"
+            className="block text-sm font-medium text-slate-700 dark:text-slate-200 py-1"
           >
             {t.nav.forAdvocates}
           </Link>
           <Link
             href="/rewards"
             onClick={() => setMobileMenuOpen(false)}
-            className="block text-sm font-medium text-slate-200 py-1"
+            className="block text-sm font-medium text-slate-700 dark:text-slate-200 py-1"
           >
             Incentives & Tier Catalog
           </Link>
           <Link
             href="/admin"
             onClick={() => setMobileMenuOpen(false)}
-            className="block text-sm font-medium text-saffron-400 py-1"
+            className="block text-sm font-medium text-saffron-600 dark:text-saffron-400 py-1"
           >
             Admin Verification & Dispute Panel
           </Link>
-          <div className="pt-2 border-t border-govnavy-800 flex justify-between items-center">
-            <span className="text-xs text-slate-400">Language:</span>
+          <div className="pt-2 border-t border-slate-200 dark:border-govnavy-800 flex justify-between items-center">
+            <span className="text-xs text-slate-500 dark:text-slate-400">Language:</span>
             <div className="flex space-x-1">
               {(['en', 'hi', 'pa'] as Language[]).map((lang) => (
                 <button
                   key={lang}
                   onClick={() => setLanguage(lang)}
                   className={`px-2 py-1 text-xs rounded font-semibold ${
-                    language === lang ? 'bg-saffron-600 text-white' : 'bg-govnavy-800 text-slate-300'
+                    language === lang ? 'bg-saffron-600 text-white' : 'bg-slate-200 dark:bg-govnavy-800 text-slate-700 dark:text-slate-300'
                   }`}
                 >
                   {lang.toUpperCase()}
