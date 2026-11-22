@@ -69,7 +69,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto w-full relative z-10 my-auto">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-6 items-center">
             {/* Left Column: Headline, Features, CTAs & Social Proof - Compact & Clean */}
-            <div className="lg:col-span-6 xl:col-span-6 space-y-3 sm:space-y-3.5 text-left relative z-20">
+            <div className="lg:col-span-6 xl:col-span-5 space-y-3 sm:space-y-3.5 text-left relative z-20">
               {/* Badge matching reference */}
               <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-sky-500/10 border border-sky-500/25 text-sky-400 text-xs font-semibold tracking-wide backdrop-blur-md shadow-sm">
                 <Sparkles className="w-3.5 h-3.5 text-sky-400" />
@@ -161,15 +161,15 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Right Column: Prominent Lady Justice in Gold & Blue + Floating Glass Cards */}
-            <div className="lg:col-span-6 xl:col-span-6 relative flex items-center justify-center lg:justify-end min-h-[380px] sm:min-h-[440px] lg:min-h-[480px] select-none">
+            {/* Right Column: Prominent Enlarged Lady Justice in Gold & Blue + Floating Glass Cards */}
+            <div className="lg:col-span-6 xl:col-span-7 relative flex items-end justify-center lg:justify-end min-h-[480px] sm:min-h-[560px] lg:min-h-[640px] xl:min-h-[720px] 2xl:min-h-[800px] select-none">
               {/* Radial Cyan & Indigo Glow Spotlight behind Lady Justice */}
               <div className="absolute inset-0 flex items-center justify-center lg:justify-end pointer-events-none -z-10">
-                <div className="w-[420px] h-[460px] lg:w-[480px] lg:h-[520px] bg-gradient-to-tr from-sky-500/20 via-indigo-600/15 to-transparent rounded-full blur-3xl pointer-events-none" />
+                <div className="w-[560px] h-[600px] lg:w-[700px] lg:h-[750px] xl:w-[820px] xl:h-[860px] bg-gradient-to-tr from-sky-500/25 via-indigo-600/15 to-transparent rounded-full blur-3xl pointer-events-none" />
               </div>
 
               {/* Floating HUD Card 1: Top Right (Matching Legal Research in reference) */}
-              <div className="absolute top-1 right-0 lg:-right-2 backdrop-blur-xl bg-slate-950/80 border border-sky-500/35 rounded-xl px-3 py-2 shadow-xl z-20 hidden sm:flex items-center space-x-2.5 pointer-events-none animate-pulse">
+              <div className="absolute top-2 right-0 lg:-right-2 backdrop-blur-xl bg-slate-950/80 border border-sky-500/35 rounded-xl px-3 py-2 shadow-xl z-20 hidden sm:flex items-center space-x-2.5 pointer-events-none animate-pulse">
                 <div className="w-7 h-7 rounded-lg bg-sky-500/15 border border-sky-500/30 text-sky-400 flex items-center justify-center">
                   <Scale className="w-3.5 h-3.5" />
                 </div>
@@ -180,7 +180,7 @@ export default function HomePage() {
               </div>
 
               {/* Floating HUD Card 2: Lower Right (Matching Document Analysis in reference) */}
-              <div className="absolute bottom-8 right-0 lg:-right-4 backdrop-blur-xl bg-slate-950/80 border border-sky-500/35 rounded-xl px-3 py-2 shadow-xl z-20 hidden sm:flex items-center space-x-2.5 pointer-events-none">
+              <div className="absolute bottom-12 right-0 lg:-right-4 backdrop-blur-xl bg-slate-950/80 border border-sky-500/35 rounded-xl px-3 py-2 shadow-xl z-20 hidden sm:flex items-center space-x-2.5 pointer-events-none">
                 <div className="w-7 h-7 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center">
                   <ShieldCheck className="w-3.5 h-3.5" />
                 </div>
@@ -190,20 +190,20 @@ export default function HomePage() {
                 </div>
               </div>
 
-              {/* Lady Justice Character Image (685x515 aspect ratio) - Safe Height that clears navbar */}
-              <div className="relative z-10 flex items-center justify-center lg:justify-end w-full">
+              {/* Lady Justice Character Image (Enlarged to fit whole landing page hero) */}
+              <div className="relative z-10 flex items-end justify-center lg:justify-end w-full">
                 <Image
                   src="/images/lady-justice.png"
                   alt="Statue of Lady Justice - NyayaSetu India"
-                  width={685}
-                  height={515}
+                  width={1365}
+                  height={1260}
                   priority
-                  className="max-h-[360px] sm:max-h-[410px] lg:max-h-[450px] xl:max-h-[480px] w-auto object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.95)] drop-shadow-[0_0_35px_rgba(56,189,248,0.20)]"
+                  className="h-[480px] sm:h-[560px] lg:h-[640px] xl:h-[720px] 2xl:h-[800px] w-auto max-w-none object-contain object-bottom drop-shadow-[0_25px_60px_rgba(0,0,0,0.95)] drop-shadow-[0_0_45px_rgba(56,189,248,0.25)]"
                 />
               </div>
 
               {/* Floating Glassmorphic Card (Center-Left): Interactive Citizen Justice Desk overlapping character */}
-              <div className="absolute bottom-1 sm:bottom-2 lg:bottom-4 left-0 sm:-left-4 lg:-left-6 sm:w-[285px] lg:w-[310px] backdrop-blur-2xl bg-slate-950/85 border border-sky-500/40 rounded-2xl p-3 shadow-[0_20px_50px_rgba(0,0,0,0.9)] z-20 text-left">
+              <div className="absolute bottom-2 sm:bottom-4 lg:bottom-6 left-0 sm:-left-4 lg:-left-8 sm:w-[290px] lg:w-[320px] backdrop-blur-2xl bg-slate-950/85 border border-sky-500/40 rounded-2xl p-3 sm:p-3.5 shadow-[0_25px_60px_rgba(0,0,0,0.9)] z-20 text-left">
                 <div className="flex items-center space-x-2 text-sky-400 text-xs font-bold mb-1.5">
                   <Sparkles className="w-3.5 h-3.5 text-sky-400" />
                   <span>Citizen Legal Assistant</span>
