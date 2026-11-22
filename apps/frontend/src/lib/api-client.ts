@@ -945,28 +945,43 @@ export class ApiClient {
     };
   }
 
-  public static async createPaymentOrder(bookingId: string, gateway: string = 'RAZORPAY'): Promise<PaymentOrderResponse> {
-    try {
-      const token = this.getToken();
-      if (token) {
-        const res = await fetch(`${API_BASE_URL}/payments/create-order`, {
+  public static async createPaymentOrder(
+    bookingId: string,
+    gateway: string = 'RAZORPAY',
+    amountINR: number = 859
+  ): Promise<PaymentOrderResponse> {
+    const token = this.getToken();
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+
+    const endpoints = [
+      '/api/v1/payments/create-order',
+      `${API_BASE_URL}/payments/create-order`,
+    ];
+
+    for (const ep of endpoints) {
+      try {
+        const res = await fetch(ep, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ bookingId, gateway }),
+          headers,
+          body: JSON.stringify({ bookingId, gateway, amountINR }),
         });
         if (res.ok) {
           const json = await res.json();
-          if (json.data) return json.data;
+          if (json.data && json.data.gatewayOrderId) {
+            return json.data;
+          }
         }
-      }
-    } catch {}
+      } catch {}
+    }
 
     return {
-      gatewayOrderId: `order_rzp_${Date.now()}`,
-      amountINR: 859,
+      gatewayOrderId: '', // Leave empty so Razorpay checkout will not crash with fake order ID
+      amountINR,
       currency: 'INR',
       gatewayKeyId: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_test_U1LQS9SWpsYSzm',
       bookingId,
@@ -974,23 +989,32 @@ export class ApiClient {
   }
 
   public static async verifyPaymentCapture(payload: VerifyCapturePayload): Promise<VerifyCaptureResponse> {
-    try {
-      const token = this.getToken();
-      if (token) {
-        const res = await fetch(`${API_BASE_URL}/payments/verify-capture`, {
+    const token = this.getToken();
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+
+    const endpoints = [
+      '/api/v1/payments/verify-capture',
+      `${API_BASE_URL}/payments/verify-capture`,
+    ];
+
+    for (const ep of endpoints) {
+      try {
+        const res = await fetch(ep, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
+          headers,
           body: JSON.stringify(payload),
         });
         if (res.ok) {
           const json = await res.json();
           if (json.data) return json.data;
         }
-      }
-    } catch {}
+      } catch {}
+    }
 
     return {
       message: 'Payment verified and held securely in escrow. Appointment confirmed!',

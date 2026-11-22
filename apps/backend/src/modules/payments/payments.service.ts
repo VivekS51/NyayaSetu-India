@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 import { v4 as uuidv4 } from 'uuid';
 import { dbStore, PaymentRecord, ConversationRecord, InvoiceRecord } from '../../config/database';
-import { PaymentStatus, BookingStatus, PointsType, RoleType } from '../../common/types';
+import { PaymentStatus, BookingStatus, PointsType, RoleType, PaymentGateway } from '../../common/types';
 import { CreatePaymentOrderInput, VerifyCaptureInput, FailPaymentInput } from './payments.dto';
 import { envConfig } from '../../config/env.config';
 import { notificationsService } from '../notifications/notifications.service';
@@ -19,7 +19,47 @@ export class PaymentsService {
       throw new Error(`Booking is not pending payment (Current status: ${booking.bookingStatus})`);
     }
 
-    const orderId = `order_${input.gateway.toLowerCase()}_${uuidv4().substring(0, 12)}`;
+    let orderId = `order_${input.gateway.toLowerCase()}_${uuidv4().substring(0, 12)}`;
+
+    // If Razorpay gateway is selected and credentials are present, create genuine Razorpay Order
+    if (
+      input.gateway === PaymentGateway.RAZORPAY &&
+      envConfig.razorpay.keyId &&
+      envConfig.razorpay.keySecret
+    ) {
+      try {
+        const auth = Buffer.from(
+          `${envConfig.razorpay.keyId}:${envConfig.razorpay.keySecret}`
+        ).toString('base64');
+        const rzpRes = await fetch('https://api.razorpay.com/v1/orders', {
+          method: 'POST',
+          headers: {
+            Authorization: `Basic ${auth}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            amount: Math.round(booking.totalAmountINR * 100),
+            currency: 'INR',
+            receipt: `rcpt_${booking.id.substring(0, 10)}`,
+            notes: {
+              bookingId: booking.id,
+              citizenId,
+              complianceDisclaimer:
+                'Section 35 Advocates Act 1961 - 0% platform commission on advocate fee',
+            },
+          }),
+        });
+        if (rzpRes.ok) {
+          const rzpJson = (await rzpRes.json()) as any;
+          if (rzpJson.id) {
+            orderId = rzpJson.id;
+          }
+        }
+      } catch (e) {
+        console.warn('Could not create Razorpay remote order, fallback to local reference', e);
+      }
+    }
+
     const now = new Date();
 
     // Check if an existing payment record exists for this booking

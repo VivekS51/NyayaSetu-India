@@ -126,21 +126,28 @@ export default function ProviderProfilePage() {
         durationMinutes: 30,
       });
 
-      const order = await ApiClient.createPaymentOrder(booking.id, 'RAZORPAY');
+      const order = await ApiClient.createPaymentOrder(booking.id, 'RAZORPAY', totalAmount);
 
       const user = ApiClient.getStoredUser();
       const citizenName = user?.fullName || 'Citizen Client';
       const citizenPhone = user?.phone || '+919876543210';
       const citizenEmail = user?.email || 'citizen@nyayasetu.gov.in';
 
-      const options = {
+      // Only pass order_id if it is a genuine Razorpay-created order ID (e.g. order_U3IT6gS335I655)
+      // Passing fake/client-generated order IDs causes Razorpay Checkout to reject the order with "Uh! oh! Something went wrong"
+      const hasRealRazorpayOrderId = Boolean(
+        order?.gatewayOrderId &&
+        /^order_[a-zA-Z0-9]{14}$/.test(order.gatewayOrderId)
+      );
+
+      const options: any = {
         key: razorpayKey,
         amount: totalAmount * 100, // paise
         currency: 'INR',
         name: 'NyayaSetu India',
         description: `Statutory Escrow: Consultation with ${provider.fullName}`,
         image: 'https://cdn-icons-png.flaticon.com/512/929/929426.png',
-        order_id: order.gatewayOrderId.startsWith('order_') ? order.gatewayOrderId : undefined,
+        ...(hasRealRazorpayOrderId ? { order_id: order.gatewayOrderId } : {}),
         prefill: {
           name: citizenName,
           email: citizenEmail,
