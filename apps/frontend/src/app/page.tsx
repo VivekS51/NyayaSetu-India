@@ -16,12 +16,9 @@ import {
   Landmark,
   FileCheck2,
   Users2,
-  Sparkles,
   ChevronRight,
   Play,
   CheckCircle2,
-  MessageSquare,
-  FileText,
 } from 'lucide-react';
 import { ConstellationField } from '../components/effects/constellation-field/ConstellationField';
 
@@ -46,7 +43,7 @@ export default function HomePage() {
     <div className="min-h-screen bg-[#060a17] text-white">
       {/* Hero Section - Compact Viewport Layout matching reference */}
       <section className="relative bg-[#060a17] text-white pt-14 sm:pt-16 pb-3 sm:pb-4 px-4 sm:px-6 lg:px-8 overflow-hidden min-h-[calc(100vh-65px)] lg:h-[calc(100vh-65px)] flex flex-col justify-between border-b border-slate-800/80">
-        {/* Constellation Field Isolated Canvas Effect */}
+        {/* Constellation Field Isolated Canvas Effect with Light Orange / Saffron Palette */}
         <div className="absolute inset-0 z-0">
           <ConstellationField
             variant="constellation-field"
@@ -56,24 +53,27 @@ export default function HomePage() {
             strokeWidth={1}
             size={1}
             opacity={0.85}
-            palette="tricolor"
+            palette="saffron"
             mode="dark"
             interactive={true}
           />
         </div>
 
-        {/* Ambient Radial Glow Lighting */}
-        <div className="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-saffron-500/10 rounded-full blur-3xl pointer-events-none z-0" />
-        <div className="absolute top-1/3 right-1/4 -translate-y-1/2 w-[550px] h-[550px] bg-sky-500/20 rounded-full blur-3xl pointer-events-none z-0" />
+        {/* Ambient Radial Light Orange & Saffron Glow Lighting across background whitespace */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(245,158,11,0.18),rgba(6,10,23,0))] pointer-events-none z-0" />
+        <div className="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-saffron-500/20 rounded-full blur-3xl pointer-events-none z-0" />
+        <div className="absolute top-1/3 right-1/4 -translate-y-1/2 w-[600px] h-[600px] bg-amber-500/18 rounded-full blur-3xl pointer-events-none z-0" />
 
         <div className="max-w-7xl mx-auto w-full relative z-10 my-auto">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
             {/* Left Column: Headline, Features, CTAs & Social Proof */}
             <div className="lg:col-span-6 xl:col-span-6 space-y-3 sm:space-y-3.5 text-left relative z-20">
-              {/* High-Impact Modern Headline */}
-              <h1 className="text-3xl sm:text-4xl lg:text-4xl xl:text-5xl font-black tracking-tight leading-[1.12] text-white">
-                Your Legal Rights.{' '}
-                <span className="block text-transparent bg-clip-text bg-gradient-to-r from-sky-400 via-indigo-300 to-purple-400">
+              {/* High-Impact Modern Headline in warm light orange & saffron tones */}
+              <h1 className="text-3xl sm:text-4xl lg:text-4xl xl:text-5xl font-black tracking-tight leading-[1.12]">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-100 via-orange-200 to-amber-300">
+                  Your Legal Rights.
+                </span>{' '}
+                <span className="block text-transparent bg-clip-text bg-gradient-to-r from-saffron-400 via-amber-300 to-orange-400">
                   Always on your side.
                 </span>
               </h1>
@@ -83,31 +83,31 @@ export default function HomePage() {
                 NyayaSetu India connects citizens directly with Bar Council verified advocates, licensed notaries, and accredited mediators—backed by statutory 100% escrow protection and 0% platform fee on professional legal fees.
               </p>
 
-              {/* 4 Feature Items in horizontal grid */}
+              {/* 4 Authentic Statutory Features in warm light orange theme (No AI Slop) */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 pt-0.5">
                 <div className="flex flex-col items-start space-y-1">
-                  <div className="w-7 h-7 rounded-lg bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400">
-                    <MessageSquare className="w-3.5 h-3.5" />
+                  <div className="w-7 h-7 rounded-lg bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                    <Scale className="w-3.5 h-3.5" />
                   </div>
-                  <span className="text-[11px] font-semibold text-slate-200">Instant Legal Answers</span>
+                  <span className="text-[11px] font-semibold text-slate-200">Bar Council Verified</span>
                 </div>
                 <div className="flex flex-col items-start space-y-1">
-                  <div className="w-7 h-7 rounded-lg bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400">
-                    <FileText className="w-3.5 h-3.5" />
+                  <div className="w-7 h-7 rounded-lg bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                    <Lock className="w-3.5 h-3.5" />
                   </div>
-                  <span className="text-[11px] font-semibold text-slate-200">Smart Document Drafting</span>
+                  <span className="text-[11px] font-semibold text-slate-200">Statutory Escrow</span>
                 </div>
                 <div className="flex flex-col items-start space-y-1">
-                  <div className="w-7 h-7 rounded-lg bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400">
-                    <Search className="w-3.5 h-3.5" />
+                  <div className="w-7 h-7 rounded-lg bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                    <Landmark className="w-3.5 h-3.5" />
                   </div>
-                  <span className="text-[11px] font-semibold text-slate-200">Case Law Research</span>
+                  <span className="text-[11px] font-semibold text-slate-200">Rule 36 Directory</span>
                 </div>
                 <div className="flex flex-col items-start space-y-1">
-                  <div className="w-7 h-7 rounded-lg bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400">
+                  <div className="w-7 h-7 rounded-lg bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400">
                     <ShieldCheck className="w-3.5 h-3.5" />
                   </div>
-                  <span className="text-[11px] font-semibold text-slate-200">Secure &amp; Confidential</span>
+                  <span className="text-[11px] font-semibold text-slate-200">DPDP 2023 Vault</span>
                 </div>
               </div>
 
@@ -115,7 +115,7 @@ export default function HomePage() {
               <div className="flex flex-wrap items-center gap-3 pt-1">
                 <Link
                   href="/providers"
-                  className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs sm:text-sm shadow-[0_0_20px_rgba(37,99,235,0.4)] transition-all flex items-center space-x-2 group"
+                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-saffron-600 via-amber-600 to-orange-600 hover:from-saffron-500 hover:to-orange-500 text-white font-bold text-xs sm:text-sm shadow-[0_0_20px_rgba(245,158,11,0.4)] transition-all flex items-center space-x-2 group"
                 >
                   <span>Find Verified Counsel</span>
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
@@ -123,10 +123,10 @@ export default function HomePage() {
 
                 <Link
                   href="#trust-pillars"
-                  className="px-4 py-2 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-slate-700/80 text-white font-medium text-xs backdrop-blur-md transition-all flex items-center space-x-2 group"
+                  className="px-4 py-2 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-amber-500/30 hover:border-amber-500/60 text-white font-medium text-xs backdrop-blur-md transition-all flex items-center space-x-2 group"
                 >
-                  <div className="w-6 h-6 rounded-full bg-white/10 group-hover:bg-white/20 flex items-center justify-center text-white transition-colors">
-                    <Play className="w-2.5 h-2.5 fill-white text-white ml-0.5" />
+                  <div className="w-6 h-6 rounded-full bg-amber-500/15 border border-amber-500/30 group-hover:bg-amber-500/25 flex items-center justify-center text-amber-300 transition-colors">
+                    <Play className="w-2.5 h-2.5 fill-amber-300 text-amber-300 ml-0.5" />
                   </div>
                   <div className="text-left">
                     <div className="font-semibold text-xs text-white">See how it works</div>
@@ -149,17 +149,17 @@ export default function HomePage() {
                     ★★★★★
                   </div>
                   <span className="text-slate-400 font-medium text-[10px] sm:text-[11px]">
-                    Trusted across <strong className="text-white">680+ Districts</strong> &amp; <strong className="text-white">12,500+ Verified Practitioners</strong>
+                    Trusted across <strong className="text-amber-300">680+ Districts</strong> &amp; <strong className="text-amber-300">12,500+ Verified Practitioners</strong>
                   </span>
                 </div>
               </div>
             </div>
 
-            {/* Right Column: Prominent Lady Justice in Gold & Blue + Glass Assistant Card */}
+            {/* Right Column: Prominent Lady Justice in Gold & Blue - Zero AI Slop */}
             <div className="lg:col-span-6 xl:col-span-6 relative flex items-end justify-center min-h-[460px] sm:min-h-[520px] lg:min-h-[calc(100vh-120px)] xl:min-h-[calc(100vh-115px)] select-none">
-              {/* Radial Cyan & Indigo Glow Spotlight behind Lady Justice */}
+              {/* Radial Light Orange & Saffron Glow Spotlight behind Lady Justice */}
               <div className="absolute inset-0 flex items-center justify-center lg:-translate-x-10 xl:-translate-x-14 pointer-events-none -z-10">
-                <div className="w-[520px] h-[580px] lg:w-[620px] lg:h-[700px] bg-gradient-to-tr from-sky-500/30 via-indigo-600/20 to-transparent rounded-full blur-3xl pointer-events-none" />
+                <div className="w-[520px] h-[580px] lg:w-[620px] lg:h-[700px] bg-gradient-to-tr from-amber-500/35 via-saffron-500/20 to-transparent rounded-full blur-3xl pointer-events-none" />
               </div>
 
               {/* Lady Justice Character Image (Enlarged to fit from navbar to bottom) */}
@@ -170,42 +170,8 @@ export default function HomePage() {
                   width={850}
                   height={1260}
                   priority
-                  className="h-[460px] sm:h-[520px] lg:h-[calc(100vh-120px)] xl:h-[calc(100vh-115px)] max-h-[850px] w-auto object-contain object-bottom drop-shadow-[0_25px_60px_rgba(0,0,0,0.95)] drop-shadow-[0_0_45px_rgba(56,189,248,0.30)]"
+                  className="h-[460px] sm:h-[520px] lg:h-[calc(100vh-120px)] xl:h-[calc(100vh-115px)] max-h-[850px] w-auto object-contain object-bottom drop-shadow-[0_25px_60px_rgba(0,0,0,0.95)] drop-shadow-[0_0_50px_rgba(245,158,11,0.30)]"
                 />
-              </div>
-
-              {/* Floating Glassmorphic Card (Center-Left): Interactive Citizen Justice Desk */}
-              <div className="absolute bottom-1 sm:bottom-2 lg:bottom-3 left-0 sm:-left-4 lg:-left-12 sm:w-[280px] lg:w-[305px] backdrop-blur-2xl bg-slate-950/90 border border-sky-500/40 rounded-2xl p-2.5 sm:p-3 shadow-[0_20px_50px_rgba(0,0,0,0.95)] z-20 text-left">
-                <div className="flex items-center space-x-2 text-sky-400 text-xs font-bold mb-1">
-                  <Sparkles className="w-3.5 h-3.5 text-sky-400" />
-                  <span>Citizen Legal Assistant</span>
-                </div>
-                <p className="text-[10px] sm:text-[10.5px] text-slate-300 mb-1.5 leading-tight">
-                  How can verified counsel assist you today?
-                </p>
-                <div className="space-y-1">
-                  <Link
-                    href="/providers?providerType=DOCUMENT_WRITER"
-                    className="flex items-center justify-between px-2 py-1.5 rounded-lg bg-white/5 hover:bg-sky-500/15 border border-white/10 hover:border-sky-500/40 text-[10.5px] font-medium text-slate-200 hover:text-white transition-all group"
-                  >
-                    <span>Draft a partnership or property deed</span>
-                    <ChevronRight className="w-3 h-3 text-slate-400 group-hover:text-sky-400 transition-transform group-hover:translate-x-0.5" />
-                  </Link>
-                  <Link
-                    href="/providers?providerType=ADVOCATE"
-                    className="flex items-center justify-between px-2 py-1.5 rounded-lg bg-white/5 hover:bg-sky-500/15 border border-white/10 hover:border-sky-500/40 text-[10.5px] font-medium text-slate-200 hover:text-white transition-all group"
-                  >
-                    <span>Consult High Court / Civil Advocate</span>
-                    <ChevronRight className="w-3 h-3 text-slate-400 group-hover:text-sky-400 transition-transform group-hover:translate-x-0.5" />
-                  </Link>
-                  <Link
-                    href="/providers?providerType=NOTARY"
-                    className="flex items-center justify-between px-2 py-1.5 rounded-lg bg-white/5 hover:bg-sky-500/15 border border-white/10 hover:border-sky-500/40 text-[10.5px] font-medium text-slate-200 hover:text-white transition-all group"
-                  >
-                    <span>Notary Public &amp; Attestation</span>
-                    <ChevronRight className="w-3 h-3 text-slate-400 group-hover:text-sky-400 transition-transform group-hover:translate-x-0.5" />
-                  </Link>
-                </div>
               </div>
             </div>
           </div>
