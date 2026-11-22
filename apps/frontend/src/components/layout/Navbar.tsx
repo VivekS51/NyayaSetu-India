@@ -138,26 +138,33 @@ export const Navbar: React.FC = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full backdrop-blur-2xl bg-[#060a17]/90 border-b border-white/10 text-white shadow-xl transition-all">
+    <header className="sticky top-0 z-50 w-full bg-govnavy-900/95 backdrop-blur-xl border-b border-govnavy-700/80 text-white shadow-xl transition-all">
+      {/* Tricolor National Emblem Top Ribbon */}
+      <div className="h-1 w-full flex">
+        <div className="w-1/3 bg-saffron-500" />
+        <div className="w-1/3 bg-white" />
+        <div className="w-1/3 bg-govgreen-600" />
+      </div>
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 py-2">
+        <div className="flex items-center justify-between h-18 py-2.5">
           {/* Brand Logo & Statutory Subtitle on Left */}
           <Link href="/" className="flex items-center space-x-3 group flex-shrink-0">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-saffron-500 to-amber-600 flex items-center justify-center shadow-inner">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-saffron-500 to-amber-600 flex items-center justify-center shadow-md">
               <Scale className="w-5 h-5 text-white group-hover:scale-105 transition-transform" />
             </div>
             <div>
               <div className="flex items-center space-x-2">
-                <span className="text-base font-bold tracking-tight text-white">{t.nav.brand}</span>
+                <span className="text-lg font-bold tracking-tight text-white">{t.nav.brand}</span>
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-semibold">
                   National Portal
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400 font-medium tracking-wide hidden sm:block">{t.nav.tagline}</p>
+              <p className="text-[11px] text-slate-300 font-medium tracking-wide hidden sm:block">{t.nav.tagline}</p>
             </div>
           </Link>
 
-          {/* ThreeUI Animated Top Dock Navigation in Center */}
+          {/* ThreeUI Animated Top Dock Navigation in Center (NyayaSetu Blue Theme) */}
           <nav
             ref={dockRef}
             className="hidden lg:inline-flex portal-dock-nav"
@@ -167,55 +174,55 @@ export const Navbar: React.FC = () => {
           >
             <Link
               href="/"
-              className={`animated-top-dock__item animated-top-dock__logo ${pathname === '/' ? 'is-active' : ''}`}
+              className={`animated-top-dock__item animated-top-dock__logo ${pathname === '/' ? 'is-active ring-2 ring-saffron-500' : ''}`}
               data-dock-item
               aria-label="Home"
             >
-              <Scale className="w-3.5 h-3.5 text-slate-900" />
+              <Scale className="w-4 h-4 text-govnavy-900" />
             </Link>
 
             <Link
               href="/providers"
-              className={`animated-top-dock__item animated-top-dock__link ${pathname.startsWith('/providers') ? 'border-[#41413e] text-white bg-[rgba(27,27,26,0.94)]' : ''}`}
+              className={`animated-top-dock__item animated-top-dock__link ${pathname.startsWith('/providers') ? 'is-active ring-1 ring-saffron-500' : ''}`}
               data-dock-item
             >
               <span className="animated-top-dock__icon" aria-hidden="true">
                 <ShieldCheck className="w-3.5 h-3.5 text-govgreen-500" />
               </span>
-              <span>COUNSEL</span>
+              <span>FIND PROVIDER</span>
             </Link>
 
             <Link
               href="/onboarding"
-              className={`animated-top-dock__item animated-top-dock__link ${pathname === '/onboarding' ? 'border-[#41413e] text-white bg-[rgba(27,27,26,0.94)]' : ''}`}
+              className={`animated-top-dock__item animated-top-dock__link ${pathname === '/onboarding' ? 'is-active ring-1 ring-saffron-500' : ''}`}
               data-dock-item
             >
               <span className="animated-top-dock__icon" aria-hidden="true">
                 <Users2 className="w-3.5 h-3.5 text-sky-400" />
               </span>
-              <span>ADVOCATES</span>
+              <span>FOR ADVOCATES</span>
             </Link>
 
             <Link
               href="/rewards"
-              className={`animated-top-dock__item animated-top-dock__link ${pathname === '/rewards' ? 'border-[#41413e] text-white bg-[rgba(27,27,26,0.94)]' : ''}`}
+              className={`animated-top-dock__item animated-top-dock__link ${pathname === '/rewards' ? 'is-active ring-1 ring-saffron-500' : ''}`}
               data-dock-item
             >
               <span className="animated-top-dock__icon" aria-hidden="true">
                 <Award className="w-3.5 h-3.5 text-amber-400" />
               </span>
-              <span>REWARDS</span>
+              <span>INCENTIVES & TIERS</span>
             </Link>
 
             <Link
               href="/admin"
-              className={`animated-top-dock__item animated-top-dock__link ${pathname === '/admin' ? 'border-[#41413e] text-white bg-[rgba(27,27,26,0.94)]' : ''}`}
+              className={`animated-top-dock__item animated-top-dock__link ${pathname === '/admin' ? 'is-active ring-1 ring-saffron-500' : ''}`}
               data-dock-item
             >
               <span className="animated-top-dock__icon" aria-hidden="true">
                 <LayoutDashboard className="w-3.5 h-3.5 text-saffron-400" />
               </span>
-              <span>ADMIN</span>
+              <span>ADMIN DESK</span>
             </Link>
           </nav>
 
@@ -225,12 +232,12 @@ export const Navbar: React.FC = () => {
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setNotifDropdownOpen(!notifDropdownOpen)}
-                className="relative p-2 rounded-xl bg-slate-900/80 hover:bg-slate-800 text-slate-200 border border-slate-700/80 transition-colors"
+                className="relative p-2 rounded-xl bg-govnavy-800 hover:bg-govnavy-700 text-slate-200 border border-govnavy-700 hover:border-govnavy-600 transition-colors shadow-sm"
                 title="Notifications"
               >
                 <Bell className="w-4 h-4" />
                 {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 px-1.5 py-0.2 bg-rose-500 text-white text-[10px] font-bold rounded-full border-2 border-slate-950 animate-pulse">
+                  <span className="absolute -top-1 -right-1 px-1.5 py-0.2 bg-rose-500 text-white text-[10px] font-bold rounded-full border-2 border-govnavy-900 animate-pulse">
                     {unreadCount}
                   </span>
                 )}
@@ -238,8 +245,8 @@ export const Navbar: React.FC = () => {
 
               {/* Notifications Dropdown Panel */}
               {notifDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-govnavy-900 border border-slate-700 rounded-xl shadow-2xl z-50 overflow-hidden text-left animate-in fade-in zoom-in-95 duration-150">
-                  <div className="p-3 bg-govnavy-800/80 border-b border-slate-700 flex items-center justify-between">
+                <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-govnavy-900 border border-govnavy-700 rounded-xl shadow-2xl z-50 overflow-hidden text-left animate-in fade-in zoom-in-95 duration-150">
+                  <div className="p-3 bg-govnavy-800/90 border-b border-govnavy-700 flex items-center justify-between">
                     <div className="flex items-center space-x-2">
                       <Bell className="w-4 h-4 text-saffron-400" />
                       <span className="text-xs font-bold text-white tracking-wide">
@@ -249,15 +256,15 @@ export const Navbar: React.FC = () => {
                     {unreadCount > 0 && (
                       <button
                         onClick={handleMarkAllRead}
-                        className="text-[11px] text-slate-400 hover:text-white flex items-center space-x-1 transition-colors"
+                        className="text-[11px] text-slate-300 hover:text-white flex items-center space-x-1 transition-colors"
                       >
-                        <CheckCheck className="w-3.5 h-3.5 text-govgreen-600" />
+                        <CheckCheck className="w-3.5 h-3.5 text-govgreen-500" />
                         <span>Mark all read</span>
                       </button>
                     )}
                   </div>
 
-                  <div className="max-h-80 overflow-y-auto divide-y divide-slate-800">
+                  <div className="max-h-80 overflow-y-auto divide-y divide-govnavy-800">
                     {notifications.length === 0 ? (
                       <div className="p-6 text-center text-xs text-slate-400">
                         No notifications found.
@@ -266,12 +273,12 @@ export const Navbar: React.FC = () => {
                       notifications.map((n) => (
                         <div
                           key={n.id}
-                          className={`p-3 text-xs transition-colors hover:bg-govnavy-800/50 ${
-                            !n.isRead ? 'bg-saffron-500/5' : ''
+                          className={`p-3 text-xs transition-colors hover:bg-govnavy-800/60 ${
+                            !n.isRead ? 'bg-saffron-500/10' : ''
                           }`}
                         >
                           <div className="flex items-start space-x-2.5">
-                            <div className="p-1.5 rounded-md bg-slate-800 border border-slate-700 mt-0.5">
+                            <div className="p-1.5 rounded-md bg-govnavy-800 border border-govnavy-700 mt-0.5">
                               {getNotifIcon(n.type)}
                             </div>
                             <div className="flex-1">
@@ -287,7 +294,7 @@ export const Navbar: React.FC = () => {
                                 {n.message}
                               </p>
                               <div className="flex items-center justify-between mt-1.5 text-[10px] text-slate-400">
-                                <span className="px-1.5 py-0.5 rounded bg-slate-800 font-mono text-slate-300 uppercase">
+                                <span className="px-1.5 py-0.5 rounded bg-govnavy-800 font-mono text-slate-300 uppercase">
                                   {n.type}
                                 </span>
                                 <span>{new Date(n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
@@ -299,7 +306,7 @@ export const Navbar: React.FC = () => {
                     )}
                   </div>
 
-                  <div className="p-2 bg-govnavy-800/50 border-t border-slate-800 text-center">
+                  <div className="p-2 bg-govnavy-800/80 border-t border-govnavy-700 text-center">
                     <Link
                       href="/admin"
                       onClick={() => setNotifDropdownOpen(false)}
@@ -313,7 +320,7 @@ export const Navbar: React.FC = () => {
             </div>
 
             {/* Language Selector */}
-            <div className="flex items-center bg-slate-900/80 rounded-xl p-1 border border-slate-700/80 text-xs font-semibold">
+            <div className="flex items-center bg-govnavy-800 rounded-xl p-1 border border-govnavy-700 text-xs font-semibold shadow-sm">
               <Globe className="w-3.5 h-3.5 text-slate-400 ml-1 mr-1.5" />
               <button
                 onClick={() => setLanguage('en')}
@@ -346,7 +353,7 @@ export const Navbar: React.FC = () => {
               <div className="relative" ref={accountRef}>
                 <button
                   onClick={() => setAccountDropdownOpen(!accountDropdownOpen)}
-                  className="flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-slate-700/80 text-xs font-semibold text-white shadow-sm transition-colors"
+                  className="flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-govnavy-800 hover:bg-govnavy-700 border border-govnavy-700 hover:border-govnavy-600 text-xs font-semibold text-white shadow-sm transition-colors"
                 >
                   <div className="w-5 h-5 rounded-full bg-gradient-to-tr from-saffron-600 to-amber-500 text-white flex items-center justify-center font-black text-[10px] shadow-inner">
                     {currentUser.fullName ? currentUser.fullName.charAt(0).toUpperCase() : 'U'}
@@ -357,9 +364,9 @@ export const Navbar: React.FC = () => {
 
                 {/* My Account Dropdown Details Panel */}
                 {accountDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-80 bg-govnavy-900 border border-slate-700 rounded-2xl shadow-2xl z-50 overflow-hidden text-left animate-in fade-in zoom-in-95 duration-150">
+                  <div className="absolute right-0 mt-2 w-80 bg-govnavy-900 border border-govnavy-700 rounded-2xl shadow-2xl z-50 overflow-hidden text-left animate-in fade-in zoom-in-95 duration-150">
                     {/* User Header */}
-                    <div className="p-4 bg-gradient-to-br from-govnavy-800 to-slate-900 border-b border-slate-700">
+                    <div className="p-4 bg-gradient-to-br from-govnavy-800 to-govnavy-900 border-b border-govnavy-700">
                       <div className="flex items-start justify-between">
                         <div className="flex items-center space-x-3">
                           <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-saffron-500 to-govnavy-900 flex items-center justify-center text-white text-lg font-bold border border-saffron-400 shadow-md">
@@ -393,23 +400,23 @@ export const Navbar: React.FC = () => {
                     </div>
 
                     {/* Account Stats Preview */}
-                    <div className="p-3 bg-govnavy-800/40 border-b border-slate-800 grid grid-cols-2 gap-2 text-xs">
-                      <div className="p-2 rounded-lg bg-govnavy-800/80 border border-slate-700/60">
+                    <div className="p-3 bg-govnavy-800/40 border-b border-govnavy-800 grid grid-cols-2 gap-2 text-xs">
+                      <div className="p-2 rounded-lg bg-govnavy-800/80 border border-govnavy-700/60">
                         <span className="text-[10px] text-slate-400 block">Escrow Balance</span>
                         <span className="font-bold text-white text-xs">
                           ₹{currentUser.wallet?.monetaryBalanceINR !== undefined ? Number(currentUser.wallet.monetaryBalanceINR).toFixed(2) : '0.00'}
                         </span>
                       </div>
-                      <div className="p-2 rounded-lg bg-govnavy-800/80 border border-slate-700/60">
+                      <div className="p-2 rounded-lg bg-govnavy-800/80 border border-govnavy-700/60">
                         <span className="text-[10px] text-slate-400 block">Reward Points</span>
                         <span className="font-bold text-amber-400 text-xs">
-                          {currentUser.wallet?.rewardPointsBalance !== undefined ? currentUser.wallet.rewardPointsBalance : 25} Pts
+                          {currentUser.wallet?.rewardPointsBalance !== undefined ? currentUser.wallet.rewardPointsBalance : 50} Pts
                         </span>
                       </div>
                     </div>
 
                     {/* Navigation Links */}
-                    <div className="p-2 divide-y divide-slate-800 text-xs">
+                    <div className="p-2 divide-y divide-govnavy-800 text-xs">
                       <div className="py-1">
                         <Link
                           href="/account"
@@ -428,7 +435,7 @@ export const Navbar: React.FC = () => {
                           onClick={() => setAccountDropdownOpen(false)}
                           className="flex items-center space-x-2.5 px-3 py-2 rounded-lg text-slate-200 hover:text-white hover:bg-govnavy-800 transition-colors"
                         >
-                          <Layers className="w-4 h-4 text-govgreen-600" />
+                          <Layers className="w-4 h-4 text-govgreen-500" />
                           <div>
                             <div className="font-semibold">{currentUser.roles?.includes('LSP') ? 'Advocate Dashboard' : 'Citizen Case Desk'}</div>
                             <span className="text-[10px] text-slate-400 block">Consultations, slots & active matters</span>
@@ -456,15 +463,15 @@ export const Navbar: React.FC = () => {
               <div className="flex items-center space-x-2">
                 <Link
                   href="/auth/login"
-                  className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-200 hover:bg-slate-800/80 border border-slate-700/80 transition-colors"
+                  className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-200 hover:bg-govnavy-800 border border-govnavy-700 transition-colors"
                 >
-                  {t.nav.login}
+                  Sign In
                 </Link>
                 <Link
                   href="/onboarding"
                   className="px-4 py-1.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-saffron-500 to-amber-600 hover:from-saffron-600 hover:to-amber-700 shadow-md transition-all flex items-center space-x-1.5"
                 >
-                  <span>{t.nav.register}</span>
+                  <span>Join Platform</span>
                 </Link>
               </div>
             )}
