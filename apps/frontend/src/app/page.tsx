@@ -41,7 +41,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
+    <div className="min-h-screen bg-[#060a17] text-white">
       {/* Hero Section */}
       <section className="relative bg-[#060a17] text-white pt-12 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden min-h-[760px] lg:min-h-[840px] border-b border-slate-800/80">
         {/* Constellation Field Isolated Canvas Effect */}

@@ -42,7 +42,7 @@ export const Navbar: React.FC = () => {
 
   const dropdownRef = useRef<HTMLDivElement>(null);
   const accountRef = useRef<HTMLDivElement>(null);
-  const dockRef = useRef<HTMLElement | null>(null);
+  const dockRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const root = dockRef.current;
@@ -138,9 +138,15 @@ export const Navbar: React.FC = () => {
   };
 
   return (
-    <header className="sticky top-2 sm:top-3.5 z-50 w-full px-2 sm:px-4 lg:px-6 pointer-events-none transition-all">
-      <div className="max-w-7xl mx-auto pointer-events-auto">
-        <div className="portal-navbar-capsule">
+    <header className="sticky top-0 z-50 w-full px-2 sm:px-4 lg:px-6 pt-2.5 pb-2 pointer-events-none transition-all">
+      <div className="max-w-[1400px] mx-auto pointer-events-auto">
+        <div
+          ref={dockRef}
+          className="portal-navbar-capsule"
+          aria-label="Portal Navigation"
+          data-dock-state="idle"
+          data-dock-max="0.00"
+        >
           {/* Subtle Indian Tricolor Hairline Indicator */}
           <div className="absolute top-0 left-8 right-8 h-[2px] rounded-full overflow-hidden flex opacity-85 pointer-events-none">
             <div className="w-1/3 bg-saffron-500" />
@@ -148,28 +154,28 @@ export const Navbar: React.FC = () => {
             <div className="w-1/3 bg-govgreen-600" />
           </div>
 
-          {/* Left: Brand Identity */}
-          <Link href="/" className="flex items-center space-x-2.5 pl-1.5 group flex-shrink-0">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-saffron-500 to-amber-600 flex items-center justify-center shadow-md">
-              <Scale className="w-4 h-4 text-white group-hover:scale-105 transition-transform" />
+          {/* Left: Brand Identity with ThreeUI Dock animation */}
+          <Link
+            href="/"
+            className="animated-top-dock__item flex items-center space-x-2.5 px-3 py-1 group flex-shrink-0"
+            data-dock-item
+            aria-label="NyayaSetu India Home"
+          >
+            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-saffron-500 to-amber-600 flex items-center justify-center shadow-md">
+              <Scale className="w-3.5 h-3.5 text-white group-hover:scale-105 transition-transform" />
             </div>
-            <div>
-              <div className="flex items-center space-x-1.5">
-                <span className="text-sm font-bold tracking-tight text-white">{t.nav.brand}</span>
-                <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-semibold hidden sm:inline-block">
-                  National Portal
-                </span>
-              </div>
+            <div className="flex items-center space-x-1.5">
+              <span className="text-xs font-bold tracking-tight text-white font-sans">{t.nav.brand}</span>
+              <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-semibold hidden xl:inline-block font-sans">
+                National Portal
+              </span>
             </div>
           </Link>
 
           {/* Center: ThreeUI Animated Top Dock Navigation Track */}
           <nav
-            ref={dockRef}
             className="hidden lg:inline-flex portal-dock-track"
             aria-label="Primary Navigation"
-            data-dock-state="idle"
-            data-dock-max="0.00"
           >
             <Link
               href="/"
@@ -226,15 +232,16 @@ export const Navbar: React.FC = () => {
           </nav>
 
           {/* Right Section: Notifications, Language Switcher & Auth */}
-          <div className="hidden md:flex items-center space-x-2.5 pr-1 flex-shrink-0">
-            {/* Notifications Bell Dropdown */}
+          <div className="hidden md:flex items-center space-x-2 pr-1 flex-shrink-0">
+            {/* Notifications Bell Dropdown with ThreeUI animation */}
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setNotifDropdownOpen(!notifDropdownOpen)}
-                className="relative p-1.5 rounded-full bg-govnavy-800 hover:bg-govnavy-700 text-slate-200 border border-govnavy-700 hover:border-govnavy-600 transition-colors shadow-sm"
+                className="animated-top-dock__item relative !h-8 !px-2.5"
+                data-dock-item
                 title="Notifications"
               >
-                <Bell className="w-4 h-4" />
+                <Bell className="w-3.5 h-3.5" />
                 {unreadCount > 0 && (
                   <span className="absolute -top-1 -right-1 px-1.5 py-0.2 bg-rose-500 text-white text-[10px] font-bold rounded-full border-2 border-govnavy-900 animate-pulse">
                     {unreadCount}
@@ -318,43 +325,49 @@ export const Navbar: React.FC = () => {
               )}
             </div>
 
-            {/* Language Selector */}
-            <div className="flex items-center bg-govnavy-800/90 rounded-full p-0.5 border border-govnavy-700 text-xs font-semibold shadow-sm">
-              <Globe className="w-3.5 h-3.5 text-slate-400 ml-1.5 mr-1" />
+            {/* Language Selector with ThreeUI animation */}
+            <div className="flex items-center bg-slate-950/70 rounded-full p-0.5 border border-govnavy-700/80">
+              <span className="pl-1.5 pr-0.5 text-slate-400 flex items-center">
+                <Globe className="w-3 h-3" />
+              </span>
               <button
                 onClick={() => setLanguage('en')}
-                className={`px-2 py-0.5 rounded-full transition-colors text-[11px] font-bold ${
-                  language === 'en' ? 'bg-saffron-600 text-white shadow-sm' : 'text-slate-300 hover:text-white'
+                className={`animated-top-dock__item !h-7 !px-2 !text-[10px] ${
+                  language === 'en' ? 'is-active' : ''
                 }`}
+                data-dock-item
               >
                 EN
               </button>
               <button
                 onClick={() => setLanguage('hi')}
-                className={`px-2 py-0.5 rounded-full transition-colors text-[11px] font-bold ${
-                  language === 'hi' ? 'bg-saffron-600 text-white shadow-sm' : 'text-slate-300 hover:text-white'
+                className={`animated-top-dock__item !h-7 !px-2 !text-[10px] ${
+                  language === 'hi' ? 'is-active' : ''
                 }`}
+                data-dock-item
               >
                 हिंदी
               </button>
               <button
                 onClick={() => setLanguage('pa')}
-                className={`px-2 py-0.5 rounded-full transition-colors text-[11px] font-bold ${
-                  language === 'pa' ? 'bg-saffron-600 text-white shadow-sm' : 'text-slate-300 hover:text-white'
+                className={`animated-top-dock__item !h-7 !px-2 !text-[10px] ${
+                  language === 'pa' ? 'is-active' : ''
                 }`}
+                data-dock-item
               >
                 ਪੰਜਾਬੀ
               </button>
             </div>
 
-            {/* Auth / My Account Section */}
+            {/* Auth / My Account Section with ThreeUI animation */}
             {currentUser ? (
               <div className="relative" ref={accountRef}>
                 <button
                   onClick={() => setAccountDropdownOpen(!accountDropdownOpen)}
-                  className="flex items-center space-x-2 px-3 py-1 rounded-full bg-govnavy-800/90 hover:bg-govnavy-700 border border-govnavy-700 hover:border-govnavy-600 text-xs font-semibold text-white shadow-sm transition-colors"
+                  className="animated-top-dock__item flex items-center space-x-1.5 !px-3"
+                  data-dock-item
                 >
-                  <div className="w-5 h-5 rounded-full bg-gradient-to-tr from-saffron-600 to-amber-500 text-white flex items-center justify-center font-black text-[10px] shadow-inner">
+                  <div className="w-4 h-4 rounded-full bg-gradient-to-tr from-saffron-600 to-amber-500 text-white flex items-center justify-center font-black text-[9px] shadow-inner">
                     {currentUser.fullName ? currentUser.fullName.charAt(0).toUpperCase() : 'U'}
                   </div>
                   <span className="font-bold text-xs">My Account</span>
@@ -459,16 +472,18 @@ export const Navbar: React.FC = () => {
                 )}
               </div>
             ) : (
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-1.5">
                 <Link
                   href="/auth/login"
-                  className="px-3.5 py-1 rounded-full text-xs font-semibold text-slate-200 hover:bg-govnavy-800 border border-govnavy-700 transition-colors"
+                  className="animated-top-dock__item !h-8 !px-3 !text-xs font-semibold"
+                  data-dock-item
                 >
                   Sign In
                 </Link>
                 <Link
                   href="/onboarding"
-                  className="px-4 py-1 rounded-full text-xs font-bold text-white bg-gradient-to-r from-saffron-500 to-amber-600 hover:from-saffron-600 hover:to-amber-700 shadow-md transition-all flex items-center space-x-1.5"
+                  className="animated-top-dock__item is-active !h-8 !px-3.5 !text-xs font-bold"
+                  data-dock-item
                 >
                   <span>Join Platform</span>
                 </Link>
@@ -476,11 +491,13 @@ export const Navbar: React.FC = () => {
             )}
           </div>
 
-          {/* Mobile menu button */}
+          {/* Mobile menu button with ThreeUI animation */}
           <div className="lg:hidden flex items-center space-x-2 pr-1">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-1.5 rounded-full bg-govnavy-800 text-slate-300 hover:text-white border border-govnavy-700 transition-colors"
+              className="animated-top-dock__item !h-8 !px-2.5"
+              data-dock-item
+              aria-label="Toggle Menu"
             >
               {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
             </button>
