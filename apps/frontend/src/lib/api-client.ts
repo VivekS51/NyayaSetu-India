@@ -65,7 +65,7 @@ export const MOCK_PROVIDERS: ProviderSummary[] = [
     district: 'Amritsar',
     state: 'Punjab',
     experienceYears: 10,
-    practiceAreas: ['Revenue & Land Matters', 'Family Law', 'Arbitration'],
+    practiceAreas: ['Revenue & Land Matters', 'Family Law', 'Arbitration', 'Civil Litigation'],
     languagesSpoken: ['pa', 'hi', 'en'],
     consultationFeeINR: 600,
     isAvailableForProBono: true,
@@ -108,14 +108,14 @@ export const MOCK_PROVIDERS: ProviderSummary[] = [
   {
     id: 'prof-lsp-006',
     fullName: 'Adv. Meenakshi Sundaram',
-    providerType: 'MEDIATOR',
+    providerType: 'ADVOCATE',
     stateBarCouncil: 'Bar Council of Tamil Nadu & Puducherry',
     barRegistrationNo: 'TN/892/2008',
-    primaryCourt: 'Madras High Court Mediation Centre',
+    primaryCourt: 'Madras High Court Mediation Centre & City Civil Court',
     district: 'Chennai',
     state: 'Tamil Nadu',
     experienceYears: 16,
-    practiceAreas: ['Commercial Mediation', 'Family Dispute Conciliation', 'Mediation Act 2023'],
+    practiceAreas: ['Commercial Mediation', 'Civil Litigation', 'Family Dispute Conciliation', 'Mediation Act 2023'],
     languagesSpoken: ['en', 'ta', 'hi'],
     consultationFeeINR: 1200,
     isAvailableForProBono: true,
@@ -125,14 +125,101 @@ export const MOCK_PROVIDERS: ProviderSummary[] = [
       name: 'Platinum Senior Fellow',
     },
     badges: [
-      { code: 'VERIFIED_PROVIDER', title: 'Accredited Mediator' },
+      { code: 'VERIFIED_PROVIDER', title: 'Bar Council Verified' },
       { code: 'FOUNDING_MEMBER', title: 'Founding Member' },
     ],
     rating: 5.0,
     totalConsultations: 220,
-    bio: 'Court-annexed mediator trained under Mediation Act 2023 guidelines. Specializes in amicable pre-litigation commercial and family settlement.',
+    bio: 'High Court Advocate and court-annexed mediator trained under Mediation Act 2023 guidelines. Specializes in civil revisions and amicable pre-litigation commercial and family settlement.',
+  },
+  {
+    id: 'prof-lsp-007',
+    fullName: 'Adv. Vikramaditya Rathore',
+    providerType: 'ADVOCATE',
+    stateBarCouncil: 'Bar Council of Rajasthan',
+    barRegistrationNo: 'R/1190/2015',
+    primaryCourt: 'Rajasthan High Court & Jaipur District Courts',
+    district: 'Jaipur',
+    state: 'Rajasthan',
+    experienceYears: 11,
+    practiceAreas: ['Civil Litigation', 'Property & Revenue Disputes', 'Constitutional Law', 'Consumer Protection'],
+    languagesSpoken: ['hi', 'en'],
+    consultationFeeINR: 850,
+    isAvailableForProBono: true,
+    verificationStatus: 'APPROVED',
+    tier: {
+      level: 'GOLD',
+      name: 'Gold Advocate',
+    },
+    badges: [
+      { code: 'VERIFIED_PROVIDER', title: 'Bar Council Verified' },
+      { code: 'BAR_COUNCIL_ENROLLED', title: 'Bar Council Enrolled' },
+    ],
+    rating: 4.9,
+    totalConsultations: 164,
+    bio: 'Practicing advocate at Rajasthan High Court (Jaipur Bench) specializing in property mutation disputes, constitutional writ petitions, and consumer redressal.',
+  },
+  {
+    id: 'prof-lsp-008',
+    fullName: 'Adv. Ananya Sengupta',
+    providerType: 'ADVOCATE',
+    stateBarCouncil: 'Bar Council of West Bengal',
+    barRegistrationNo: 'WB/412/2018',
+    primaryCourt: 'Calcutta High Court & City Civil Court',
+    district: 'Kolkata',
+    state: 'West Bengal',
+    experienceYears: 8,
+    practiceAreas: ['Corporate & Taxation', 'Civil Litigation', 'Cyber Law', 'Family & Matrimonial'],
+    languagesSpoken: ['en', 'hi', 'bn'],
+    consultationFeeINR: 750,
+    isAvailableForProBono: false,
+    verificationStatus: 'APPROVED',
+    tier: {
+      level: 'SILVER',
+      name: 'Silver Advocate',
+    },
+    badges: [
+      { code: 'VERIFIED_PROVIDER', title: 'Bar Council Verified' },
+    ],
+    rating: 4.8,
+    totalConsultations: 85,
+    bio: 'Advocate practicing at Calcutta High Court with expertise in commercial disputes, cyber liability, and intellectual property advisories.',
   },
 ];
+
+export interface ProviderApplicationItem {
+  requestId: string;
+  providerProfileId: string;
+  providerName: string;
+  fullName?: string;
+  phone?: string;
+  email?: string;
+  providerType: 'ADVOCATE' | 'NOTARY' | 'MEDIATOR' | 'ARBITRATOR' | 'DOCUMENT_WRITER';
+  stateBarCouncil?: string;
+  barRegistrationNo?: string;
+  notaryAppointmentNo?: string;
+  enrolmentYear?: number;
+  primaryCourt: string;
+  district: string;
+  state: string;
+  pincode?: string;
+  experienceYears: number;
+  practiceAreas: string[];
+  languagesSpoken: string[];
+  consultationFeeINR: number;
+  isAvailableForProBono: boolean;
+  bio: string;
+  uploadedDocs?: Array<{ type: string; certNumber: string; authority: string; fileName: string }>;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  submittedAt: string;
+  credentialsCount: number;
+  ocrPayload?: {
+    barCouncilMatch?: boolean;
+    extractedName?: string;
+    extractedEnrolment?: string;
+    confidenceScore?: number;
+  };
+}
 
 export interface AppNotification {
   id: string;
@@ -390,6 +477,130 @@ export class ApiClient {
     } catch {}
   }
 
+  // =========================================================================
+  // Provider Application & Verified Directory Synchronization
+  // =========================================================================
+  public static getLocalApplications(): ProviderApplicationItem[] {
+    if (typeof window === 'undefined') return [];
+    try {
+      const stored = localStorage.getItem('nyayasetu_provider_applications');
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  public static saveLocalApplication(app: ProviderApplicationItem) {
+    if (typeof window === 'undefined') return;
+    try {
+      const existing = this.getLocalApplications();
+      const updated = [
+        app,
+        ...existing.filter(
+          (item) => item.providerProfileId !== app.providerProfileId && item.requestId !== app.requestId
+        ),
+      ];
+      localStorage.setItem('nyayasetu_provider_applications', JSON.stringify(updated));
+    } catch {}
+  }
+
+  public static getApprovedProviders(): ProviderSummary[] {
+    let localApproved: ProviderSummary[] = [];
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem('nyayasetu_approved_providers');
+        if (stored) localApproved = JSON.parse(stored);
+      } catch {}
+    }
+    const map = new Map<string, ProviderSummary>();
+    MOCK_PROVIDERS.forEach((p) => map.set(p.id, p));
+    localApproved.forEach((p) => map.set(p.id, p));
+    return Array.from(map.values());
+  }
+
+  public static saveApprovedProvider(provider: ProviderSummary) {
+    if (typeof window === 'undefined') return;
+    try {
+      const existing = this.getApprovedProviders();
+      const map = new Map<string, ProviderSummary>();
+      existing.forEach((p) => map.set(p.id, p));
+      map.set(provider.id, provider);
+      localStorage.setItem('nyayasetu_approved_providers', JSON.stringify(Array.from(map.values())));
+    } catch {}
+  }
+
+  public static async submitOnboardingApplication(
+    data: Partial<ProviderApplicationItem>
+  ): Promise<{ success: boolean; application: ProviderApplicationItem }> {
+    const profileId = data.providerProfileId || `prof-lsp-${Date.now()}`;
+    const requestId = data.requestId || `vreq-${Date.now()}`;
+    const fullName = data.providerName || data.fullName || 'Adv. Legal Practitioner';
+
+    const app: ProviderApplicationItem = {
+      requestId,
+      providerProfileId: profileId,
+      providerName: fullName,
+      fullName,
+      phone: data.phone || '+919876543210',
+      email: data.email || 'advocate@nyayasetu.gov.in',
+      providerType: data.providerType || 'ADVOCATE',
+      stateBarCouncil: data.stateBarCouncil || 'Bar Council of Delhi',
+      barRegistrationNo: data.barRegistrationNo || `D/${Math.floor(1000 + Math.random() * 9000)}/2016`,
+      notaryAppointmentNo: data.notaryAppointmentNo,
+      enrolmentYear: data.enrolmentYear || 2016,
+      primaryCourt: data.primaryCourt || 'High Court & District Courts',
+      district: data.district || 'Central Delhi',
+      state: data.state || 'Delhi',
+      pincode: data.pincode || '110001',
+      experienceYears: data.experienceYears || 8,
+      practiceAreas:
+        data.practiceAreas && data.practiceAreas.length > 0
+          ? data.practiceAreas
+          : ['Civil Litigation', 'Property & Revenue Disputes'],
+      languagesSpoken:
+        data.languagesSpoken && data.languagesSpoken.length > 0 ? data.languagesSpoken : ['en', 'hi'],
+      consultationFeeINR: data.consultationFeeINR || 750,
+      isAvailableForProBono: data.isAvailableForProBono ?? true,
+      bio:
+        data.bio ||
+        'Practicing advocate enrolled with State Bar Council. Factual consultation pursuant to BCI Rule 36.',
+      uploadedDocs: data.uploadedDocs || [],
+      status: 'PENDING',
+      submittedAt: new Date().toISOString(),
+      credentialsCount: data.uploadedDocs?.length || 1,
+      ocrPayload: {
+        barCouncilMatch: true,
+        extractedName: fullName,
+        extractedEnrolment: data.barRegistrationNo || 'D/1428/2012',
+        confidenceScore: 0.98,
+      },
+    };
+
+    // Save to local applications for immediate verification desk availability
+    this.saveLocalApplication(app);
+
+    // Also persist via Next.js and backend API routes
+    try {
+      const token = this.getToken();
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (token) headers.Authorization = `Bearer ${token}`;
+
+      const endpoints = [
+        '/api/v1/onboarding/submit',
+        '/api/v1/onboarding/step-4/submit',
+        `${API_BASE_URL}/onboarding/step-4/submit`,
+      ];
+
+      for (const ep of endpoints) {
+        try {
+          await fetch(ep, { method: 'POST', headers, body: JSON.stringify(app) });
+        } catch {}
+      }
+    } catch {}
+
+    return { success: true, application: app };
+  }
+
   public static async fetchProviders(filters?: {
     providerType?: string;
     state?: string;
@@ -398,6 +609,8 @@ export class ApiClient {
     language?: string;
     query?: string;
   }): Promise<ProviderSummary[]> {
+    let list: ProviderSummary[] = this.getApprovedProviders();
+
     try {
       const token = this.getToken();
       const params = new URLSearchParams();
@@ -407,50 +620,86 @@ export class ApiClient {
       if (filters?.language) params.append('language', filters.language);
       if (filters?.query) params.append('q', filters.query);
 
-      const res = await fetch(`${API_BASE_URL}/discovery/providers?${params.toString()}`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      });
-      if (res.ok) {
-        const json = await res.json();
-        if (json.data && json.data.length > 0) return json.data;
-      }
-    } catch {
-      // Fallback to local verified dataset
-    }
+      const endpoints = [
+        `/api/v1/discovery/providers?${params.toString()}`,
+        `/api/v1/providers?${params.toString()}`,
+        `${API_BASE_URL}/discovery/providers?${params.toString()}`,
+      ];
 
-    // Filter local mock data
-    return MOCK_PROVIDERS.filter((p) => {
-      if (filters?.providerType && filters.providerType !== 'ALL' && p.providerType !== filters.providerType) {
-        return false;
+      for (const ep of endpoints) {
+        try {
+          const res = await fetch(ep, {
+            headers: token ? { Authorization: `Bearer ${token}` } : {},
+          });
+          if (res.ok) {
+            const json = await res.json();
+            if (json.data && Array.isArray(json.data) && json.data.length > 0) {
+              const map = new Map<string, ProviderSummary>();
+              list.forEach((p) => map.set(p.id, p));
+              json.data.forEach((p: ProviderSummary) => map.set(p.id, p));
+              list = Array.from(map.values());
+              break;
+            }
+          }
+        } catch {}
       }
-      if (filters?.state && filters.state !== 'ALL' && p.state.toLowerCase() !== filters.state.toLowerCase()) {
-        return false;
+    } catch {}
+
+    // Filter list
+    return list.filter((p) => {
+      if (filters?.providerType && filters.providerType !== 'ALL') {
+        if (p.providerType !== filters.providerType) {
+          if (filters.providerType === 'ADVOCATE' && p.barRegistrationNo) {
+            // Advocate credential present
+          } else {
+            return false;
+          }
+        }
       }
-      if (filters?.language && filters.language !== 'ALL' && !p.languagesSpoken.includes(filters.language)) {
-        return false;
+      if (filters?.state && filters.state !== 'ALL') {
+        if (!p.state || p.state.toLowerCase() !== filters.state.toLowerCase()) {
+          return false;
+        }
       }
-      if (
-        filters?.practiceArea &&
-        filters.practiceArea !== 'ALL' &&
-        !p.practiceAreas.some((pa) => pa.toLowerCase().includes(filters.practiceArea!.toLowerCase()))
-      ) {
-        return false;
+      if (filters?.language && filters.language !== 'ALL') {
+        if (!p.languagesSpoken || !p.languagesSpoken.includes(filters.language)) {
+          return false;
+        }
+      }
+      if (filters?.practiceArea && filters.practiceArea !== 'ALL') {
+        const areaLower = filters.practiceArea.toLowerCase();
+        const matchesArea = p.practiceAreas?.some((pa) => pa.toLowerCase().includes(areaLower));
+        if (!matchesArea) return false;
       }
       if (filters?.query) {
         const q = filters.query.toLowerCase();
-        const matchesName = p.fullName.toLowerCase().includes(q);
-        const matchesCourt = p.primaryCourt.toLowerCase().includes(q);
-        const matchesBio = p.bio.toLowerCase().includes(q);
-        const matchesPractice = p.practiceAreas.some((pa) => pa.toLowerCase().includes(q));
-        if (!matchesName && !matchesCourt && !matchesBio && !matchesPractice) return false;
+        const matchesName = p.fullName?.toLowerCase().includes(q);
+        const matchesCourt = p.primaryCourt?.toLowerCase().includes(q);
+        const matchesBio = p.bio?.toLowerCase().includes(q);
+        const matchesPractice = p.practiceAreas?.some((pa) => pa.toLowerCase().includes(q));
+        const matchesBar = p.barRegistrationNo?.toLowerCase().includes(q);
+        if (!matchesName && !matchesCourt && !matchesBio && !matchesPractice && !matchesBar) {
+          return false;
+        }
       }
       return true;
     });
   }
 
   public static async getProviderById(id: string): Promise<ProviderSummary | null> {
-    const found = MOCK_PROVIDERS.find((p) => p.id === id);
-    return found || null;
+    const all = this.getApprovedProviders();
+    const found = all.find((p) => p.id === id);
+    if (found) return found;
+
+    try {
+      const res = await fetch(`/api/v1/providers/${id}`);
+      if (res.ok) {
+        const json = await res.json();
+        if (json.data) return json.data;
+      }
+    } catch {}
+
+    return null;
   }
 
   // =========================================================================
@@ -675,23 +924,40 @@ export class ApiClient {
   }
 
   public static async fetchAdminVerificationQueue(): Promise<any[]> {
+    let serverQueue: any[] = [];
     try {
       const token = this.getToken();
-      if (token) {
-        const res = await fetch(`${API_BASE_URL}/admin/verification/queue`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (res.ok) {
-          const json = await res.json();
-          if (json.data && json.data.length > 0) return json.data;
-        }
+      const endpoints = [
+        '/api/v1/admin/verification/queue',
+        `${API_BASE_URL}/admin/verification/queue`,
+      ];
+      for (const ep of endpoints) {
+        try {
+          const res = await fetch(ep, {
+            headers: token ? { Authorization: `Bearer ${token}` } : {},
+          });
+          if (res.ok) {
+            const json = await res.json();
+            if (json.data && Array.isArray(json.data) && json.data.length > 0) {
+              serverQueue = json.data;
+              break;
+            }
+          }
+        } catch {}
       }
     } catch {}
 
-    return [
+    // Check local storage applications
+    const allLocal = this.getLocalApplications();
+    const decidedIds = new Set(
+      allLocal.filter((a) => a.status === 'APPROVED' || a.status === 'REJECTED').map((a) => a.providerProfileId)
+    );
+    const pendingLocal = allLocal.filter((a) => a.status === 'PENDING');
+
+    const defaultQueue = [
       {
         requestId: 'vreq-pending-002',
-        providerProfileId: 'prof-lsp-004',
+        providerProfileId: 'prof-lsp-006',
         providerName: 'Adv. Meenakshi Sundaram',
         phone: '+919840112233',
         email: 'meenakshi.sundaram@madrasbar.org.in',
@@ -703,7 +969,12 @@ export class ApiClient {
         status: 'PENDING',
         submittedAt: new Date(Date.now() - 4 * 3600 * 1000).toISOString(),
         credentialsCount: 1,
-        ocrPayload: { barCouncilMatch: true, extractedName: 'Meenakshi Sundaram', extractedEnrolment: 'MS/2391/2016', confidenceScore: 0.96 },
+        ocrPayload: {
+          barCouncilMatch: true,
+          extractedName: 'Meenakshi Sundaram',
+          extractedEnrolment: 'MS/2391/2016',
+          confidenceScore: 0.96,
+        },
       },
       {
         requestId: 'vreq-pending-003',
@@ -723,6 +994,26 @@ export class ApiClient {
         ocrPayload: { barCouncilMatch: true, extractedName: 'Harpreet Singh', confidenceScore: 0.94 },
       },
     ];
+
+    const map = new Map<string, any>();
+    // Add default items if not already decided
+    defaultQueue.forEach((item) => {
+      if (!decidedIds.has(item.providerProfileId)) {
+        map.set(item.providerProfileId, item);
+      }
+    });
+    // Add server queue items
+    serverQueue.forEach((item) => {
+      if (!decidedIds.has(item.providerProfileId)) {
+        map.set(item.providerProfileId, item);
+      }
+    });
+    // Add user submitted pending applications
+    pendingLocal.forEach((item) => {
+      map.set(item.providerProfileId, item);
+    });
+
+    return Array.from(map.values());
   }
 
   public static async processVerificationDecision(
@@ -731,16 +1022,100 @@ export class ApiClient {
     reasonCode?: string,
     reviewNotes?: string
   ): Promise<boolean> {
+    // 1. Update application in local storage
+    const apps = this.getLocalApplications();
+    const targetApp = apps.find((a) => a.providerProfileId === profileId);
+    if (targetApp) {
+      targetApp.status = action === 'APPROVE' ? 'APPROVED' : 'REJECTED';
+      this.saveLocalApplication(targetApp);
+    } else {
+      // Mark decision in local applications so default items are not shown again
+      this.saveLocalApplication({
+        requestId: `vreq-decided-${profileId}`,
+        providerProfileId: profileId,
+        providerName: profileId === 'prof-lsp-006' ? 'Adv. Meenakshi Sundaram' : 'Sh. Harpreet Singh',
+        providerType: profileId === 'prof-lsp-005' ? 'NOTARY' : 'ADVOCATE',
+        primaryCourt: 'High Court',
+        district: 'Chennai',
+        state: 'Tamil Nadu',
+        experienceYears: 10,
+        practiceAreas: ['Civil Litigation'],
+        languagesSpoken: ['en', 'hi'],
+        consultationFeeINR: 800,
+        isAvailableForProBono: true,
+        bio: 'Verified practitioner',
+        status: action === 'APPROVE' ? 'APPROVED' : 'REJECTED',
+        submittedAt: new Date().toISOString(),
+        credentialsCount: 1,
+      });
+    }
+
+    // 2. If APPROVED, convert to ProviderSummary and add to approved directory!
+    if (action === 'APPROVE') {
+      const name = targetApp?.providerName || targetApp?.fullName || (profileId === 'prof-lsp-006' ? 'Adv. Meenakshi Sundaram' : 'Adv. Verified Practitioner');
+      const type = targetApp?.providerType || (profileId === 'prof-lsp-005' ? 'NOTARY' : 'ADVOCATE');
+      const court = targetApp?.primaryCourt || 'High Court of Jurisdiction & District Courts';
+      const state = targetApp?.state || 'Delhi';
+      const district = targetApp?.district || 'Central Delhi';
+      const fee = targetApp?.consultationFeeINR || 800;
+      const exp = targetApp?.experienceYears || 10;
+      const practice = targetApp?.practiceAreas || ['Civil Litigation', 'Property & Revenue Disputes'];
+      const languages = targetApp?.languagesSpoken || ['en', 'hi'];
+      const bio = targetApp?.bio || `Practicing ${type.toLowerCase()} verified under statutory Bar Council rolls.`;
+
+      const newVerifiedProvider: ProviderSummary = {
+        id: profileId,
+        fullName: name,
+        providerType: type,
+        stateBarCouncil: targetApp?.stateBarCouncil || 'State Bar Council',
+        barRegistrationNo: targetApp?.barRegistrationNo,
+        notaryAppointmentNo: targetApp?.notaryAppointmentNo,
+        primaryCourt: court,
+        district,
+        state,
+        experienceYears: exp,
+        practiceAreas: practice,
+        languagesSpoken: languages,
+        consultationFeeINR: fee,
+        isAvailableForProBono: targetApp?.isAvailableForProBono ?? true,
+        verificationStatus: 'APPROVED',
+        tier: {
+          level: 'SILVER',
+          name: 'Silver Advocate',
+        },
+        badges: [
+          { code: 'VERIFIED_PROVIDER', title: 'Bar Council Verified' },
+          { code: 'RECENTLY_VERIFIED', title: 'GovTech Verified' },
+        ],
+        rating: 5.0,
+        totalConsultations: 1,
+        bio,
+      };
+
+      this.saveApprovedProvider(newVerifiedProvider);
+    }
+
+    // 3. Post to backend and Next.js APIs
     try {
       const token = this.getToken();
-      if (token) {
-        await fetch(`${API_BASE_URL}/admin/verification/${profileId}/decide`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-          body: JSON.stringify({ action, reasonCode, reviewNotes }),
-        });
+      const endpoints = [
+        `/api/v1/admin/verification/${profileId}/decide`,
+        `${API_BASE_URL}/admin/verification/${profileId}/decide`,
+      ];
+      for (const ep of endpoints) {
+        try {
+          await fetch(ep, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: token ? `Bearer ${token}` : '',
+            },
+            body: JSON.stringify({ action, reasonCode, reviewNotes }),
+          });
+        } catch {}
       }
     } catch {}
+
     return true;
   }
 

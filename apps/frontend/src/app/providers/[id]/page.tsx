@@ -64,8 +64,17 @@ export default function ProviderProfilePage() {
   } | null>(null);
 
   useEffect(() => {
-    const p = MOCK_PROVIDERS.find((item) => item.id === providerId) || MOCK_PROVIDERS[0];
-    setProvider(p);
+    let isMounted = true;
+    const loadProvider = async () => {
+      const p = await ApiClient.getProviderById(providerId);
+      if (isMounted) {
+        setProvider(p || MOCK_PROVIDERS[0]);
+      }
+    };
+    loadProvider();
+    return () => {
+      isMounted = false;
+    };
   }, [providerId]);
 
   // Countdown timer for 15-minute slot lock

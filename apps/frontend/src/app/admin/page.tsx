@@ -93,7 +93,7 @@ export default function AdminDashboardPage() {
   const handleApproveVerification = async (profileId: string, name: string) => {
     await ApiClient.processVerificationDecision(profileId, 'APPROVE', undefined, 'Bar Council credentials approved');
     setVerificationQueue((prev) => prev.filter((p) => p.providerProfileId !== profileId));
-    showNotification(`✅ Successfully approved credentials for ${name}. Verified badge and 100 points bestowed.`);
+    showNotification(`✅ Successfully approved credentials for ${name}. Now live in the "Find Provider" directory!`);
   };
 
   const openRejectModal = (profileId: string) => {

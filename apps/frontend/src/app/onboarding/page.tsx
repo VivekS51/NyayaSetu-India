@@ -35,6 +35,7 @@ export default function OnboardingWizardPage() {
   const [successNotice, setSuccessNotice] = useState<string | null>(null);
 
   // Step 1: Basic Details & Location
+  const [fullName, setFullName] = useState('Adv. Vikramaditya Rathore');
   const [providerType, setProviderType] = useState('ADVOCATE');
   const [state, setState] = useState('Delhi');
   const [district, setDistrict] = useState('Central Delhi');
@@ -43,6 +44,13 @@ export default function OnboardingWizardPage() {
   const [bio, setBio] = useState(
     'Practicing advocate at Delhi High Court with focus on land partition, property title checks, and civil revisions.'
   );
+
+  useEffect(() => {
+    const user = ApiClient.getStoredUser();
+    if (user?.fullName && user.fullName !== 'Citizen User') {
+      setFullName(user.fullName);
+    }
+  }, []);
 
   // Step 2: Professional Details
   const [stateBarCouncil, setStateBarCouncil] = useState('Bar Council of Delhi');
@@ -161,25 +169,37 @@ export default function OnboardingWizardPage() {
     setErrorMsg(null);
 
     try {
-      const token = ApiClient.getToken();
-      await fetch(`${API_BASE_URL}/onboarding/step-4/submit`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: token ? `Bearer ${token}` : '',
-        },
-        body: JSON.stringify({
-          bciRule36Acknowledged: true,
-          truthfulnessDeclaration: true,
-          dpdpConsentAcknowledged: true,
-        }),
-      });
-    } catch {
-      // Local fallback simulation
-    }
+      const user = ApiClient.getStoredUser();
+      const payload = {
+        fullName: fullName.trim() || user?.fullName || 'Adv. Legal Practitioner',
+        providerName: fullName.trim() || user?.fullName || 'Adv. Legal Practitioner',
+        phone: user?.phone || '+919876543210',
+        email: user?.email || 'advocate@nyayasetu.gov.in',
+        providerType: providerType as any,
+        state,
+        district,
+        pincode,
+        languagesSpoken: languages,
+        bio,
+        stateBarCouncil: providerType === 'ADVOCATE' ? stateBarCouncil : undefined,
+        barRegistrationNo: providerType === 'ADVOCATE' ? barRegistrationNo : undefined,
+        notaryAppointmentNo: providerType === 'NOTARY' ? notaryAppointmentNo : undefined,
+        enrolmentYear: parseInt(enrolmentYear) || 2012,
+        primaryCourt,
+        experienceYears: parseInt(experienceYears) || 14,
+        practiceAreas,
+        consultationFeeINR: parseInt(consultationFeeINR) || 800,
+        isAvailableForProBono,
+        uploadedDocs,
+      };
 
-    setLoading(false);
-    setSubmissionComplete(true);
+      await ApiClient.submitOnboardingApplication(payload);
+      setSubmissionComplete(true);
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Submission failed. Please verify credentials.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const progressPercentage = Math.round((currentStep / 4) * 100);
@@ -248,6 +268,19 @@ export default function OnboardingWizardPage() {
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="sm:col-span-2">
+                      <label className="block text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1">
+                        Full Legal Name (as per Bar Council ID / Official Gazette)
+                      </label>
+                      <input
+                        type="text"
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
+                        placeholder="e.g. Adv. Vikramaditya Rathore"
+                        className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-saffron-500 focus:outline-none transition-colors"
+                      />
+                    </div>
+
                     <div>
                       <label className="block text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1">Provider Type</label>
                       <select
@@ -753,7 +786,14 @@ export default function OnboardingWizardPage() {
                 <div>• Zero platform facilitation fee for the first 6 months</div>
               </div>
 
-              <div className="pt-4 flex justify-center space-x-3">
+              <div className="pt-4 flex flex-wrap justify-center gap-3">
+                <Link
+                  href="/admin"
+                  className="px-5 py-2.5 bg-saffron-600 hover:bg-saffron-700 text-white rounded-xl text-xs font-bold transition-colors shadow-sm flex items-center space-x-1.5"
+                >
+                  <ShieldCheck className="w-4 h-4" />
+                  <span>Review & Approve in Admin Desk</span>
+                </Link>
                 <Link
                   href="/providers"
                   className="px-5 py-2.5 bg-govnavy-900 hover:bg-govnavy-800 text-white rounded-xl text-xs font-bold transition-colors"
