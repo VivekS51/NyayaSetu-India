@@ -42,7 +42,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className={`min-h-screen transition-colors duration-300 ${theme === 'light' ? 'bg-[#f8fafc] text-slate-900' : 'bg-[#060a17] text-white'}`}>
+    <div className={`min-h-screen transition-colors duration-300 ${theme === 'light' ? 'bg-[#f8fafc] text-slate-900' : 'bg-[#060503] text-white'}`}>
       {/* Hero Section - Compact Viewport Layout matching reference */}
       <section className={`relative pt-14 sm:pt-16 pb-3 sm:pb-4 px-4 sm:px-6 lg:px-8 overflow-hidden min-h-[calc(100vh-65px)] lg:h-[calc(100vh-65px)] flex flex-col justify-between border-b transition-colors duration-300 ${
         theme === 'light' ? 'border-slate-200/90 text-slate-900' : 'border-slate-800/80 text-white'
@@ -62,7 +62,7 @@ export default function HomePage() {
             className={`absolute inset-0 pointer-events-none transition-colors duration-300 ${
               theme === 'light'
                 ? 'bg-gradient-to-r from-white/95 via-white/75 to-transparent lg:from-white/90 lg:via-white/35 lg:to-transparent'
-                : 'bg-gradient-to-r from-[#060a17]/95 via-[#060a17]/75 to-transparent lg:from-[#060a17]/90 lg:via-[#060a17]/40 lg:to-transparent'
+                : 'bg-gradient-to-r from-[#060503]/90 via-[#060503]/50 to-transparent lg:from-[#060503]/85 lg:via-[#060503]/25 lg:to-transparent'
             }`}
           />
         </div>
@@ -87,17 +87,22 @@ export default function HomePage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
             {/* Left Column: Headline, Features, CTAs & Social Proof */}
             <div className="lg:col-span-6 xl:col-span-6 space-y-3 sm:space-y-3.5 text-left relative z-20">
-              {/* High-Impact Modern Headline adapting to color mode */}
+              {/* High-Impact Modern Headline matching reference typography & landing page theme */}
               <h1 className="text-3xl sm:text-4xl lg:text-4xl xl:text-5xl font-black tracking-tight leading-[1.12]">
-                <span className={theme === 'light' ? 'text-slate-900' : 'text-transparent bg-clip-text bg-gradient-to-r from-amber-100 via-orange-200 to-amber-300'}>
+                <span className={theme === 'light' ? 'text-slate-900' : 'text-white'}>
                   Your Legal Rights.
                 </span>{' '}
-                <span className={`block text-transparent bg-clip-text bg-gradient-to-r ${
-                  theme === 'light'
-                    ? 'from-saffron-600 via-amber-600 to-orange-600'
-                    : 'from-saffron-400 via-amber-300 to-orange-400'
-                }`}>
-                  Always on your side.
+                <span className="block mt-1 sm:mt-1.5">
+                  <span className={`text-transparent bg-clip-text bg-gradient-to-r font-black ${
+                    theme === 'light'
+                      ? 'from-orange-600 via-amber-600 to-orange-500'
+                      : 'from-amber-300 via-saffron-400 to-orange-400 drop-shadow-[0_0_25px_rgba(245,158,11,0.4)]'
+                  }`}>
+                    Always
+                  </span>{' '}
+                  <span className={theme === 'light' ? 'text-slate-900' : 'text-white'}>
+                    on your side.
+                  </span>
                 </span>
               </h1>
 
