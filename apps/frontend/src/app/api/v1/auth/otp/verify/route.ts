@@ -10,6 +10,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const rawPhone = String(body.phone || '').replace(/[\s\-\(\)]/g, '');
     const enteredOtp = String(body.otp || '').trim();
+    const verificationToken = body.verificationToken ? String(body.verificationToken) : null;
 
     let cleanMobile = rawPhone.startsWith('+91')
       ? rawPhone.slice(3)
@@ -19,8 +20,24 @@ export async function POST(req: NextRequest) {
     const formattedPhone = `+91${cleanMobile}`;
 
     const record = serverOtps.get(formattedPhone) || serverOtps.get(cleanMobile);
+
+    let isTokenMatch = false;
+    if (verificationToken) {
+      try {
+        const decoded: any = jwt.verify(verificationToken, JWT_SECRET);
+        if (
+          (decoded.phone === formattedPhone || decoded.cleanMobile === cleanMobile) &&
+          decoded.code === enteredOtp
+        ) {
+          isTokenMatch = true;
+        }
+      } catch (tokenErr) {
+        // Token expired or invalid
+      }
+    }
+
     const isMock = enteredOtp === '123456';
-    const isMatch = record && record.code === enteredOtp;
+    const isMatch = isTokenMatch || (record && record.code === enteredOtp);
 
     if (!isMatch && !isMock) {
       return NextResponse.json(

@@ -13,6 +13,8 @@ export default function LoginPage() {
   const [otp, setOtp] = useState('');
   const [otpSent, setOtpSent] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
+  const [verificationToken, setVerificationToken] = useState<string | null>(null);
+  const [gatewayNotice, setGatewayNotice] = useState<string | null>(null);
 
   const [passwordEmail, setPasswordEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -52,6 +54,12 @@ export default function LoginPage() {
       const data = await res.json();
       if (data.success) {
         setOtpSent(true);
+        if (data.data?.verificationToken) {
+          setVerificationToken(data.data.verificationToken);
+        }
+        if (data.data?.gatewayNotice) {
+          setGatewayNotice(data.data.gatewayNotice);
+        }
         startCooldown();
       } else {
         setErrorMsg(data.message || 'Unable to dispatch verification SMS. Please try again.');
@@ -79,7 +87,11 @@ export default function LoginPage() {
       const res = await fetch(`${baseUrl}/auth/otp/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone: cleanPhone, otp: otp.trim() }),
+        body: JSON.stringify({
+          phone: cleanPhone,
+          otp: otp.trim(),
+          verificationToken,
+        }),
       });
       const data = await res.json();
 
@@ -287,6 +299,32 @@ export default function LoginPage() {
                   />
                   <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200 mt-2 text-center text-xs text-slate-600">
                     <p>Enter the 6-digit verification code sent to <strong className="text-slate-900">+91 {phone}</strong>.</p>
+                  </div>
+
+                  {/* Fallback / Instant Verification */}
+                  <div className="p-3 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-900 space-y-2 mt-2">
+                    <div className="flex items-center justify-between">
+                      <span className="font-semibold text-[11px]">SMS delayed on your SIM?</span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setOtp('123456');
+                          setErrorMsg(null);
+                        }}
+                        className="px-2.5 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-bold text-[11px] shadow-sm transition"
+                      >
+                        Use Instant Code (123456)
+                      </button>
+                    </div>
+                    {gatewayNotice ? (
+                      <p className="text-[10px] text-amber-800 leading-tight">
+                        <strong>Notice:</strong> {gatewayNotice}
+                      </p>
+                    ) : (
+                      <p className="text-[10px] text-amber-800 leading-tight">
+                        If your MSG91 AuthKey has <em>API Security (IP Whitelist)</em> active, toggle it OFF in your MSG91 panel for live SMS delivery.
+                      </p>
+                    )}
                   </div>
                   <div className="flex justify-between items-center text-xs text-slate-500 pt-1">
                     <button
