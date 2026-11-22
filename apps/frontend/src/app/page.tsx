@@ -43,7 +43,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-[#060a17] text-white">
       {/* Hero Section */}
-      <section className="relative bg-[#060a17] text-white pt-12 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden min-h-[760px] lg:min-h-[840px] border-b border-slate-800/80">
+      <section className="relative bg-[#060a17] text-white pt-10 pb-16 px-4 sm:px-6 lg:px-8 overflow-hidden min-h-[820px] lg:min-h-[880px] xl:min-h-[940px] border-b border-slate-800/80">
         {/* Constellation Field Isolated Canvas Effect */}
         <div className="absolute inset-0 z-0">
           <ConstellationField
@@ -62,12 +62,12 @@ export default function HomePage() {
 
         {/* Ambient Radial Glow Lighting */}
         <div className="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-saffron-500/10 rounded-full blur-3xl pointer-events-none z-0" />
-        <div className="absolute top-1/3 right-1/4 -translate-y-1/2 w-[500px] h-[500px] bg-sky-500/15 rounded-full blur-3xl pointer-events-none z-0" />
+        <div className="absolute top-1/3 right-1/4 -translate-y-1/2 w-[550px] h-[550px] bg-sky-500/20 rounded-full blur-3xl pointer-events-none z-0" />
 
         <div className="max-w-7xl mx-auto relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-6 items-center">
             {/* Left Column: Headline, Services & Search */}
-            <div className="lg:col-span-7 space-y-6 text-left">
+            <div className="lg:col-span-6 xl:col-span-6 space-y-6 text-left relative z-20">
               {/* Badge matching reference */}
               <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-sky-500/10 border border-sky-500/25 text-sky-400 text-xs font-semibold tracking-wide backdrop-blur-md shadow-sm">
                 <Sparkles className="w-3.5 h-3.5 text-sky-400" />
@@ -192,27 +192,27 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Right Column: Lady Justice Main Character & Floating Glass Cards */}
-            <div className="lg:col-span-5 relative flex items-center justify-center min-h-[500px] lg:min-h-[620px] select-none">
+            {/* Right Column: Prominent Enlarged Lady Justice & Floating Glass Card */}
+            <div className="lg:col-span-6 xl:col-span-6 relative flex items-end justify-center lg:justify-end min-h-[580px] lg:min-h-[760px] xl:min-h-[880px] select-none">
               {/* Radial Cyan Glow Spotlight behind Lady Justice matching reference */}
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none -z-10">
-                <div className="w-[420px] h-[520px] bg-gradient-to-tr from-sky-500/25 via-indigo-600/15 to-transparent rounded-full blur-3xl" />
+              <div className="absolute inset-0 flex items-center justify-center lg:justify-end pointer-events-none -z-10">
+                <div className="w-[540px] h-[660px] lg:w-[680px] lg:h-[820px] bg-gradient-to-tr from-sky-500/30 via-indigo-600/20 to-transparent rounded-full blur-3xl pointer-events-none" />
               </div>
 
-              {/* Lady Justice Character Image */}
-              <div className="relative z-10 flex items-center justify-center max-w-[380px] lg:max-w-[440px]">
+              {/* Enlarged Lady Justice Character Image with Blue Tone */}
+              <div className="relative z-10 flex items-end justify-center lg:justify-end w-full max-w-[500px] lg:max-w-[600px] xl:max-w-[680px]">
                 <Image
                   src="/images/lady-justice.png"
                   alt="Statue of Lady Justice - NyayaSetu India"
-                  width={440}
-                  height={680}
+                  width={680}
+                  height={1000}
                   priority
-                  className="max-h-[540px] lg:max-h-[600px] w-auto object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.85)] filter contrast-105"
+                  className="max-h-[660px] lg:max-h-[800px] xl:max-h-[920px] w-auto object-contain drop-shadow-[0_25px_60px_rgba(0,0,0,0.95)] drop-shadow-[0_0_50px_rgba(56,189,248,0.25)]"
                 />
               </div>
 
               {/* Floating Glassmorphic Card (Bottom-Center/Left): Interactive Citizen Justice Desk */}
-              <div className="absolute bottom-4 left-0 sm:-left-6 right-4 sm:right-auto sm:w-[320px] backdrop-blur-2xl bg-slate-950/85 border border-sky-500/40 rounded-2xl p-4 shadow-[0_20px_50px_rgba(0,0,0,0.8)] z-20 text-left">
+              <div className="absolute bottom-4 lg:bottom-10 left-0 sm:-left-4 lg:-left-10 xl:-left-14 right-0 sm:right-auto sm:w-[330px] lg:w-[350px] backdrop-blur-2xl bg-slate-950/85 border border-sky-500/40 rounded-2xl p-4 shadow-[0_20px_50px_rgba(0,0,0,0.85)] z-20 text-left">
                 <div className="flex items-center space-x-2 text-sky-400 text-xs font-bold mb-2">
                   <Sparkles className="w-4 h-4 text-sky-400" />
                   <span>Citizen Legal Assistant</span>
