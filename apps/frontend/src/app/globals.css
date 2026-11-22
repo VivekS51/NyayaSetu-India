@@ -217,3 +217,42 @@ html.light .portal-navbar-capsule .animated-top-dock__logo,
   justify-content: center !important;
   margin-right: 5px !important;
 }
+
+/* Universal Form Input Contrast Guard across Light & Dark Mode */
+input,
+select,
+textarea {
+  color: #0f172a; /* Default readable deep slate/black text */
+}
+
+/* In dark mode, ensure inputs with light background keep dark text,
+   and inputs with dark background have crisp bright white text */
+.dark input:not([class*="dark:text-"]):not([class*="text-white"]),
+.dark select:not([class*="dark:text-"]):not([class*="text-white"]),
+.dark textarea:not([class*="dark:text-"]):not([class*="text-white"]),
+[data-theme="dark"] input:not([class*="dark:text-"]):not([class*="text-white"]),
+[data-theme="dark"] select:not([class*="dark:text-"]):not([class*="text-white"]),
+[data-theme="dark"] textarea:not([class*="dark:text-"]):not([class*="text-white"]) {
+  color: #0f172a !important;
+}
+
+.dark input.dark\:text-white,
+.dark select.dark\:text-white,
+.dark textarea.dark\:text-white,
+[data-theme="dark"] input.dark\:text-white,
+[data-theme="dark"] select.dark\:text-white,
+[data-theme="dark"] textarea.dark\:text-white {
+  color: #ffffff !important;
+}
+
+/* Ensure select dropdown options are always readable with solid background */
+option {
+  color: #0f172a !important;
+  background-color: #ffffff !important;
+}
+
+.dark option,
+[data-theme="dark"] option {
+  color: #f8fafc !important;
+  background-color: #1e293b !important;
+}
