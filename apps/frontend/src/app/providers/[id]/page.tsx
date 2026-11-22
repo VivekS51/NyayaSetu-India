@@ -3,7 +3,12 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import { ApiClient, ProviderSummary, MOCK_PROVIDERS } from '../../../lib/api-client';
+import {
+  ApiClient,
+  ProviderSummary,
+  MOCK_PROVIDERS,
+  loadRazorpayScript,
+} from '../../../lib/api-client';
 import { formatINR } from '../../../lib/utils';
 import {
   ShieldCheck,
@@ -21,6 +26,14 @@ import {
   CheckCircle2,
   ChevronRight,
   ArrowLeft,
+  CreditCard,
+  Lock,
+  Download,
+  ExternalLink,
+  Zap,
+  Check,
+  X,
+  RefreshCw,
 } from 'lucide-react';
 
 export default function ProviderProfilePage() {
@@ -30,20 +43,204 @@ export default function ProviderProfilePage() {
 
   const [provider, setProvider] = useState<ProviderSummary | null>(null);
   const [selectedMode, setSelectedMode] = useState<'ONLINE_VIDEO' | 'ONLINE_CHAT' | 'OFFLINE_IN_PERSON'>('ONLINE_VIDEO');
-  const [selectedSlot, setSelectedSlot] = useState<string>('Tomorrow, 10:30 AM');
-  const [bookingInitiated, setBookingInitiated] = useState(false);
+  const [selectedSlot, setSelectedSlot] = useState<string>('Tomorrow, 10:30 AM - 11:00 AM');
+  
+  // Phase 4 Booking Flow States
+  // 'SELECT_SLOT' -> 'LOCKED_PAYMENT' -> 'PAYMENT_SUCCESS'
+  const [bookingStep, setBookingStep] = useState<'SELECT_SLOT' | 'LOCKED_PAYMENT' | 'PAYMENT_SUCCESS'>('SELECT_SLOT');
+  const [isProcessingPayment, setIsProcessingPayment] = useState<boolean>(false);
+  const [paymentError, setPaymentError] = useState<string | null>(null);
+  const [countdownSeconds, setCountdownSeconds] = useState<number>(899); // 14m 59s
+  const [showInvoiceModal, setShowInvoiceModal] = useState<boolean>(false);
+
+  const [paymentResult, setPaymentResult] = useState<{
+    paymentId: string;
+    orderId: string;
+    bookingReference: string;
+    amountINR: number;
+    timestamp: string;
+    conversationId: string;
+    invoiceNumber: string;
+  } | null>(null);
 
   useEffect(() => {
     const p = MOCK_PROVIDERS.find((item) => item.id === providerId) || MOCK_PROVIDERS[0];
     setProvider(p);
   }, [providerId]);
 
+  // Countdown timer for 15-minute slot lock
+  useEffect(() => {
+    if (bookingStep !== 'LOCKED_PAYMENT') return;
+    const interval = setInterval(() => {
+      setCountdownSeconds((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [bookingStep]);
+
   if (!provider) {
     return <div className="text-center py-20 text-slate-500 text-sm">Loading factual profile...</div>;
   }
 
-  const handleBookingClick = () => {
-    setBookingInitiated(true);
+  const advocateFee = provider.consultationFeeINR;
+  const platformTechFee = 50;
+  const gstAmount = 9;
+  const totalAmount = advocateFee + platformTechFee + gstAmount;
+
+  const formatTimer = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  };
+
+  const handleProceedToLock = () => {
+    setBookingStep('LOCKED_PAYMENT');
+    setPaymentError(null);
+  };
+
+  /**
+   * Primary Phase 4 Razorpay Checkout Integration
+   * Uses Razorpay test key rzp_test_U1LQS9SWpsYSzm
+   */
+  const handlePayWithRazorpay = async () => {
+    try {
+      setIsProcessingPayment(true);
+      setPaymentError(null);
+
+      const razorpayKey = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_test_U1LQS9SWpsYSzm';
+      const scriptLoaded = await loadRazorpayScript();
+
+      if (!scriptLoaded || typeof (window as any).Razorpay === 'undefined') {
+        // Fallback if Razorpay checkout script blocked by network or adblocker
+        console.warn('Razorpay script could not be loaded directly. Offering instant sandbox bypass.');
+        setPaymentError('Razorpay Checkout CDN unreachable. Use "Instant Sandbox Escrow Lock" below.');
+        setIsProcessingPayment(false);
+        return;
+      }
+
+      // Generate booking & payment order
+      const booking = await ApiClient.createBooking({
+        providerProfileId: provider.id,
+        serviceTitle: `Legal Consultation (${selectedMode.replace(/_/g, ' ')})`,
+        deliveryMode: selectedMode,
+        scheduledStartTime: new Date(Date.now() + 24 * 3600 * 1000).toISOString(),
+        durationMinutes: 30,
+      });
+
+      const order = await ApiClient.createPaymentOrder(booking.id, 'RAZORPAY');
+
+      const user = ApiClient.getStoredUser();
+      const citizenName = user?.fullName || 'Citizen Client';
+      const citizenPhone = user?.phone || '+919876543210';
+      const citizenEmail = user?.email || 'citizen@nyayasetu.gov.in';
+
+      const options = {
+        key: razorpayKey,
+        amount: totalAmount * 100, // paise
+        currency: 'INR',
+        name: 'NyayaSetu India',
+        description: `Statutory Escrow: Consultation with ${provider.fullName}`,
+        image: 'https://cdn-icons-png.flaticon.com/512/929/929426.png',
+        order_id: order.gatewayOrderId.startsWith('order_') ? order.gatewayOrderId : undefined,
+        prefill: {
+          name: citizenName,
+          email: citizenEmail,
+          contact: citizenPhone,
+        },
+        notes: {
+          bookingReference: booking.bookingReference,
+          providerId: provider.id,
+          statutoryCompliance: 'Section 35 Advocates Act 1961 - 0% platform commission on legal fees',
+          advocateFee: `${advocateFee}`,
+          platformTechFee: `${platformTechFee}`,
+          gst: `${gstAmount}`,
+        },
+        theme: {
+          color: '#0A192F', // Government Navy
+        },
+        handler: async (response: any) => {
+          try {
+            const verification = await ApiClient.verifyPaymentCapture({
+              bookingId: booking.id,
+              gatewayOrderId: response.razorpay_order_id || order.gatewayOrderId,
+              gatewayPaymentId: response.razorpay_payment_id || `pay_rzp_${Date.now()}`,
+              signature: response.razorpay_signature,
+              submittedAmountINR: totalAmount,
+            });
+
+            setPaymentResult({
+              paymentId: response.razorpay_payment_id || `pay_rzp_${Date.now()}`,
+              orderId: response.razorpay_order_id || order.gatewayOrderId,
+              bookingReference: verification.bookingReference || booking.bookingReference,
+              amountINR: totalAmount,
+              timestamp: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
+              conversationId: verification.conversationId || 'bk-seed-001',
+              invoiceNumber: verification.invoiceNumber || `INV-2026-${Math.floor(100000 + Math.random() * 900000)}`,
+            });
+
+            setBookingStep('PAYMENT_SUCCESS');
+            setIsProcessingPayment(false);
+          } catch (verifErr: any) {
+            setPaymentError(verifErr.message || 'Payment verification failed');
+            setIsProcessingPayment(false);
+          }
+        },
+        modal: {
+          ondismiss: () => {
+            setIsProcessingPayment(false);
+            setPaymentError('Payment window was closed before completion. You can retry anytime.');
+          },
+        },
+      };
+
+      const rzpInstance = new (window as any).Razorpay(options);
+      rzpInstance.on('payment.failed', (failResponse: any) => {
+        setIsProcessingPayment(false);
+        setPaymentError(failResponse.error?.description || 'Payment was declined by issuing bank/gateway.');
+      });
+      rzpInstance.open();
+    } catch (err: any) {
+      console.error('Razorpay initialization error:', err);
+      setIsProcessingPayment(false);
+      setPaymentError(err.message || 'Failed to initialize payment gateway.');
+    }
+  };
+
+  /**
+   * Fast Instant Sandbox Escrow Lock
+   * Instant verification for development, demo, and testing with the provided Razorpay test key
+   */
+  const handleInstantSandboxPayment = async () => {
+    setIsProcessingPayment(true);
+    setPaymentError(null);
+
+    try {
+      const mockPaymentId = `pay_test_${Math.random().toString(36).substring(2, 11).toUpperCase()}`;
+      const mockOrderId = `order_test_${Math.random().toString(36).substring(2, 9).toUpperCase()}`;
+
+      const verification = await ApiClient.verifyPaymentCapture({
+        bookingId: 'bk-seed-001',
+        gatewayOrderId: mockOrderId,
+        gatewayPaymentId: mockPaymentId,
+        submittedAmountINR: totalAmount,
+      });
+
+      setTimeout(() => {
+        setPaymentResult({
+          paymentId: mockPaymentId,
+          orderId: mockOrderId,
+          bookingReference: verification.bookingReference || 'IN-LEG-ESC-2026-X89',
+          amountINR: totalAmount,
+          timestamp: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
+          conversationId: verification.conversationId || 'bk-seed-001',
+          invoiceNumber: verification.invoiceNumber || `INV-2026-${Math.floor(100000 + Math.random() * 900000)}`,
+        });
+        setBookingStep('PAYMENT_SUCCESS');
+        setIsProcessingPayment(false);
+      }, 700);
+    } catch (err: any) {
+      setIsProcessingPayment(false);
+      setPaymentError(err.message || 'Sandbox test payment failed');
+    }
   };
 
   return (
@@ -188,17 +385,44 @@ export default function ProviderProfilePage() {
                 ))}
               </div>
             </div>
+
+            {/* Section 35 Advocates Act Compliance Note */}
+            <div className="bg-amber-50/70 p-5 rounded-3xl border border-amber-200/70 text-xs text-amber-950 space-y-2">
+              <div className="font-bold flex items-center space-x-2 text-amber-900">
+                <ShieldCheck className="w-4 h-4 text-amber-700" />
+                <span>Statutory 0% Platform Fee on Professional Fees (Section 35 Mandate)</span>
+              </div>
+              <p className="text-[11px] leading-relaxed text-amber-900/90">
+                NyayaSetu India does not deduct any commission or percentage fee from advocate professional fees,
+                in strict compliance with Section 35 of the Advocates Act 1961. 100% of the advocate fee is held safely
+                in statutory escrow until the consultation is delivered to your satisfaction.
+              </p>
+            </div>
           </div>
 
-          {/* Right Column: Interactive Consultation Booking Card */}
+          {/* Right Column: Interactive Consultation Booking Card with Phase 4 Escrow Payment */}
           <div className="md:col-span-1 space-y-4">
             <div className="bg-white p-6 rounded-3xl shadow-lg border border-slate-200 space-y-5 sticky top-24">
-              <h3 className="text-base font-bold text-govnavy-900 flex items-center space-x-2">
-                <Calendar className="w-5 h-5 text-saffron-600" />
-                <span>Schedule Consultation</span>
-              </h3>
+              
+              {/* Header with Step Indicator */}
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                <h3 className="text-sm font-bold text-govnavy-900 flex items-center space-x-2">
+                  <Calendar className="w-4 h-4 text-saffron-600" />
+                  <span>
+                    {bookingStep === 'SELECT_SLOT' && '1. Select Consultation'}
+                    {bookingStep === 'LOCKED_PAYMENT' && '2. Statutory Escrow Payment'}
+                    {bookingStep === 'PAYMENT_SUCCESS' && '3. Booking Confirmed'}
+                  </span>
+                </h3>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">
+                  {bookingStep === 'SELECT_SLOT' && 'Step 1 of 3'}
+                  {bookingStep === 'LOCKED_PAYMENT' && 'Step 2 of 3'}
+                  {bookingStep === 'PAYMENT_SUCCESS' && 'Step 3 of 3'}
+                </span>
+              </div>
 
-              {!bookingInitiated ? (
+              {/* STEP 1: SELECT CONSULTATION MODE & SLOT */}
+              {bookingStep === 'SELECT_SLOT' && (
                 <>
                   {/* Delivery Mode Selector */}
                   <div className="space-y-2">
@@ -279,57 +503,319 @@ export default function ProviderProfilePage() {
                   <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1.5 text-xs">
                     <div className="flex justify-between text-slate-600">
                       <span>Advocate Consultation Fee:</span>
-                      <span>{formatINR(provider.consultationFeeINR)}</span>
+                      <span className="font-semibold">{formatINR(advocateFee)}</span>
                     </div>
                     <div className="flex justify-between text-slate-600">
                       <span>Platform Facilitation & Escrow:</span>
-                      <span>{formatINR(50)}</span>
+                      <span className="font-semibold">{formatINR(platformTechFee)}</span>
                     </div>
                     <div className="flex justify-between text-slate-600">
                       <span>GST (18% on Platform Fee):</span>
-                      <span>{formatINR(9)}</span>
+                      <span className="font-semibold">{formatINR(gstAmount)}</span>
                     </div>
                     <div className="pt-1.5 border-t border-slate-200 flex justify-between font-bold text-govnavy-900 text-sm">
                       <span>Total Escrow Amount:</span>
-                      <span>{formatINR(provider.consultationFeeINR + 59)}</span>
+                      <span className="text-saffron-600">{formatINR(totalAmount)}</span>
                     </div>
                   </div>
 
                   <button
                     type="button"
-                    onClick={handleBookingClick}
-                    className="w-full py-3 bg-saffron-600 hover:bg-saffron-700 text-white rounded-xl text-xs font-bold shadow-md transition-colors flex items-center justify-center space-x-1.5"
+                    onClick={handleProceedToLock}
+                    className="w-full py-3 bg-saffron-600 hover:bg-saffron-700 text-white rounded-xl text-xs font-bold shadow-md transition-colors flex items-center justify-center space-x-1.5 cursor-pointer"
                   >
                     <span>Proceed to Secure Booking</span>
                     <ChevronRight className="w-4 h-4" />
                   </button>
                 </>
-              ) : (
-                /* Booking Slot Locked Screen */
-                <div className="text-center py-4 space-y-3">
-                  <div className="w-12 h-12 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center mx-auto">
-                    <CheckCircle2 className="w-6 h-6" />
+              )}
+
+              {/* STEP 2: SLOT LOCKED & PHASE 4 ESCROW PAYMENT */}
+              {bookingStep === 'LOCKED_PAYMENT' && (
+                <div className="space-y-4">
+                  {/* Slot Locked Banner with Countdown Timer */}
+                  <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-3.5 text-center space-y-1.5">
+                    <div className="w-9 h-9 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center mx-auto shadow-sm">
+                      <Lock className="w-5 h-5" />
+                    </div>
+                    <h4 className="text-xs font-bold text-emerald-950">Slot Temporarily Locked</h4>
+                    <p className="text-[11px] text-emerald-800">
+                      <strong>{selectedSlot}</strong> via <strong>{selectedMode.replace(/_/g, ' ')}</strong>
+                    </p>
+                    <div className="inline-flex items-center space-x-1 text-[11px] font-bold text-emerald-900 bg-white px-2.5 py-0.5 rounded-full border border-emerald-200 shadow-xs">
+                      <Clock className="w-3.5 h-3.5 text-emerald-600 animate-pulse" />
+                      <span>Lock expires in: {formatTimer(countdownSeconds)}</span>
+                    </div>
                   </div>
-                  <h4 className="text-sm font-bold text-govnavy-900">Slot Locked for 15 Minutes</h4>
-                  <p className="text-xs text-slate-600">
-                    Your appointment for <strong>{selectedSlot}</strong> via <strong>{selectedMode}</strong> is locked.
-                  </p>
-                  <div className="p-3 bg-govnavy-50 rounded-xl border border-govnavy-200 text-xs text-govnavy-900 font-bold">
-                    Escrow Reference: IN-LEG-ESC-2026-X89
+
+                  {/* Escrow Reference Tag */}
+                  <div className="p-2.5 bg-govnavy-900 text-white rounded-xl text-[11px] flex items-center justify-between">
+                    <span className="text-slate-400">Escrow Reference:</span>
+                    <span className="font-mono font-bold text-amber-300">IN-LEG-ESC-2026-X89</span>
                   </div>
+
+                  {/* Statutory Section 35 Fee Breakdown */}
+                  <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1.5 text-xs">
+                    <div className="text-[10px] uppercase tracking-wider font-bold text-slate-500 pb-1 border-b border-slate-200 flex items-center justify-between">
+                      <span>Statutory Payment Breakdown</span>
+                      <span className="text-emerald-700 font-semibold lowercase">sec 35 compliant</span>
+                    </div>
+                    <div className="flex justify-between text-slate-600">
+                      <span>Professional Legal Fee:</span>
+                      <span className="font-semibold text-slate-900">{formatINR(advocateFee)}</span>
+                    </div>
+                    <div className="flex justify-between text-slate-500 text-[11px]">
+                      <span>Platform Commission:</span>
+                      <span className="text-emerald-700 font-bold">₹0 (0% Statutory Mandate)</span>
+                    </div>
+                    <div className="flex justify-between text-slate-600">
+                      <span>Platform Tech Fee:</span>
+                      <span>{formatINR(platformTechFee)}</span>
+                    </div>
+                    <div className="flex justify-between text-slate-600">
+                      <span>GST (18% on Tech Fee):</span>
+                      <span>{formatINR(gstAmount)}</span>
+                    </div>
+                    <div className="pt-2 border-t border-slate-200 flex justify-between font-extrabold text-govnavy-900 text-sm">
+                      <span>Total Escrow Deposit:</span>
+                      <span className="text-saffron-600">{formatINR(totalAmount)}</span>
+                    </div>
+                  </div>
+
+                  {/* Payment Error Alert */}
+                  {paymentError && (
+                    <div className="p-2.5 bg-rose-50 border border-rose-200 text-rose-800 rounded-xl text-xs flex items-start space-x-2">
+                      <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                      <div className="flex-1">{paymentError}</div>
+                    </div>
+                  )}
+
+                  {/* PRIMARY ACTION: Razorpay Checkout Gateway Modal */}
+                  <div className="space-y-2 pt-1">
+                    <button
+                      type="button"
+                      disabled={isProcessingPayment}
+                      onClick={handlePayWithRazorpay}
+                      className="w-full py-3 bg-govnavy-900 hover:bg-govnavy-800 disabled:bg-slate-400 text-white rounded-xl text-xs font-bold shadow-md transition-all flex items-center justify-center space-x-2 cursor-pointer"
+                    >
+                      {isProcessingPayment ? (
+                        <>
+                          <RefreshCw className="w-4 h-4 animate-spin text-saffron-400" />
+                          <span>Connecting to Razorpay...</span>
+                        </>
+                      ) : (
+                        <>
+                          <CreditCard className="w-4 h-4 text-saffron-400" />
+                          <span>Pay {formatINR(totalAmount)} via Razorpay</span>
+                        </>
+                      )}
+                    </button>
+
+                    {/* Quick Sandbox 1-Click Test Button */}
+                    <button
+                      type="button"
+                      disabled={isProcessingPayment}
+                      onClick={handleInstantSandboxPayment}
+                      className="w-full py-2 bg-emerald-700 hover:bg-emerald-800 disabled:bg-slate-300 text-white rounded-xl text-xs font-semibold shadow-sm transition-colors flex items-center justify-center space-x-1.5 cursor-pointer"
+                    >
+                      <Zap className="w-3.5 h-3.5 text-amber-300" />
+                      <span>Instant Sandbox Escrow Lock (1-Click Test)</span>
+                    </button>
+                  </div>
+
+                  {/* Payment Channels Icons */}
+                  <div className="pt-1 text-center space-y-1.5">
+                    <div className="text-[10px] text-slate-500 font-medium">
+                      Accepted Payment Channels (Razorpay Sandbox):
+                    </div>
+                    <div className="flex items-center justify-center space-x-2 text-[11px] text-slate-600 font-semibold">
+                      <span className="px-2 py-0.5 bg-slate-100 rounded border border-slate-200">UPI / QR</span>
+                      <span className="px-2 py-0.5 bg-slate-100 rounded border border-slate-200">Cards</span>
+                      <span className="px-2 py-0.5 bg-slate-100 rounded border border-slate-200">Netbanking</span>
+                    </div>
+                    <div className="text-[9px] text-slate-400 font-mono">
+                      Key: {process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_test_U1LQS9SWpsYSzm'}
+                    </div>
+                  </div>
+
+                  {/* Back or Edit Slot */}
                   <button
-                    onClick={() => router.push('/providers')}
-                    className="w-full py-2.5 bg-govnavy-900 hover:bg-govnavy-800 text-white rounded-xl text-xs font-bold shadow transition-colors"
+                    type="button"
+                    onClick={() => setBookingStep('SELECT_SLOT')}
+                    className="w-full text-center text-[11px] text-slate-500 hover:text-slate-800 font-medium pt-1 cursor-pointer"
                   >
-                    Continue in Phase 4 Booking Flow
+                    ← Change consultation time or mode
                   </button>
                 </div>
               )}
+
+              {/* STEP 3: PAYMENT SUCCESS & STATUTORY ESCROW CONFIRMED */}
+              {bookingStep === 'PAYMENT_SUCCESS' && (
+                <div className="space-y-4 text-center py-2">
+                  <div className="w-14 h-14 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center mx-auto shadow-sm">
+                    <CheckCircle2 className="w-8 h-8 text-emerald-600" />
+                  </div>
+
+                  <div className="space-y-1">
+                    <h4 className="text-base font-extrabold text-govnavy-900">Payment Successful & Escrow Locked</h4>
+                    <p className="text-xs text-slate-600">
+                      Your consultation with <strong>{provider.fullName}</strong> is officially confirmed.
+                    </p>
+                  </div>
+
+                  {/* Transaction Metadata Card */}
+                  <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 text-left space-y-2 text-xs">
+                    <div className="flex justify-between items-center pb-1.5 border-b border-slate-200 text-[11px]">
+                      <span className="text-slate-500">Escrow Reference:</span>
+                      <span className="font-mono font-bold text-govnavy-900">
+                        {paymentResult?.bookingReference || 'IN-LEG-ESC-2026-X89'}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center text-[11px]">
+                      <span className="text-slate-500">Razorpay Payment ID:</span>
+                      <span className="font-mono font-bold text-emerald-700">
+                        {paymentResult?.paymentId || 'pay_test_DEMO102'}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center text-[11px]">
+                      <span className="text-slate-500">Amount Deposited:</span>
+                      <span className="font-bold text-slate-900">{formatINR(totalAmount)}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-[11px]">
+                      <span className="text-slate-500">Scheduled Time:</span>
+                      <span className="font-semibold text-slate-800">{selectedSlot}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-[11px]">
+                      <span className="text-slate-500">Consultation Mode:</span>
+                      <span className="font-semibold text-slate-800">{selectedMode.replace(/_/g, ' ')}</span>
+                    </div>
+                  </div>
+
+                  {/* Statutory Safe Guarantee */}
+                  <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl text-left text-[11px] text-emerald-900 flex items-start space-x-2">
+                    <ShieldCheck className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
+                    <span>
+                      Funds will only be released to the practitioner after your consultation concludes. You are entitled to 100% refund in case of non-attendance.
+                    </span>
+                  </div>
+
+                  {/* Next Step Primary Actions */}
+                  <div className="space-y-2 pt-1">
+                    <Link
+                      href={`/consultation/${paymentResult?.conversationId || 'bk-seed-001'}`}
+                      className="w-full py-3 bg-saffron-600 hover:bg-saffron-700 text-white rounded-xl text-xs font-bold shadow-md transition-colors flex items-center justify-center space-x-1.5"
+                    >
+                      <Video className="w-4 h-4" />
+                      <span>Enter Encrypted Consultation Room</span>
+                    </Link>
+
+                    <button
+                      type="button"
+                      onClick={() => setShowInvoiceModal(true)}
+                      className="w-full py-2 bg-slate-100 hover:bg-slate-200 text-govnavy-900 rounded-xl text-xs font-bold border border-slate-300 transition-colors flex items-center justify-center space-x-1.5 cursor-pointer"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                      <span>View Statutory Tax Invoice (SAC 998211)</span>
+                    </button>
+
+                    <Link
+                      href="/citizen/dashboard"
+                      className="w-full py-2 bg-govnavy-900 hover:bg-govnavy-800 text-white rounded-xl text-xs font-semibold shadow-sm transition-colors flex items-center justify-center space-x-1.5"
+                    >
+                      <span>Go to Citizen Case Desk</span>
+                    </Link>
+                  </div>
+                </div>
+              )}
+
             </div>
           </div>
         </div>
       </div>
+
+      {/* Statutory GST Tax Invoice Modal */}
+      {showInvoiceModal && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-200">
+              <div className="flex items-center space-x-2">
+                <Scale className="w-5 h-5 text-govnavy-900" />
+                <h3 className="font-extrabold text-govnavy-900 text-sm">Statutory Tax Invoice (Advocates Act 1961)</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowInvoiceModal(false)}
+                className="p-1.5 rounded-full hover:bg-slate-100 text-slate-500 cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 text-xs space-y-3 font-mono">
+              <div className="flex justify-between text-slate-600">
+                <span>Invoice Number:</span>
+                <span className="font-bold text-govnavy-900">{paymentResult?.invoiceNumber || 'INV-2026-881920'}</span>
+              </div>
+              <div className="flex justify-between text-slate-600">
+                <span>Date of Supply:</span>
+                <span>{new Date().toLocaleDateString('en-IN')}</span>
+              </div>
+              <div className="flex justify-between text-slate-600">
+                <span>SAC Service Code:</span>
+                <span className="font-bold">998211 (Legal Certification & Advisory)</span>
+              </div>
+              <div className="flex justify-between text-slate-600">
+                <span>Platform GSTIN:</span>
+                <span>07AABCN9821M1Z5</span>
+              </div>
+              <div className="border-t border-dashed border-slate-300 pt-2 space-y-1">
+                <div className="flex justify-between">
+                  <span>Advocate Fee (100% to Practitioner):</span>
+                  <span>{formatINR(advocateFee)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Platform Facilitation Fee:</span>
+                  <span>{formatINR(platformTechFee)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>CGST (9% on Platform Fee):</span>
+                  <span>{formatINR(gstAmount / 2)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>SGST (9% on Platform Fee):</span>
+                  <span>{formatINR(gstAmount / 2)}</span>
+                </div>
+                <div className="border-t border-slate-400 pt-1 flex justify-between font-bold text-sm text-govnavy-900">
+                  <span>Total Amount Paid (Escrow):</span>
+                  <span>{formatINR(totalAmount)}</span>
+                </div>
+              </div>
+              <div className="text-[10px] text-slate-500 pt-2 leading-relaxed">
+                Mandatory declaration under Section 35 Advocates Act 1961: No fee-sharing or commission is retained from professional legal fees. Full fee is held in escrow until client satisfaction.
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-3 pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  window.print();
+                }}
+                className="flex-1 py-2.5 bg-govnavy-900 hover:bg-govnavy-800 text-white rounded-xl text-xs font-bold transition-colors cursor-pointer"
+              >
+                Print / Save PDF
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowInvoiceModal(false)}
+                className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-colors cursor-pointer"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
-
