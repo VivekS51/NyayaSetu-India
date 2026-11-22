@@ -63,12 +63,12 @@ function RegisterForm() {
       const data = await res.json();
 
       if (data.success && data.data) {
-        ApiClient.setSession(data.data.accessToken, data.data.user);
-        if (role === 'LSP') {
-          router.push('/onboarding');
-        } else {
-          router.push('/providers');
-        }
+        const sessionUser = {
+          ...data.data.user,
+          roles: data.data.roles || [role],
+        };
+        ApiClient.setSession(data.data.accessToken, sessionUser);
+        window.location.href = role === 'LSP' ? '/onboarding' : '/providers';
       } else {
         const errorDetail = data.errors?.[0]?.message || data.message || 'Registration failed';
         setErrorMsg(errorDetail);
@@ -105,12 +105,12 @@ function RegisterForm() {
       });
       const data = await res.json();
       if (data.success && data.data) {
-        ApiClient.setSession(data.data.accessToken, data.data.user);
-        if (role === 'LSP') {
-          router.push('/onboarding');
-        } else {
-          router.push('/providers');
-        }
+        const sessionUser = {
+          ...data.data.user,
+          roles: data.data.roles || [role],
+        };
+        ApiClient.setSession(data.data.accessToken, sessionUser);
+        window.location.href = role === 'LSP' ? '/onboarding' : '/providers';
       } else {
         setErrorMsg(data.message || 'Google registration failed');
       }

@@ -96,13 +96,14 @@ export default function LoginPage() {
       const data = await res.json();
 
       if (data.success && data.data) {
-        ApiClient.setSession(data.data.accessToken, data.data.user);
-        const roles = data.data.roles || [];
-        if (roles.includes('LSP')) {
-          router.push('/onboarding');
-        } else {
-          router.push('/providers');
-        }
+        const sessionUser = {
+          ...data.data.user,
+          roles: data.data.roles || ['CITIZEN'],
+        };
+        ApiClient.setSession(data.data.accessToken, sessionUser);
+        const roles = sessionUser.roles;
+        const target = roles.includes('LSP') ? '/lsp/dashboard' : '/providers';
+        window.location.href = target;
       } else {
         setErrorMsg(data.message || 'Invalid or expired OTP code entered. Please verify or request a new code.');
       }
@@ -129,15 +130,14 @@ export default function LoginPage() {
       const data = await res.json();
 
       if (data.success && data.data) {
-        ApiClient.setSession(data.data.accessToken, data.data.user);
-        const roles = data.data.roles || [];
-        if (roles.includes('ADMIN')) {
-          router.push('/providers');
-        } else if (roles.includes('LSP')) {
-          router.push('/onboarding');
-        } else {
-          router.push('/providers');
-        }
+        const sessionUser = {
+          ...data.data.user,
+          roles: data.data.roles || ['CITIZEN'],
+        };
+        ApiClient.setSession(data.data.accessToken, sessionUser);
+        const roles = sessionUser.roles;
+        const target = roles.includes('LSP') ? '/lsp/dashboard' : '/providers';
+        window.location.href = target;
       } else {
         setErrorMsg(data.message || 'Invalid login credentials. Please check your identifier and password.');
       }
@@ -172,8 +172,12 @@ export default function LoginPage() {
       });
       const data = await res.json();
       if (data.success && data.data) {
-        ApiClient.setSession(data.data.accessToken, data.data.user);
-        router.push('/providers');
+        const sessionUser = {
+          ...data.data.user,
+          roles: data.data.roles || ['CITIZEN'],
+        };
+        ApiClient.setSession(data.data.accessToken, sessionUser);
+        window.location.href = '/providers';
       } else {
         setErrorMsg(data.message || 'Google authentication failed');
       }

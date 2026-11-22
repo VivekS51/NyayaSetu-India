@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useI18n, Language } from '../../lib/i18n';
 import { ApiClient, AppNotification } from '../../lib/api-client';
 import {
@@ -27,6 +28,7 @@ import {
 } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
+  const pathname = usePathname();
   const { t, language, setLanguage } = useI18n();
   const [currentUser, setCurrentUser] = useState<any | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -38,9 +40,27 @@ export const Navbar: React.FC = () => {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const accountRef = useRef<HTMLDivElement>(null);
 
+  const syncAuth = useCallback(() => {
+    const stored = ApiClient.getStoredUser();
+    setCurrentUser(stored);
+  }, []);
+
   useEffect(() => {
-    setCurrentUser(ApiClient.getStoredUser());
+    syncAuth();
     loadNotifications();
+
+    const handleAuthEvent = () => {
+      syncAuth();
+      loadNotifications();
+    };
+
+    window.addEventListener('nyayasetu_auth_change', handleAuthEvent);
+    window.addEventListener('storage', handleAuthEvent);
+
+    // Heartbeat check every 1s to ensure instantaneous reactive sync across client transitions
+    const timer = setInterval(() => {
+      syncAuth();
+    }, 1000);
 
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -51,8 +71,19 @@ export const Navbar: React.FC = () => {
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+
+    return () => {
+      window.removeEventListener('nyayasetu_auth_change', handleAuthEvent);
+      window.removeEventListener('storage', handleAuthEvent);
+      clearInterval(timer);
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [syncAuth]);
+
+  // Re-sync on route navigation
+  useEffect(() => {
+    syncAuth();
+  }, [pathname, syncAuth]);
 
   const loadNotifications = async () => {
     try {

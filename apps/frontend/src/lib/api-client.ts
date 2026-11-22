@@ -260,18 +260,65 @@ export class ApiClient {
     if (typeof window === 'undefined') return;
     localStorage.setItem('nyayasetu_token', token);
     localStorage.setItem('nyayasetu_user', JSON.stringify(user));
+    try {
+      window.dispatchEvent(new Event('nyayasetu_auth_change'));
+      window.dispatchEvent(new Event('storage'));
+    } catch {}
   }
 
   public static getStoredUser(): any | null {
     if (typeof window === 'undefined') return null;
-    const userStr = localStorage.getItem('nyayasetu_user');
-    return userStr ? JSON.parse(userStr) : null;
+    try {
+      const userStr = localStorage.getItem('nyayasetu_user');
+      if (userStr) {
+        const parsed = JSON.parse(userStr);
+        if (parsed && typeof parsed === 'object') {
+          if (parsed.user && typeof parsed.user === 'object') {
+            return {
+              ...parsed.user,
+              roles: parsed.roles || parsed.user.roles || ['CITIZEN'],
+              wallet: parsed.wallet || parsed.user.wallet,
+            };
+          }
+          return parsed;
+        }
+      }
+
+      // Resilient fallback: Recover session from JWT token payload
+      const token = localStorage.getItem('nyayasetu_token');
+      if (token && token.includes('.')) {
+        const payloadBase64 = token.split('.')[1];
+        if (payloadBase64) {
+          const decoded = JSON.parse(atob(payloadBase64.replace(/-/g, '+').replace(/_/g, '/')));
+          if (decoded && (decoded.userId || decoded.id)) {
+            const reconstructed = {
+              id: decoded.userId || decoded.id,
+              phone: decoded.phone || '',
+              email: decoded.email || null,
+              fullName: decoded.fullName || 'Citizen User',
+              roles: decoded.roles || ['CITIZEN'],
+              status: 'ACTIVE',
+            };
+            localStorage.setItem('nyayasetu_user', JSON.stringify(reconstructed));
+            return reconstructed;
+          }
+        }
+      }
+
+      return null;
+    } catch {
+      return null;
+    }
   }
 
   public static clearSession() {
     if (typeof window === 'undefined') return;
     localStorage.removeItem('nyayasetu_token');
     localStorage.removeItem('nyayasetu_user');
+    try {
+      window.dispatchEvent(new Event('nyayasetu_auth_change'));
+      window.dispatchEvent(new Event('storage'));
+    } catch {}
   }
 
   public static async fetchProviders(filters?: {
