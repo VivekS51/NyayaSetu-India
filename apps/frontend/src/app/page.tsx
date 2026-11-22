@@ -20,6 +20,8 @@ import {
   ChevronRight,
   Play,
   CheckCircle2,
+  MessageSquare,
+  FileText,
 } from 'lucide-react';
 import { ConstellationField } from '../components/effects/constellation-field/ConstellationField';
 
@@ -43,7 +45,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-[#060a17] text-white">
       {/* Hero Section */}
-      <section className="relative bg-[#060a17] text-white pt-10 pb-16 px-4 sm:px-6 lg:px-8 overflow-hidden min-h-[820px] lg:min-h-[880px] xl:min-h-[940px] border-b border-slate-800/80">
+      <section className="relative bg-[#060a17] text-white pt-24 sm:pt-28 lg:pt-32 pb-16 px-4 sm:px-6 lg:px-8 overflow-hidden min-h-[860px] lg:min-h-[920px] xl:min-h-[960px] border-b border-slate-800/80">
         {/* Constellation Field Isolated Canvas Effect */}
         <div className="absolute inset-0 z-0">
           <ConstellationField
@@ -62,11 +64,11 @@ export default function HomePage() {
 
         {/* Ambient Radial Glow Lighting */}
         <div className="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-saffron-500/10 rounded-full blur-3xl pointer-events-none z-0" />
-        <div className="absolute top-1/3 right-1/4 -translate-y-1/2 w-[550px] h-[550px] bg-sky-500/20 rounded-full blur-3xl pointer-events-none z-0" />
+        <div className="absolute top-1/3 right-1/4 -translate-y-1/2 w-[600px] h-[600px] bg-sky-500/20 rounded-full blur-3xl pointer-events-none z-0" />
 
         <div className="max-w-7xl mx-auto relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-6 items-center">
-            {/* Left Column: Headline, Services & Search */}
+            {/* Left Column: Headline, Features, CTAs & Social Proof matching reference image */}
             <div className="lg:col-span-6 xl:col-span-6 space-y-6 text-left relative z-20">
               {/* Badge matching reference */}
               <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-sky-500/10 border border-sky-500/25 text-sky-400 text-xs font-semibold tracking-wide backdrop-blur-md shadow-sm">
@@ -87,14 +89,42 @@ export default function HomePage() {
                 NyayaSetu India connects citizens directly with Bar Council verified advocates, licensed notaries, and accredited mediators—backed by statutory 100% escrow protection and 0% platform fee on professional legal fees.
               </p>
 
-              {/* Action Buttons & Social Proof (styled exactly like the reference image) */}
-              <div className="flex flex-wrap items-center gap-4 pt-1">
+              {/* 4 Feature Items in horizontal grid matching reference image */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-1">
+                <div className="flex flex-col items-start space-y-1.5">
+                  <div className="w-8 h-8 rounded-lg bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400">
+                    <MessageSquare className="w-4 h-4" />
+                  </div>
+                  <span className="text-xs font-semibold text-slate-200">Instant Legal Answers</span>
+                </div>
+                <div className="flex flex-col items-start space-y-1.5">
+                  <div className="w-8 h-8 rounded-lg bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400">
+                    <FileText className="w-4 h-4" />
+                  </div>
+                  <span className="text-xs font-semibold text-slate-200">Smart Document Drafting</span>
+                </div>
+                <div className="flex flex-col items-start space-y-1.5">
+                  <div className="w-8 h-8 rounded-lg bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400">
+                    <Search className="w-4 h-4" />
+                  </div>
+                  <span className="text-xs font-semibold text-slate-200">Case Law Research</span>
+                </div>
+                <div className="flex flex-col items-start space-y-1.5">
+                  <div className="w-8 h-8 rounded-lg bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400">
+                    <ShieldCheck className="w-4 h-4" />
+                  </div>
+                  <span className="text-xs font-semibold text-slate-200">Secure &amp; Confidential</span>
+                </div>
+              </div>
+
+              {/* Action Buttons (styled exactly like the reference image) */}
+              <div className="flex flex-wrap items-center gap-4 pt-2">
                 <Link
                   href="/providers"
-                  className="px-7 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm shadow-[0_0_30px_rgba(37,99,235,0.45)] transition-all flex items-center space-x-2"
+                  className="px-7 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm shadow-[0_0_30px_rgba(37,99,235,0.45)] transition-all flex items-center space-x-2 group"
                 >
                   <span>Find Verified Counsel</span>
-                  <ArrowRight className="w-4 h-4" />
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                 </Link>
 
                 <Link
@@ -106,74 +136,13 @@ export default function HomePage() {
                   </div>
                   <div className="text-left">
                     <div className="font-semibold text-xs text-white">See how it works</div>
-                    <div className="text-[10px] text-slate-400">Statutory Escrow</div>
+                    <div className="text-[10px] text-slate-400">2 min overview</div>
                   </div>
                 </Link>
               </div>
 
-              {/* Interactive Search Bar (Dark Glassmorphic Theme) */}
-              <div className="mt-3 bg-slate-900/80 backdrop-blur-xl p-3 sm:p-3.5 rounded-2xl shadow-2xl border border-slate-700/70 text-slate-900">
-                <form onSubmit={handleSearchSubmit} className="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
-                  {/* Keyword / Issue input */}
-                  <div className="sm:col-span-5 relative flex items-center">
-                    <Search className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none" />
-                    <input
-                      type="text"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder={t.hero.searchPlaceholder}
-                      className="w-full pl-10 pr-3 py-2.5 bg-slate-950/70 border border-slate-700/80 rounded-xl text-sm text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-
-                  {/* Service Type select */}
-                  <div className="sm:col-span-3">
-                    <select
-                      value={selectedService}
-                      onChange={(e) => setSelectedService(e.target.value)}
-                      className="w-full px-3 py-2.5 bg-slate-950/70 border border-slate-700/80 rounded-xl text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="ALL">All Legal Providers</option>
-                      <option value="ADVOCATE">Advocates (Civil/Criminal)</option>
-                      <option value="NOTARY">Notary Public</option>
-                      <option value="MEDIATOR">Accredited Mediator</option>
-                      <option value="ARBITRATOR">Arbitrator</option>
-                      <option value="DOCUMENT_WRITER">Document Writer</option>
-                    </select>
-                  </div>
-
-                  {/* State select */}
-                  <div className="sm:col-span-2">
-                    <select
-                      value={selectedState}
-                      onChange={(e) => setSelectedState(e.target.value)}
-                      className="w-full px-3 py-2.5 bg-slate-950/70 border border-slate-700/80 rounded-xl text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="ALL">All States</option>
-                      <option value="Delhi">Delhi NCT</option>
-                      <option value="Punjab">Punjab</option>
-                      <option value="Haryana">Haryana</option>
-                      <option value="Tamil Nadu">Tamil Nadu</option>
-                      <option value="Maharashtra">Maharashtra</option>
-                      <option value="Uttar Pradesh">Uttar Pradesh</option>
-                    </select>
-                  </div>
-
-                  {/* Search CTA */}
-                  <div className="sm:col-span-2">
-                    <button
-                      type="submit"
-                      className="w-full h-full min-h-[42px] bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-sm font-bold flex items-center justify-center space-x-1.5 shadow-lg shadow-blue-600/30 transition-all"
-                    >
-                      <span>Search</span>
-                      <ChevronRight className="w-4 h-4" />
-                    </button>
-                  </div>
-                </form>
-              </div>
-
               {/* Social Proof Avatars & Metric Rating matching reference */}
-              <div className="flex items-center space-x-3 pt-1">
+              <div className="flex items-center space-x-3 pt-2">
                 <div className="flex -space-x-2 overflow-hidden">
                   <div className="w-7 h-7 rounded-full bg-slate-700 border-2 border-slate-900 flex items-center justify-center text-[10px] font-bold text-white shadow">DL</div>
                   <div className="w-7 h-7 rounded-full bg-blue-600 border-2 border-slate-900 flex items-center justify-center text-[10px] font-bold text-white shadow">MH</div>
@@ -192,27 +161,49 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Right Column: Prominent Enlarged Lady Justice & Floating Glass Card */}
-            <div className="lg:col-span-6 xl:col-span-6 relative flex items-end justify-center lg:justify-end min-h-[580px] lg:min-h-[760px] xl:min-h-[880px] select-none">
+            {/* Right Column: Prominent Enlarged Lady Justice & Floating Glass Cards matching reference image */}
+            <div className="lg:col-span-6 xl:col-span-6 relative flex items-center justify-center lg:justify-end min-h-[580px] lg:min-h-[740px] xl:min-h-[840px] select-none">
               {/* Radial Cyan Glow Spotlight behind Lady Justice matching reference */}
               <div className="absolute inset-0 flex items-center justify-center lg:justify-end pointer-events-none -z-10">
-                <div className="w-[540px] h-[660px] lg:w-[680px] lg:h-[820px] bg-gradient-to-tr from-sky-500/30 via-indigo-600/20 to-transparent rounded-full blur-3xl pointer-events-none" />
+                <div className="w-[520px] h-[640px] lg:w-[650px] lg:h-[780px] bg-gradient-to-tr from-sky-500/25 via-indigo-600/15 to-transparent rounded-full blur-3xl pointer-events-none" />
+              </div>
+
+              {/* Floating HUD Card 1: Top Right (Matching Legal Research in reference) */}
+              <div className="absolute top-8 right-0 lg:-right-4 backdrop-blur-xl bg-slate-950/80 border border-sky-500/35 rounded-xl px-3.5 py-2.5 shadow-xl z-20 hidden sm:flex items-center space-x-3 pointer-events-none animate-pulse">
+                <div className="w-8 h-8 rounded-lg bg-sky-500/15 border border-sky-500/30 text-sky-400 flex items-center justify-center">
+                  <Scale className="w-4 h-4" />
+                </div>
+                <div className="text-left">
+                  <div className="text-xs font-bold text-white">Bar Council Verified</div>
+                  <div className="text-[10px] text-slate-400">COP &amp; Enrolment audited in real time</div>
+                </div>
+              </div>
+
+              {/* Floating HUD Card 2: Lower Right (Matching Document Analysis in reference) */}
+              <div className="absolute bottom-20 right-0 lg:-right-6 backdrop-blur-xl bg-slate-950/80 border border-sky-500/35 rounded-xl px-3.5 py-2.5 shadow-xl z-20 hidden sm:flex items-center space-x-3 pointer-events-none">
+                <div className="w-8 h-8 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center">
+                  <ShieldCheck className="w-4 h-4" />
+                </div>
+                <div className="text-left">
+                  <div className="text-xs font-bold text-white">Statutory Escrow</div>
+                  <div className="text-[10px] text-slate-400">0% Platform fee on legal counsel</div>
+                </div>
               </div>
 
               {/* Enlarged Lady Justice Character Image with Blue Tone */}
-              <div className="relative z-10 flex items-end justify-center lg:justify-end w-full max-w-[500px] lg:max-w-[600px] xl:max-w-[680px]">
+              <div className="relative z-10 flex items-center justify-center lg:justify-end w-full">
                 <Image
                   src="/images/lady-justice.png"
                   alt="Statue of Lady Justice - NyayaSetu India"
-                  width={680}
-                  height={1000}
+                  width={735}
+                  height={1005}
                   priority
-                  className="max-h-[660px] lg:max-h-[800px] xl:max-h-[920px] w-auto object-contain drop-shadow-[0_25px_60px_rgba(0,0,0,0.95)] drop-shadow-[0_0_50px_rgba(56,189,248,0.25)]"
+                  className="h-[520px] sm:h-[620px] lg:h-[720px] xl:h-[820px] w-auto object-contain drop-shadow-[0_25px_60px_rgba(0,0,0,0.95)] drop-shadow-[0_0_50px_rgba(56,189,248,0.25)]"
                 />
               </div>
 
-              {/* Floating Glassmorphic Card (Bottom-Center/Left): Interactive Citizen Justice Desk */}
-              <div className="absolute bottom-4 lg:bottom-10 left-0 sm:-left-4 lg:-left-10 xl:-left-14 right-0 sm:right-auto sm:w-[330px] lg:w-[350px] backdrop-blur-2xl bg-slate-950/85 border border-sky-500/40 rounded-2xl p-4 shadow-[0_20px_50px_rgba(0,0,0,0.85)] z-20 text-left">
+              {/* Floating Glassmorphic Card (Center-Left): Interactive Citizen Justice Desk overlapping character */}
+              <div className="absolute top-[52%] -translate-y-1/2 left-0 sm:-left-6 lg:-left-12 xl:-left-16 sm:w-[330px] lg:w-[350px] backdrop-blur-2xl bg-slate-950/85 border border-sky-500/40 rounded-2xl p-4 shadow-[0_25px_60px_rgba(0,0,0,0.9)] z-20 text-left">
                 <div className="flex items-center space-x-2 text-sky-400 text-xs font-bold mb-2">
                   <Sparkles className="w-4 h-4 text-sky-400" />
                   <span>Citizen Legal Assistant</span>
@@ -245,6 +236,67 @@ export default function HomePage() {
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* Dedicated Fast Search Section (Sleek Dark Glassmorphic Bar) */}
+          <div className="mt-14 max-w-4xl mx-auto bg-slate-900/80 backdrop-blur-xl p-3.5 sm:p-4 rounded-2xl shadow-2xl border border-slate-700/70 text-slate-900">
+            <div className="text-left px-1 pb-2 flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Search className="w-3.5 h-3.5 text-sky-400" />
+                <span className="text-xs font-bold text-sky-400 uppercase tracking-wider">Fast Practitioner Search</span>
+              </div>
+              <span className="text-[11px] text-slate-400 hidden sm:inline">Advocates, Notaries, Mediators &amp; Arbitrators across 680+ Districts</span>
+            </div>
+            <form onSubmit={handleSearchSubmit} className="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
+              <div className="sm:col-span-5 relative flex items-center">
+                <Search className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder={t.hero.searchPlaceholder}
+                  className="w-full pl-10 pr-3 py-2.5 bg-slate-950/70 border border-slate-700/80 rounded-xl text-sm text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div className="sm:col-span-3">
+                <select
+                  value={selectedService}
+                  onChange={(e) => setSelectedService(e.target.value)}
+                  className="w-full px-3 py-2.5 bg-slate-950/70 border border-slate-700/80 rounded-xl text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="ALL">All Legal Providers</option>
+                  <option value="ADVOCATE">Advocates (Civil/Criminal)</option>
+                  <option value="NOTARY">Notary Public</option>
+                  <option value="MEDIATOR">Accredited Mediator</option>
+                  <option value="ARBITRATOR">Arbitrator</option>
+                  <option value="DOCUMENT_WRITER">Document Writer</option>
+                </select>
+              </div>
+              <div className="sm:col-span-2">
+                <select
+                  value={selectedState}
+                  onChange={(e) => setSelectedState(e.target.value)}
+                  className="w-full px-3 py-2.5 bg-slate-950/70 border border-slate-700/80 rounded-xl text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="ALL">All States</option>
+                  <option value="Delhi">Delhi NCT</option>
+                  <option value="Punjab">Punjab</option>
+                  <option value="Haryana">Haryana</option>
+                  <option value="Tamil Nadu">Tamil Nadu</option>
+                  <option value="Maharashtra">Maharashtra</option>
+                  <option value="Uttar Pradesh">Uttar Pradesh</option>
+                </select>
+              </div>
+              <div className="sm:col-span-2">
+                <button
+                  type="submit"
+                  className="w-full h-full min-h-[42px] bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-sm font-bold flex items-center justify-center space-x-1.5 shadow-lg shadow-blue-600/30 transition-all"
+                >
+                  <span>Search</span>
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            </form>
           </div>
 
           {/* Bottom Statutory Credentials Ribbon (Matching partner logos ribbon in reference) */}
