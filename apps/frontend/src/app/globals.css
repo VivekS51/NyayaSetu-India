@@ -4,7 +4,7 @@
 
 :root {
   --foreground-rgb: 15, 23, 42;
-  --background-rgb: 248, 250, 252;
+  --background-rgb: 238, 246, 255;
 }
 
 .dark,
@@ -46,46 +46,53 @@ body {
   transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
 }
 
-/* Light mode Glassmorphic Capsule */
+/* Light mode Glassmorphic Capsule matching light.png radiant sky theme */
 html.light .portal-navbar-capsule,
 [data-theme="light"] .portal-navbar-capsule {
-  background: rgba(255, 255, 255, 0.72);
-  border: 1px solid rgba(255, 255, 255, 0.85);
-  box-shadow: 0 20px 45px -10px rgba(100, 116, 139, 0.18), inset 0 1px 2px 0 rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(186, 230, 253, 0.85);
+  box-shadow: 0 20px 45px -10px rgba(14, 165, 233, 0.15), inset 0 1px 2px 0 rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(28px) saturate(180%);
   -webkit-backdrop-filter: blur(28px) saturate(180%);
 }
 
 html.light .portal-dock-track,
 [data-theme="light"] .portal-dock-track {
-  background: rgba(241, 245, 249, 0.65);
-  border: 1px solid rgba(203, 213, 225, 0.75);
+  background: rgba(240, 249, 255, 0.75);
+  border: 1px solid rgba(186, 230, 253, 0.8);
 }
 
 html.light .portal-navbar-capsule .animated-top-dock__item,
 html.light .animated-top-dock__item,
 [data-theme="light"] .animated-top-dock__item {
-  background: rgba(255, 255, 255, 0.75) !important;
-  border: 1px solid rgba(203, 213, 225, 0.7) !important;
-  color: #1e293b !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+  background: rgba(255, 255, 255, 0.85) !important;
+  border: 1px solid rgba(186, 230, 253, 0.75) !important;
+  color: #0f172a !important;
+  box-shadow: 0 1px 3px rgba(14, 165, 233, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
 }
 
 html.light .portal-navbar-capsule .animated-top-dock__item:hover,
 html.light .animated-top-dock__item:hover,
 [data-theme="light"] .animated-top-dock__item:hover {
   background: #ffffff !important;
-  border-color: #f97316 !important;
-  color: #0f172a !important;
-  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.2) !important;
+  border-color: #0284c7 !important;
+  color: #0284c7 !important;
+  box-shadow: 0 4px 14px rgba(14, 165, 233, 0.25) !important;
 }
 
 html.light .portal-navbar-capsule .animated-top-dock__item.is-active,
 html.light .animated-top-dock__item.is-active,
 [data-theme="light"] .animated-top-dock__item.is-active {
-  background: rgba(254, 243, 199, 0.95) !important;
-  border-color: #f59e0b !important;
-  color: #92400e !important;
+  background: rgba(224, 242, 254, 0.95) !important;
+  border-color: #0284c7 !important;
+  color: #0369a1 !important;
+}
+
+html.light .portal-navbar-capsule .animated-top-dock__logo,
+[data-theme="light"] .portal-navbar-capsule .animated-top-dock__logo {
+  background: rgba(255, 255, 255, 0.9) !important;
+  border: 1px solid rgba(14, 165, 233, 0.7) !important;
+  box-shadow: 0 2px 8px rgba(14, 165, 233, 0.15), inset 0 1px 0 #ffffff !important;
 }
 
 @media (max-width: 768px) {

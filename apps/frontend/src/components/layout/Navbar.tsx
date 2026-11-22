@@ -188,7 +188,7 @@ export const Navbar: React.FC = () => {
               className={`animated-top-dock__item animated-top-dock__logo transition-all ring-2 ${
                 theme === 'dark'
                   ? 'ring-amber-500/60 hover:ring-amber-400 bg-amber-500/10'
-                  : 'ring-saffron-500/70 hover:ring-saffron-500 bg-saffron-500/10'
+                  : 'ring-sky-500/70 hover:ring-sky-500 bg-sky-500/10'
               }`}
               data-dock-item
               aria-label={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
@@ -197,7 +197,7 @@ export const Navbar: React.FC = () => {
               {theme === 'dark' ? (
                 <Sun className="w-3.5 h-3.5 text-amber-400 transition-transform group-hover:rotate-45" />
               ) : (
-                <Moon className="w-3.5 h-3.5 text-amber-600 transition-transform group-hover:-rotate-12" />
+                <Moon className="w-3.5 h-3.5 text-sky-600 transition-transform group-hover:-rotate-12" />
               )}
             </button>
 
