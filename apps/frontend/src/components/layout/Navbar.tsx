@@ -235,16 +235,33 @@ export const Navbar: React.FC = () => {
               <span>INCENTIVES & TIERS</span>
             </Link>
 
-            <Link
-              href="/admin"
-              className={`animated-top-dock__item animated-top-dock__link ${pathname === '/admin' ? 'is-active ring-1 ring-saffron-500' : ''}`}
-              data-dock-item
-            >
-              <span className="animated-top-dock__icon" aria-hidden="true">
-                <LayoutDashboard className="w-3.5 h-3.5 text-saffron-400" />
-              </span>
-              <span>ADMIN DESK</span>
-            </Link>
+            {currentUser?.roles?.includes('ADMIN') ? (
+              <Link
+                href="/admin"
+                className={`animated-top-dock__item animated-top-dock__link ${pathname === '/admin' ? 'is-active ring-1 ring-saffron-500' : ''}`}
+                data-dock-item
+              >
+                <span className="animated-top-dock__icon" aria-hidden="true">
+                  <LayoutDashboard className="w-3.5 h-3.5 text-saffron-400" />
+                </span>
+                <span>ADMIN DESK</span>
+                <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold ml-1">
+                  ADMIN
+                </span>
+              </Link>
+            ) : (
+              <Link
+                href="/admin"
+                className={`animated-top-dock__item animated-top-dock__link opacity-80 hover:opacity-100 ${pathname === '/admin' ? 'is-active ring-1 ring-saffron-500' : ''}`}
+                data-dock-item
+                title="Admin Verification Desk (Admin Only)"
+              >
+                <span className="animated-top-dock__icon" aria-hidden="true">
+                  <LayoutDashboard className="w-3.5 h-3.5 text-saffron-400" />
+                </span>
+                <span>ADMIN DESK</span>
+              </Link>
+            )}
           </nav>
 
           {/* Right Section: Notifications, Language Switcher & Auth */}

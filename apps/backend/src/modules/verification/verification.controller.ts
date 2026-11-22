@@ -10,9 +10,9 @@ import { ApiResponseUtils } from '../../common/utils/api-response.utils';
 export const verificationRouter = Router();
 const verificationService = new VerificationService();
 
-// Require Admin or Verifier privileges
+// Require Admin privileges only to verify advocates
 verificationRouter.use(authenticateJwt);
-verificationRouter.use(requireRoles(RoleType.ADMIN, RoleType.VERIFIER));
+verificationRouter.use(requireRoles(RoleType.ADMIN));
 
 /**
  * @route   GET /api/v1/admin/verification/queue

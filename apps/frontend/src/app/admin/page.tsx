@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import {
   ShieldAlert,
   ShieldCheck,
@@ -23,6 +24,8 @@ import {
   Sparkles,
   ChevronRight,
   TrendingUp,
+  KeyRound,
+  ArrowLeft,
 } from 'lucide-react';
 import {
   ApiClient,
@@ -34,6 +37,8 @@ import {
 type TabKey = 'overview' | 'verification' | 'disputes' | 'incentives' | 'audit';
 
 export default function AdminDashboardPage() {
+  const [currentUser, setCurrentUser] = useState<any | null>(null);
+  const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
   const [activeTab, setActiveTab] = useState<TabKey>('overview');
   const [analytics, setAnalytics] = useState<AdminAnalyticsData | null>(null);
   const [verificationQueue, setVerificationQueue] = useState<any[]>([]);
@@ -58,7 +63,15 @@ export default function AdminDashboardPage() {
   const [auditSearch, setAuditSearch] = useState('');
 
   useEffect(() => {
-    loadAllData();
+    const user = ApiClient.getStoredUser();
+    setCurrentUser(user);
+    const hasAdmin = Boolean(user && Array.isArray(user.roles) && user.roles.includes('ADMIN'));
+    setIsAuthorized(hasAdmin);
+    if (hasAdmin) {
+      loadAllData();
+    } else {
+      setLoading(false);
+    }
   }, []);
 
   const loadAllData = async () => {
@@ -91,9 +104,18 @@ export default function AdminDashboardPage() {
 
   // 1. Verification Handlers
   const handleApproveVerification = async (profileId: string, name: string) => {
-    await ApiClient.processVerificationDecision(profileId, 'APPROVE', undefined, 'Bar Council credentials approved');
-    setVerificationQueue((prev) => prev.filter((p) => p.providerProfileId !== profileId));
-    showNotification(`✅ Successfully approved credentials for ${name}. Now live in the "Find Provider" directory!`);
+    const user = ApiClient.getStoredUser();
+    if (!user || !Array.isArray(user.roles) || !user.roles.includes('ADMIN')) {
+      showNotification('⛔ Access Denied: Only administrators have statutory authority to verify advocate credentials.');
+      return;
+    }
+    const success = await ApiClient.processVerificationDecision(profileId, 'APPROVE', undefined, 'Bar Council credentials approved');
+    if (success) {
+      setVerificationQueue((prev) => prev.filter((p) => p.providerProfileId !== profileId));
+      showNotification(`✅ Successfully approved credentials for ${name}. Now live in the "Find Provider" directory!`);
+    } else {
+      showNotification('⛔ Verification failed: Only administrators can approve advocate dossiers.');
+    }
   };
 
   const openRejectModal = (profileId: string) => {
@@ -105,6 +127,11 @@ export default function AdminDashboardPage() {
 
   const handleConfirmRejection = async () => {
     if (!selectedProfileId) return;
+    const user = ApiClient.getStoredUser();
+    if (!user || !Array.isArray(user.roles) || !user.roles.includes('ADMIN')) {
+      showNotification('⛔ Access Denied: Only administrators have statutory authority to reject advocate credentials.');
+      return;
+    }
     await ApiClient.processVerificationDecision(selectedProfileId, 'REJECT', rejectionReasonCode, rejectionNotes);
     setVerificationQueue((prev) => prev.filter((p) => p.providerProfileId !== selectedProfileId));
     setRejectModalOpen(false);
@@ -167,6 +194,76 @@ export default function AdminDashboardPage() {
       l.resourceId.toLowerCase().includes(auditSearch.toLowerCase()) ||
       (l.userId && l.userId.toLowerCase().includes(auditSearch.toLowerCase()))
   );
+
+  // Statutory Access Control: Strict ADMIN Role Guard
+  if (isAuthorized === false) {
+    return (
+      <div className="min-h-screen bg-slate-900 text-slate-100 py-16 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
+        <div className="max-w-xl w-full bg-govnavy-900 border border-slate-700/80 rounded-3xl p-8 shadow-2xl text-center space-y-6 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-rose-500/10 rounded-full blur-3xl pointer-events-none" />
+
+          <div className="w-16 h-16 rounded-2xl bg-rose-500/20 text-rose-400 border border-rose-500/30 flex items-center justify-center mx-auto shadow-inner">
+            <ShieldAlert className="w-9 h-9" />
+          </div>
+
+          <div className="space-y-2">
+            <span className="px-3 py-1 rounded-full bg-rose-500/20 text-rose-300 text-xs font-bold uppercase tracking-wider border border-rose-500/30">
+              Statutory Security Control
+            </span>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+              Administrator Access Required
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-md mx-auto">
+              Pursuant to the Advocates Act 1961 and Bar Council of India Rule 36, the verification desk and advocate credential inspection powers are strictly reserved for authorized State Bar Council Registrars and Platform Administrators.
+            </p>
+          </div>
+
+          <div className="p-4 bg-slate-800/80 rounded-2xl border border-slate-700 text-xs space-y-2 text-slate-300 text-left">
+            <div className="flex justify-between items-center text-slate-400">
+              <span>Current Session:</span>
+              <span className="font-semibold text-white">
+                {currentUser
+                  ? `${currentUser.fullName || 'User'} (${(currentUser.roles || ['CITIZEN']).join(', ')})`
+                  : 'Not Signed In'}
+              </span>
+            </div>
+            <div className="flex justify-between items-center text-slate-400">
+              <span>Required Role:</span>
+              <span className="font-bold text-amber-400">ADMIN (Statutory Verifier)</span>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
+            <Link
+              href="/auth/login"
+              className="px-6 py-3 bg-saffron-600 hover:bg-saffron-700 text-white text-xs font-bold rounded-xl shadow-lg transition-colors flex items-center justify-center space-x-2"
+            >
+              <KeyRound className="w-4 h-4" />
+              <span>Sign In as Administrator</span>
+            </Link>
+            <Link
+              href="/providers"
+              className="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl border border-slate-700 transition-colors flex items-center justify-center space-x-2"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Back to Public Directory</span>
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (isAuthorized === null || loading) {
+    return (
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center text-slate-400 text-sm">
+        <div className="flex items-center space-x-2">
+          <RefreshCw className="w-4 h-4 animate-spin text-saffron-500" />
+          <span>Validating statutory administrative authorization...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 py-8 px-4 sm:px-6 lg:px-8">

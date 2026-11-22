@@ -1022,6 +1022,12 @@ export class ApiClient {
     reasonCode?: string,
     reviewNotes?: string
   ): Promise<boolean> {
+    const user = this.getStoredUser();
+    if (!user || !Array.isArray(user.roles) || !user.roles.includes('ADMIN')) {
+      console.warn('Unauthorized verification attempt: User does not have ADMIN role.');
+      return false;
+    }
+
     // 1. Update application in local storage
     const apps = this.getLocalApplications();
     const targetApp = apps.find((a) => a.providerProfileId === profileId);

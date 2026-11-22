@@ -786,19 +786,28 @@ export default function OnboardingWizardPage() {
                 <div>• Zero platform facilitation fee for the first 6 months</div>
               </div>
 
+              <div className="p-3.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl max-w-md mx-auto text-xs text-slate-600 dark:text-slate-300 text-left space-y-1">
+                <div className="font-bold text-slate-900 dark:text-white flex items-center space-x-1.5">
+                  <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                  <span>Statutory Administrative Review</span>
+                </div>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                  Advocate verification dossiers are exclusively reviewed and approved by Chief Verification Officers holding the Admin role. You will be notified once state Bar rolls are cross-verified.
+                </p>
+              </div>
+
               <div className="pt-4 flex flex-wrap justify-center gap-3">
-                <Link
-                  href="/admin"
-                  className="px-5 py-2.5 bg-saffron-600 hover:bg-saffron-700 text-white rounded-xl text-xs font-bold transition-colors shadow-sm flex items-center space-x-1.5"
-                >
-                  <ShieldCheck className="w-4 h-4" />
-                  <span>Review & Approve in Admin Desk</span>
-                </Link>
                 <Link
                   href="/providers"
                   className="px-5 py-2.5 bg-govnavy-900 hover:bg-govnavy-800 text-white rounded-xl text-xs font-bold transition-colors"
                 >
                   Explore Public Directory
+                </Link>
+                <Link
+                  href="/auth/login"
+                  className="px-5 py-2.5 bg-saffron-600 hover:bg-saffron-700 text-white rounded-xl text-xs font-bold transition-colors shadow-sm flex items-center space-x-1.5"
+                >
+                  <span>Admin Verification Login</span>
                 </Link>
                 <Link
                   href="/"
