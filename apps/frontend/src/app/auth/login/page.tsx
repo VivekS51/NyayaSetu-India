@@ -103,7 +103,11 @@ export default function LoginPage() {
         };
         ApiClient.setSession(data.data.accessToken, sessionUser);
         const roles = sessionUser.roles;
-        const target = roles.includes('LSP') ? '/lsp/dashboard' : '/providers';
+        const target = roles.includes('ADMIN')
+          ? '/admin'
+          : roles.includes('LSP')
+          ? '/lsp/dashboard'
+          : '/citizen/dashboard';
         window.location.href = target;
       } else {
         setErrorMsg(data.message || 'Invalid or expired OTP code entered. Please verify or request a new code.');
@@ -137,7 +141,11 @@ export default function LoginPage() {
         };
         ApiClient.setSession(data.data.accessToken, sessionUser);
         const roles = sessionUser.roles;
-        const target = roles.includes('LSP') ? '/lsp/dashboard' : '/providers';
+        const target = roles.includes('ADMIN')
+          ? '/admin'
+          : roles.includes('LSP')
+          ? '/lsp/dashboard'
+          : '/citizen/dashboard';
         window.location.href = target;
       } else {
         setErrorMsg(data.message || 'Invalid login credentials. Please check your identifier and password.');
@@ -381,7 +389,61 @@ export default function LoginPage() {
             onError={(msg) => setErrorMsg(msg)}
           />
 
-          <div className="mt-6 pt-4 border-t border-slate-100 text-center text-xs text-slate-600">
+          {/* Quick-Fill Demo Roles */}
+          <div className="mt-5 p-3.5 bg-slate-50 dark:bg-slate-800/80 rounded-xl border border-slate-200 dark:border-slate-700 space-y-2">
+            <div className="text-[11px] font-bold text-govnavy-900 dark:text-slate-200 flex items-center justify-between">
+              <span>Quick Test Logins (All Roles)</span>
+              <span className="text-[10px] text-slate-400 font-mono">Password: Password@123</span>
+            </div>
+            <div className="grid grid-cols-2 gap-1.5 text-[11px]">
+              <button
+                type="button"
+                onClick={() => {
+                  setAuthMode('PASSWORD');
+                  setPasswordEmail('admin@legalmarketplace.gov.in');
+                  setPassword('Password@123');
+                }}
+                className="p-1.5 rounded-lg bg-govnavy-900 text-white font-semibold text-center hover:bg-govnavy-800 transition-colors cursor-pointer"
+              >
+                Admin (Registrar)
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setAuthMode('PASSWORD');
+                  setPasswordEmail('rajesh.varma@delhibar.org.in');
+                  setPassword('Password@123');
+                }}
+                className="p-1.5 rounded-lg bg-saffron-600 text-white font-semibold text-center hover:bg-saffron-700 transition-colors cursor-pointer"
+              >
+                Advocate (LSP)
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setAuthMode('PASSWORD');
+                  setPasswordEmail('h.singh.notary@punjab.gov.in');
+                  setPassword('Password@123');
+                }}
+                className="p-1.5 rounded-lg bg-blue-700 text-white font-semibold text-center hover:bg-blue-800 transition-colors cursor-pointer"
+              >
+                Notary Public (LSP)
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setAuthMode('PASSWORD');
+                  setPasswordEmail('sunita.devi@example.in');
+                  setPassword('Password@123');
+                }}
+                className="p-1.5 rounded-lg bg-emerald-700 text-white font-semibold text-center hover:bg-emerald-800 transition-colors cursor-pointer"
+              >
+                Citizen (Sunita)
+              </button>
+            </div>
+          </div>
+
+          <div className="mt-4 pt-3 border-t border-slate-100 text-center text-xs text-slate-600">
             Don&apos;t have an account yet?{' '}
             <Link href="/auth/register" className="text-saffron-600 font-bold hover:underline">
               Register here
