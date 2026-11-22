@@ -17,7 +17,10 @@ import {
   Users2,
   Sparkles,
   ChevronRight,
+  Layers,
+  Activity,
 } from 'lucide-react';
+import { ConstellationField, ConstellationVariant } from '../components/effects/constellation-field/ConstellationField';
 
 export default function HomePage() {
   const { t } = useI18n();
@@ -26,6 +29,7 @@ export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedService, setSelectedService] = useState('ALL');
   const [selectedState, setSelectedState] = useState('ALL');
+  const [activeVariant, setActiveVariant] = useState<ConstellationVariant>('constellation-field');
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,16 +43,64 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-b from-govnavy-900 via-govnavy-800 to-govnavy-900 text-white pt-16 pb-24 px-4 sm:px-6 lg:px-8 overflow-hidden">
+      <section className="relative bg-gradient-to-b from-govnavy-900 via-govnavy-800 to-govnavy-900 text-white pt-16 pb-24 px-4 sm:px-6 lg:px-8 overflow-hidden min-h-[560px]">
+        {/* Constellation Field Isolated Canvas Effect */}
+        <div className="absolute inset-0 z-0">
+          <ConstellationField
+            variant={activeVariant}
+            speed={1.0}
+            density={1.15}
+            length={1.1}
+            strokeWidth={1}
+            size={1}
+            opacity={0.85}
+            palette="tricolor"
+            mode="dark"
+            interactive={true}
+          />
+        </div>
+
         {/* Subtle geometric background watermark */}
-        <div className="absolute inset-0 opacity-5 pointer-events-none flex items-center justify-center">
+        <div className="absolute inset-0 opacity-5 pointer-events-none flex items-center justify-center z-0">
           <Scale className="w-[600px] h-[600px] text-white" />
         </div>
 
         <div className="max-w-5xl mx-auto text-center relative z-10 space-y-6">
-          <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-saffron-500/10 border border-saffron-500/30 text-saffron-500 text-xs font-semibold tracking-wide">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>BCI Rule 36 & DPDP Act 2023 Compliant Citizen Justice Portal</span>
+          {/* Badge & Interactive Effect Switcher */}
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-saffron-500/10 border border-saffron-500/30 text-saffron-500 text-xs font-semibold tracking-wide backdrop-blur-sm">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>BCI Rule 36 & DPDP Act 2023 Compliant Citizen Justice Portal</span>
+            </div>
+
+            {/* Quick Effect Mode Switcher */}
+            <div className="hidden sm:inline-flex items-center space-x-1 px-2 py-1 rounded-full bg-govnavy-950/60 border border-govnavy-700/60 backdrop-blur-md text-[11px] text-slate-300">
+              <span className="text-slate-400 pl-1 pr-1 font-medium flex items-center gap-1">
+                <Layers className="w-3 h-3 text-saffron-400" /> Mesh:
+              </span>
+              {(
+                [
+                  { id: 'constellation-field', label: 'Constellation' },
+                  { id: 'topo-field', label: 'Topo Wave' },
+                  { id: 'gateway-flow', label: 'Gateway' },
+                  { id: 'connectivity-graph', label: 'Hub Graph' },
+                  { id: 'defense-lines', label: 'Statutory Shield' },
+                ] as { id: ConstellationVariant; label: string }[]
+              ).map((mode) => (
+                <button
+                  key={mode.id}
+                  type="button"
+                  onClick={() => setActiveVariant(mode.id)}
+                  className={`px-2 py-0.5 rounded-full font-medium transition-colors ${
+                    activeVariant === mode.id
+                      ? 'bg-saffron-500 text-slate-900 font-bold shadow-sm'
+                      : 'hover:text-white hover:bg-white/10 text-slate-300'
+                  }`}
+                >
+                  {mode.label}
+                </button>
+              ))}
+            </div>
           </div>
 
           <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight max-w-4xl mx-auto">
