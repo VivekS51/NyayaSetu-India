@@ -16,3 +16,45 @@ body {
   flex-direction: column;
 }
 
+/* ThreeUI AnimatedTopDock Host Frame Adaptations */
+.shader-frame {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.nav-shader-frame {
+  position: relative;
+  width: 440px;
+  height: 52px;
+  overflow: visible;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-shader-frame .animated-top-dock-component {
+  background: transparent !important;
+  width: 100% !important;
+  height: 100% !important;
+  overflow: visible !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.nav-shader-frame .animated-top-dock__nav {
+  position: relative !important;
+  top: 0 !important;
+  left: auto !important;
+  transform: none !important;
+  margin: 0 auto !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45), inset 0 1px rgba(255, 255, 255, 0.08) !important;
+}
+
+.nav-shader-frame .animated-top-dock-component__caption {
+  display: none !important;
+}
+

@@ -26,6 +26,8 @@ import {
   Phone,
   Mail,
 } from 'lucide-react';
+import { AnimatedTopDock } from "../../shaders/animated-top-dock/AnimatedTopDock";
+import "../../shaders/threeui.css";
 
 export const Navbar: React.FC = () => {
   const pathname = usePathname();
@@ -147,39 +149,18 @@ export const Navbar: React.FC = () => {
             </div>
           </Link>
 
-          {/* Desktop Nav Links */}
-          <nav className="hidden lg:flex items-center space-x-5 text-sm font-medium">
-            <Link
-              href="/providers"
-              className="text-slate-200 hover:text-saffron-500 transition-colors flex items-center space-x-1"
-            >
-              <ShieldCheck className="w-4 h-4 text-govgreen-600" />
-              <span>{t.nav.findProvider}</span>
-            </Link>
-
-            <Link
-              href="/onboarding"
-              className="text-slate-200 hover:text-saffron-500 transition-colors"
-            >
-              {t.nav.forAdvocates}
-            </Link>
-
-            <Link
-              href="/rewards"
-              className="text-slate-200 hover:text-saffron-500 transition-colors flex items-center space-x-1"
-            >
-              <Award className="w-4 h-4 text-amber-400" />
-              <span>Incentives & Tiers</span>
-            </Link>
-
-            <Link
-              href="/admin"
-              className="px-2.5 py-1 rounded bg-slate-800 text-slate-200 hover:text-white hover:bg-slate-700 transition-colors flex items-center space-x-1.5 border border-slate-700 text-xs font-semibold"
-            >
-              <LayoutDashboard className="w-3.5 h-3.5 text-saffron-400" />
-              <span>Admin Desk</span>
-            </Link>
-          </nav>
+          {/* Centered ThreeUI Animated Top Dock (Sable) */}
+          <div className="hidden lg:flex items-center justify-center flex-1 mx-3 h-14 relative overflow-visible shader-frame nav-shader-frame">
+            <AnimatedTopDock
+              variant="sable"
+              proximity={122}
+              spring={0.19}
+              damping={0.70}
+              widthGrowth={17}
+              heightGrowth={16}
+              drop={3.5}
+            />
+          </div>
 
           {/* Right Section: Notifications, Language Switcher & Auth */}
           <div className="hidden md:flex items-center space-x-4">
