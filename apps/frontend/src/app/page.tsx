@@ -67,17 +67,11 @@ export default function HomePage() {
         <div className="absolute top-1/3 right-1/4 -translate-y-1/2 w-[550px] h-[550px] bg-sky-500/20 rounded-full blur-3xl pointer-events-none z-0" />
 
         <div className="max-w-7xl mx-auto w-full relative z-10 my-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-6 items-center">
-            {/* Left Column: Headline, Features, CTAs & Social Proof - Compact & Clean */}
-            <div className="lg:col-span-6 xl:col-span-5 space-y-3 sm:space-y-3.5 text-left relative z-20">
-              {/* Badge matching reference */}
-              <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-sky-500/10 border border-sky-500/25 text-sky-400 text-xs font-semibold tracking-wide backdrop-blur-md shadow-sm">
-                <Sparkles className="w-3.5 h-3.5 text-sky-400" />
-                <span>BCI RULE 36 &amp; DPDP ACT 2023 COMPLIANT</span>
-              </div>
-
-              {/* High-Impact Modern Headline matching reference */}
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-[1.12] text-white">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
+            {/* Left Column: Headline, Features, CTAs & Social Proof */}
+            <div className="lg:col-span-6 xl:col-span-6 space-y-4 sm:space-y-4.5 text-left relative z-20">
+              {/* High-Impact Modern Headline */}
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-black tracking-tight leading-[1.12] text-white">
                 Your Legal Rights.{' '}
                 <span className="block text-transparent bg-clip-text bg-gradient-to-r from-sky-400 via-indigo-300 to-purple-400">
                   Always on your side.
@@ -85,43 +79,43 @@ export default function HomePage() {
               </h1>
 
               {/* Subtitle */}
-              <p className="text-xs sm:text-sm text-slate-300 max-w-lg leading-relaxed">
+              <p className="text-sm sm:text-base text-slate-300 max-w-lg leading-relaxed">
                 NyayaSetu India connects citizens directly with Bar Council verified advocates, licensed notaries, and accredited mediators—backed by statutory 100% escrow protection and 0% platform fee on professional legal fees.
               </p>
 
-              {/* 4 Feature Items in horizontal grid matching reference image */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 pt-0.5">
-                <div className="flex flex-col items-start space-y-1">
-                  <div className="w-7 h-7 rounded-lg bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400">
-                    <MessageSquare className="w-3.5 h-3.5" />
+              {/* 4 Feature Items in horizontal grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 pt-1">
+                <div className="flex flex-col items-start space-y-1.5">
+                  <div className="w-8 h-8 rounded-lg bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400">
+                    <MessageSquare className="w-4 h-4" />
                   </div>
                   <span className="text-[11px] font-semibold text-slate-200">Instant Legal Answers</span>
                 </div>
-                <div className="flex flex-col items-start space-y-1">
-                  <div className="w-7 h-7 rounded-lg bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400">
-                    <FileText className="w-3.5 h-3.5" />
+                <div className="flex flex-col items-start space-y-1.5">
+                  <div className="w-8 h-8 rounded-lg bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400">
+                    <FileText className="w-4 h-4" />
                   </div>
                   <span className="text-[11px] font-semibold text-slate-200">Smart Document Drafting</span>
                 </div>
-                <div className="flex flex-col items-start space-y-1">
-                  <div className="w-7 h-7 rounded-lg bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400">
-                    <Search className="w-3.5 h-3.5" />
+                <div className="flex flex-col items-start space-y-1.5">
+                  <div className="w-8 h-8 rounded-lg bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400">
+                    <Search className="w-4 h-4" />
                   </div>
                   <span className="text-[11px] font-semibold text-slate-200">Case Law Research</span>
                 </div>
-                <div className="flex flex-col items-start space-y-1">
-                  <div className="w-7 h-7 rounded-lg bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400">
-                    <ShieldCheck className="w-3.5 h-3.5" />
+                <div className="flex flex-col items-start space-y-1.5">
+                  <div className="w-8 h-8 rounded-lg bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400">
+                    <ShieldCheck className="w-4 h-4" />
                   </div>
                   <span className="text-[11px] font-semibold text-slate-200">Secure &amp; Confidential</span>
                 </div>
               </div>
 
-              {/* Action Buttons (styled exactly like the reference image) */}
-              <div className="flex flex-wrap items-center gap-3 pt-1">
+              {/* Action Buttons */}
+              <div className="flex flex-wrap items-center gap-3.5 pt-1.5">
                 <Link
                   href="/providers"
-                  className="px-6 py-2.5 sm:py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs sm:text-sm shadow-[0_0_25px_rgba(37,99,235,0.45)] transition-all flex items-center space-x-2 group"
+                  className="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs sm:text-sm shadow-[0_0_25px_rgba(37,99,235,0.45)] transition-all flex items-center space-x-2 group"
                 >
                   <span>Find Verified Counsel</span>
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
@@ -129,7 +123,7 @@ export default function HomePage() {
 
                 <Link
                   href="#trust-pillars"
-                  className="px-4 py-2 sm:py-2.5 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-slate-700/80 text-white font-medium text-xs backdrop-blur-md transition-all flex items-center space-x-2.5 group"
+                  className="px-4 py-2.5 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-slate-700/80 text-white font-medium text-xs backdrop-blur-md transition-all flex items-center space-x-2.5 group"
                 >
                   <div className="w-7 h-7 rounded-full bg-white/10 group-hover:bg-white/20 flex items-center justify-center text-white transition-colors">
                     <Play className="w-3 h-3 fill-white text-white ml-0.5" />
@@ -141,8 +135,8 @@ export default function HomePage() {
                 </Link>
               </div>
 
-              {/* Social Proof Avatars & Metric Rating matching reference */}
-              <div className="flex items-center space-x-2.5 pt-1">
+              {/* Social Proof Avatars & Metric Rating */}
+              <div className="flex items-center space-x-3 pt-1">
                 <div className="flex -space-x-1.5 overflow-hidden">
                   <div className="w-6 h-6 rounded-full bg-slate-700 border-2 border-slate-900 flex items-center justify-center text-[9px] font-bold text-white shadow">DL</div>
                   <div className="w-6 h-6 rounded-full bg-blue-600 border-2 border-slate-900 flex items-center justify-center text-[9px] font-bold text-white shadow">MH</div>
@@ -161,36 +155,14 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Right Column: Prominent Enlarged Lady Justice in Gold & Blue + Floating Glass Cards */}
-            <div className="lg:col-span-6 xl:col-span-7 relative flex items-end justify-center lg:justify-end min-h-[480px] sm:min-h-[560px] lg:min-h-[640px] xl:min-h-[720px] 2xl:min-h-[800px] select-none">
+            {/* Right Column: Prominent Lady Justice in Gold & Blue + Glass Assistant Card */}
+            <div className="lg:col-span-6 xl:col-span-6 relative flex items-end justify-center lg:justify-end min-h-[460px] sm:min-h-[520px] lg:min-h-[580px] xl:min-h-[640px] select-none">
               {/* Radial Cyan & Indigo Glow Spotlight behind Lady Justice */}
               <div className="absolute inset-0 flex items-center justify-center lg:justify-end pointer-events-none -z-10">
-                <div className="w-[560px] h-[600px] lg:w-[700px] lg:h-[750px] xl:w-[820px] xl:h-[860px] bg-gradient-to-tr from-sky-500/25 via-indigo-600/15 to-transparent rounded-full blur-3xl pointer-events-none" />
+                <div className="w-[520px] h-[560px] lg:w-[640px] lg:h-[680px] bg-gradient-to-tr from-sky-500/25 via-indigo-600/15 to-transparent rounded-full blur-3xl pointer-events-none" />
               </div>
 
-              {/* Floating HUD Card 1: Top Right (Matching Legal Research in reference) */}
-              <div className="absolute top-2 right-0 lg:-right-2 backdrop-blur-xl bg-slate-950/80 border border-sky-500/35 rounded-xl px-3 py-2 shadow-xl z-20 hidden sm:flex items-center space-x-2.5 pointer-events-none animate-pulse">
-                <div className="w-7 h-7 rounded-lg bg-sky-500/15 border border-sky-500/30 text-sky-400 flex items-center justify-center">
-                  <Scale className="w-3.5 h-3.5" />
-                </div>
-                <div className="text-left">
-                  <div className="text-xs font-bold text-white">Bar Council Verified</div>
-                  <div className="text-[10px] text-slate-400">COP &amp; Enrolment audited in real time</div>
-                </div>
-              </div>
-
-              {/* Floating HUD Card 2: Lower Right (Matching Document Analysis in reference) */}
-              <div className="absolute bottom-12 right-0 lg:-right-4 backdrop-blur-xl bg-slate-950/80 border border-sky-500/35 rounded-xl px-3 py-2 shadow-xl z-20 hidden sm:flex items-center space-x-2.5 pointer-events-none">
-                <div className="w-7 h-7 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center">
-                  <ShieldCheck className="w-3.5 h-3.5" />
-                </div>
-                <div className="text-left">
-                  <div className="text-xs font-bold text-white">Statutory Escrow</div>
-                  <div className="text-[10px] text-slate-400">0% Platform fee on legal counsel</div>
-                </div>
-              </div>
-
-              {/* Lady Justice Character Image (Enlarged to fit whole landing page hero) */}
+              {/* Lady Justice Character Image (Enlarged and cleanly aligned) */}
               <div className="relative z-10 flex items-end justify-center lg:justify-end w-full">
                 <Image
                   src="/images/lady-justice.png"
@@ -198,12 +170,12 @@ export default function HomePage() {
                   width={1365}
                   height={1260}
                   priority
-                  className="h-[480px] sm:h-[560px] lg:h-[640px] xl:h-[720px] 2xl:h-[800px] w-auto max-w-none object-contain object-bottom drop-shadow-[0_25px_60px_rgba(0,0,0,0.95)] drop-shadow-[0_0_45px_rgba(56,189,248,0.25)]"
+                  className="h-[460px] sm:h-[520px] lg:h-[580px] xl:h-[640px] 2xl:h-[700px] w-auto max-w-none object-contain object-bottom drop-shadow-[0_25px_60px_rgba(0,0,0,0.95)] drop-shadow-[0_0_45px_rgba(56,189,248,0.25)]"
                 />
               </div>
 
-              {/* Floating Glassmorphic Card (Center-Left): Interactive Citizen Justice Desk overlapping character */}
-              <div className="absolute bottom-2 sm:bottom-4 lg:bottom-6 left-0 sm:-left-4 lg:-left-8 sm:w-[290px] lg:w-[320px] backdrop-blur-2xl bg-slate-950/85 border border-sky-500/40 rounded-2xl p-3 sm:p-3.5 shadow-[0_25px_60px_rgba(0,0,0,0.9)] z-20 text-left">
+              {/* Floating Glassmorphic Card (Center-Left): Interactive Citizen Justice Desk */}
+              <div className="absolute bottom-2 sm:bottom-4 lg:bottom-6 left-0 sm:-left-4 lg:-left-6 sm:w-[290px] lg:w-[315px] backdrop-blur-2xl bg-slate-950/85 border border-sky-500/40 rounded-2xl p-3 sm:p-3.5 shadow-[0_25px_60px_rgba(0,0,0,0.9)] z-20 text-left">
                 <div className="flex items-center space-x-2 text-sky-400 text-xs font-bold mb-1.5">
                   <Sparkles className="w-3.5 h-3.5 text-sky-400" />
                   <span>Citizen Legal Assistant</span>
