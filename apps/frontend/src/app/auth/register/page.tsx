@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ApiClient, getApiBaseUrl } from '../../../lib/api-client';
 import { Scale, ShieldCheck, UserCheck, Briefcase, AlertCircle, CheckCircle2, Lock } from 'lucide-react';
+import { GoogleAuthButton } from '../../../components/auth/GoogleAuthButton';
 
 function RegisterForm() {
   const router = useRouter();
@@ -76,47 +77,6 @@ function RegisterForm() {
     } catch (err: any) {
       console.error('Registration network error:', err);
       setErrorMsg('Unable to connect to registration server. Please check your internet connection and try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleGoogleSignIn = async () => {
-    setErrorMsg(null);
-    setLoading(true);
-    try {
-      const emailInput = window.prompt('Enter your Google Account email for instant sign-in:', 'citizen@gmail.com');
-      if (!emailInput || !emailInput.includes('@')) {
-        setLoading(false);
-        return;
-      }
-      const rawName = emailInput.split('@')[0].replace(/[._]/g, ' ');
-      const formattedName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
-
-      const baseUrl = getApiBaseUrl();
-      const res = await fetch(`${baseUrl}/auth/google`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: emailInput.trim().toLowerCase(),
-          fullName: formattedName,
-          role,
-        }),
-      });
-      const data = await res.json();
-      if (data.success && data.data) {
-        const sessionUser = {
-          ...data.data.user,
-          roles: data.data.roles || [role],
-        };
-        ApiClient.setSession(data.data.accessToken, sessionUser);
-        window.location.href = role === 'LSP' ? '/onboarding' : '/providers';
-      } else {
-        setErrorMsg(data.message || 'Google registration failed');
-      }
-    } catch (err: any) {
-      console.error('Google Sign-In Error:', err);
-      setErrorMsg('Unable to connect to Google authentication service.');
     } finally {
       setLoading(false);
     }
@@ -278,20 +238,12 @@ function RegisterForm() {
         </div>
 
         {/* Google Sign In Button */}
-        <button
-          type="button"
-          onClick={handleGoogleSignIn}
-          disabled={loading}
-          className="w-full py-2.5 px-4 bg-white hover:bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-700 shadow-sm transition-all flex items-center justify-center space-x-2.5 hover:border-slate-400"
-        >
-          <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
-            <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
-            <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.34 24 12 24z"/>
-            <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 10.03 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
-            <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.34 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
-          </svg>
-          <span>Continue with Google</span>
-        </button>
+        <GoogleAuthButton
+          role={role}
+          text={`Continue as ${role === 'LSP' ? 'Legal Provider' : 'Citizen'} with Google`}
+          redirectTo={role === 'LSP' ? '/onboarding' : '/providers'}
+          onError={(msg) => setErrorMsg(msg)}
+        />
 
       <div className="mt-6 pt-4 border-t border-slate-100 text-center text-xs text-slate-600">
         Already registered?{' '}

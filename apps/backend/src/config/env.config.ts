@@ -23,6 +23,10 @@ export const envConfig = {
     keyId: process.env.RAZORPAY_KEY_ID || '',
     keySecret: process.env.RAZORPAY_KEY_SECRET || '',
   },
+  google: {
+    clientId: process.env.GOOGLE_CLIENT_ID || '',
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
+  },
   msg91: {
     authKey: process.env.MSG91_AUTH_KEY || '591061ACiMZyf3sdSa6afc971eP1',
     templateId: process.env.MSG91_TEMPLATE_ID || '6afc949984b612b5030babc2',

@@ -94,8 +94,9 @@ export const passwordResetConfirmSchema = z.object({
 
 export const googleAuthSchema = z.object({
   credential: z.string().optional(),
-  email: z.string().email(),
-  fullName: z.string().min(1, 'Full name required'),
+  accessToken: z.string().optional(),
+  email: z.string().email().optional(),
+  fullName: z.string().optional(),
   avatarUrl: z.string().optional().nullable(),
   role: z.enum([RoleType.CITIZEN, RoleType.LSP]).default(RoleType.CITIZEN),
 });

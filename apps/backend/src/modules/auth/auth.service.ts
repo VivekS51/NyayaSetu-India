@@ -756,7 +756,50 @@ export class AuthService {
     refreshToken: string;
     isNewUser: boolean;
   }> {
-    const normalizedEmail = input.email.toLowerCase().trim();
+    let email = input.email ? input.email.toLowerCase().trim() : '';
+    let fullName = input.fullName ? input.fullName.trim() : '';
+    let avatarUrl = input.avatarUrl || null;
+
+    // Verify Google ID Token (credential) via Google TokenInfo API
+    if (input.credential) {
+      try {
+        const verifyRes = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(input.credential)}`);
+        if (verifyRes.ok) {
+          const tokenData = (await verifyRes.json()) as any;
+          if (tokenData.email) {
+            email = tokenData.email.toLowerCase();
+            fullName = tokenData.name || fullName || 'Google User';
+            avatarUrl = tokenData.picture || avatarUrl;
+          }
+        }
+      } catch (err: any) {
+        console.warn('[Google Auth] Token verification warning:', err.message);
+      }
+    } else if (input.accessToken) {
+      try {
+        const userinfoRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+          headers: { Authorization: `Bearer ${input.accessToken}` },
+        });
+        if (userinfoRes.ok) {
+          const userData = (await userinfoRes.json()) as any;
+          if (userData.email) {
+            email = userData.email.toLowerCase();
+            fullName = userData.name || fullName || 'Google User';
+            avatarUrl = userData.picture || avatarUrl;
+          }
+        }
+      } catch (err: any) {
+        console.warn('[Google Auth] Access token verification warning:', err.message);
+      }
+    }
+
+    if (!email || !email.includes('@')) {
+      throw new Error('Valid Google account email address is required.');
+    }
+    if (!fullName) {
+      fullName = email.split('@')[0];
+    }
+    const normalizedEmail = email;
     let user = dbStore.users.find((u) => u.email?.toLowerCase() === normalizedEmail);
     let isNewUser = false;
 
@@ -807,8 +850,8 @@ export class AuthService {
         phone: `+91-GOOGLE-${userId.slice(0, 8)}`,
         email: normalizedEmail,
         passwordHash: defaultPasswordHash,
-        fullName: input.fullName.trim(),
-        avatarUrl: input.avatarUrl || null,
+        fullName: fullName.trim(),
+        avatarUrl: avatarUrl || input.avatarUrl || null,
         preferredLanguage: 'en',
         status: AccountStatus.ACTIVE,
         isPhoneVerified: false,

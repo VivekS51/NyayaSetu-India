@@ -1,5 +1,6 @@
 import React from 'react';
 import type { Metadata } from 'next';
+import Script from 'next/script';
 import './globals.css';
 import { I18nProvider } from '../lib/i18n';
 import { Navbar } from '../components/layout/Navbar';
@@ -14,6 +15,12 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
+      <head>
+        <Script
+          src="https://accounts.google.com/gsi/client"
+          strategy="afterInteractive"
+        />
+      </head>
       <body className="antialiased flex flex-col min-h-screen">
         <I18nProvider>
           <Navbar />

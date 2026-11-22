@@ -8,16 +8,56 @@ const JWT_SECRET = process.env.JWT_SECRET || 'nyayasetu_production_jwt_secret_20
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const email = String(body.email || '').trim().toLowerCase();
-    const fullName = String(body.fullName || '').trim() || 'Citizen';
-    const avatarUrl = body.avatarUrl || null;
+    let email = String(body.email || '').trim().toLowerCase();
+    let fullName = String(body.fullName || '').trim();
+    let avatarUrl = body.avatarUrl || null;
     const role = body.role === 'LSP' ? 'LSP' : 'CITIZEN';
+    const credential = body.credential;
+    const accessToken = body.accessToken;
+
+    // Verify Google ID Token (credential) if provided
+    if (credential) {
+      try {
+        const verifyRes = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(credential)}`);
+        if (verifyRes.ok) {
+          const tokenData = await verifyRes.json();
+          if (tokenData.email) {
+            email = tokenData.email.toLowerCase();
+            fullName = tokenData.name || fullName || 'Google User';
+            avatarUrl = tokenData.picture || avatarUrl;
+          }
+        }
+      } catch (err: any) {
+        console.warn('Google ID token verification failed:', err.message);
+      }
+    } else if (accessToken) {
+      try {
+        const userinfoRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        if (userinfoRes.ok) {
+          const userData = await userinfoRes.json();
+          if (userData.email) {
+            email = userData.email.toLowerCase();
+            fullName = userData.name || fullName || 'Google User';
+            avatarUrl = userData.picture || avatarUrl;
+          }
+        }
+      } catch (err: any) {
+        console.warn('Google Access token verification failed:', err.message);
+      }
+    }
 
     if (!email || !email.includes('@')) {
       return NextResponse.json(
         { success: false, message: 'Valid email address required for Google Sign-In.' },
         { status: 400 }
       );
+    }
+
+    if (!fullName) {
+      const rawName = email.split('@')[0].replace(/[._]/g, ' ');
+      fullName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
     }
 
     let user = await prisma.user.findFirst({
@@ -52,10 +92,17 @@ export async function POST(req: NextRequest) {
         include: { roles: true },
       });
       console.log(`[Vercel Serverless] Created Google user in Neon PostgreSQL: ${email}`);
+    } else if (avatarUrl && !user.avatarUrl) {
+      try {
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { avatarUrl },
+        });
+      } catch {}
     }
 
     const roles = user.roles.map((r) => r.role);
-    const accessToken = jwt.sign(
+    const accessTokenSign = jwt.sign(
       { userId: user.id, phone: user.phone, email: user.email, roles, fullName: user.fullName },
       JWT_SECRET,
       { expiresIn: '15m' }
@@ -71,12 +118,12 @@ export async function POST(req: NextRequest) {
           phone: user.phone,
           email: user.email,
           fullName: user.fullName,
-          avatarUrl: user.avatarUrl,
+          avatarUrl: user.avatarUrl || avatarUrl,
           preferredLanguage: user.preferredLanguage,
           status: user.status,
         },
         roles,
-        accessToken,
+        accessToken: accessTokenSign,
         refreshToken,
         isNewUser,
       },
