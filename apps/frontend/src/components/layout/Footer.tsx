@@ -4,9 +4,9 @@ import { ShieldCheck, PhoneCall, Scale, AlertCircle, FileText } from 'lucide-rea
 
 export const Footer: React.FC = () => {
   return (
-    <footer className="bg-slate-100 dark:bg-govnavy-900 text-slate-700 dark:text-slate-300 border-t border-slate-200 dark:border-govnavy-700 text-xs transition-colors duration-200">
+    <footer className="bg-slate-100 dark:bg-[#0c0907] text-slate-700 dark:text-slate-300 border-t border-slate-200 dark:border-white/10 text-xs transition-colors duration-200">
       {/* Statutory Regulatory Banner */}
-      <div className="bg-slate-200/80 dark:bg-govnavy-950 border-b border-slate-300/80 dark:border-govnavy-800 py-4 px-4 sm:px-6 lg:px-8">
+      <div className="bg-slate-200/80 dark:bg-[#070503] border-b border-slate-300/80 dark:border-white/10 py-4 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto flex items-start space-x-3">
           <AlertCircle className="w-5 h-5 text-saffron-500 shrink-0 mt-0.5" />
           <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
@@ -81,7 +81,7 @@ export const Footer: React.FC = () => {
         {/* Emergency Helplines & Redressal */}
         <div className="space-y-2">
           <h4 className="text-slate-900 dark:text-white font-semibold uppercase tracking-wider text-xs">Support &amp; Grievances</h4>
-          <div className="bg-slate-200/80 dark:bg-govnavy-800 p-3 rounded-lg border border-slate-300 dark:border-govnavy-700 space-y-1.5">
+          <div className="bg-slate-200/80 dark:bg-[#140f0b] p-3 rounded-lg border border-slate-300 dark:border-white/10 space-y-1.5">
             <div className="flex items-center space-x-2 text-saffron-600 dark:text-saffron-500 font-bold">
               <PhoneCall className="w-4 h-4" />
               <span>NALSA Legal Aid: 15100 (Toll-Free)</span>
@@ -99,7 +99,7 @@ export const Footer: React.FC = () => {
       </div>
 
       {/* Bottom Copyright & Disclaimer */}
-      <div className="border-t border-slate-300 dark:border-govnavy-800 py-4 px-4 sm:px-6 lg:px-8 text-center text-slate-500 dark:text-slate-400 text-[11px]">
+      <div className="border-t border-slate-300 dark:border-white/10 py-4 px-4 sm:px-6 lg:px-8 text-center text-slate-500 dark:text-slate-400 text-[11px]">
         <p>© 2026 NyayaSetu India (न्यायसेतु) • Ministry of Law &amp; Justice • Bar Council of India Rule 36 &amp; DPDP Act 2023 Compliant.</p>
       </div>
     </footer>

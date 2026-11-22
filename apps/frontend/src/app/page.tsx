@@ -93,10 +93,10 @@ export default function HomePage() {
                   Your Legal Rights.
                 </span>{' '}
                 <span className="block mt-1 sm:mt-1.5">
-                  <span className={`text-transparent bg-clip-text bg-gradient-to-r font-black ${
+                  <span className={`font-black ${
                     theme === 'light'
-                      ? 'from-orange-600 via-amber-600 to-orange-500'
-                      : 'from-amber-300 via-saffron-400 to-orange-400 drop-shadow-[0_0_25px_rgba(245,158,11,0.4)]'
+                      ? 'text-transparent bg-clip-text bg-gradient-to-r from-amber-600 via-orange-600 to-amber-700'
+                      : 'text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-amber-400 to-orange-400'
                   }`}>
                     Always
                   </span>{' '}
@@ -203,8 +203,8 @@ export default function HomePage() {
               <div className="flex items-center space-x-2.5 pt-0.5">
                 <div className="flex -space-x-1.5 overflow-hidden">
                   <div className="w-6 h-6 rounded-full bg-slate-700 border-2 border-slate-900 flex items-center justify-center text-[9px] font-bold text-white shadow">DL</div>
-                  <div className="w-6 h-6 rounded-full bg-blue-600 border-2 border-slate-900 flex items-center justify-center text-[9px] font-bold text-white shadow">MH</div>
-                  <div className="w-6 h-6 rounded-full bg-sky-600 border-2 border-slate-900 flex items-center justify-center text-[9px] font-bold text-white shadow">TN</div>
+                  <div className="w-6 h-6 rounded-full bg-amber-600 border-2 border-slate-900 flex items-center justify-center text-[9px] font-bold text-white shadow">MH</div>
+                  <div className="w-6 h-6 rounded-full bg-saffron-600 border-2 border-slate-900 flex items-center justify-center text-[9px] font-bold text-white shadow">TN</div>
                   <div className="w-6 h-6 rounded-full bg-emerald-600 border-2 border-slate-900 flex items-center justify-center text-[9px] font-bold text-white shadow">UP</div>
                   <div className="w-6 h-6 rounded-full bg-slate-800 border-2 border-slate-900 flex items-center justify-center text-[9px] font-bold text-slate-300 shadow">+</div>
                 </div>
@@ -241,7 +241,7 @@ export default function HomePage() {
               <span>Bar Council of India Rule 36</span>
             </div>
             <div className="flex items-center space-x-1.5">
-              <Landmark className={`w-3 h-3 ${theme === 'light' ? 'text-blue-600' : 'text-sky-400'}`} />
+              <Landmark className={`w-3 h-3 ${theme === 'light' ? 'text-amber-600' : 'text-amber-400'}`} />
               <span>Advocates Act 1961</span>
             </div>
             <div className="flex items-center space-x-1.5">
@@ -253,7 +253,7 @@ export default function HomePage() {
               <span>Mediation Act 2023</span>
             </div>
             <div className="flex items-center space-x-1.5">
-              <ShieldCheck className={`w-3 h-3 ${theme === 'light' ? 'text-indigo-600' : 'text-blue-400'}`} />
+              <ShieldCheck className={`w-3 h-3 ${theme === 'light' ? 'text-emerald-600' : 'text-emerald-400'}`} />
               <span>DPDP Act 2023 Data Vault</span>
             </div>
           </div>
@@ -269,8 +269,8 @@ export default function HomePage() {
         }`}>
           <div className="text-left px-1 pb-2 flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <Search className={`w-3.5 h-3.5 ${theme === 'light' ? 'text-saffron-600' : 'text-sky-400'}`} />
-              <span className={`text-xs font-bold uppercase tracking-wider ${theme === 'light' ? 'text-saffron-600' : 'text-sky-400'}`}>
+              <Search className={`w-3.5 h-3.5 ${theme === 'light' ? 'text-saffron-600' : 'text-amber-400'}`} />
+              <span className={`text-xs font-bold uppercase tracking-wider ${theme === 'light' ? 'text-saffron-600' : 'text-amber-400'}`}>
                 Fast Practitioner Search
               </span>
             </div>
@@ -360,9 +360,9 @@ export default function HomePage() {
           <div className={`p-6 rounded-2xl border transition-all ${
             theme === 'light'
               ? 'bg-white border-slate-200 hover:border-amber-500/50 shadow-md text-slate-900'
-              : 'bg-slate-900/60 border-slate-800/80 hover:border-sky-500/40 hover:bg-slate-900/90 shadow-xl backdrop-blur-xl text-white'
+              : 'bg-slate-900/60 border-slate-800/80 hover:border-amber-500/50 hover:bg-slate-900/90 shadow-xl backdrop-blur-xl text-white'
           }`}>
-            <div className="w-12 h-12 rounded-xl bg-sky-500/15 border border-sky-500/30 text-sky-500 flex items-center justify-center mb-4">
+            <div className="w-12 h-12 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center mb-4">
               <Landmark className="w-6 h-6" />
             </div>
             <h3 className={`text-base font-bold mb-2 ${theme === 'light' ? 'text-slate-900' : 'text-white'}`}>Bar Council Verification</h3>
@@ -374,7 +374,7 @@ export default function HomePage() {
           <div className={`p-6 rounded-2xl border transition-all ${
             theme === 'light'
               ? 'bg-white border-slate-200 hover:border-amber-500/50 shadow-md text-slate-900'
-              : 'bg-slate-900/60 border-slate-800/80 hover:border-sky-500/40 hover:bg-slate-900/90 shadow-xl backdrop-blur-xl text-white'
+              : 'bg-slate-900/60 border-slate-800/80 hover:border-amber-500/50 hover:bg-slate-900/90 shadow-xl backdrop-blur-xl text-white'
           }`}>
             <div className="w-12 h-12 rounded-xl bg-saffron-500/15 border border-saffron-500/30 text-saffron-500 flex items-center justify-center mb-4">
               <Lock className="w-6 h-6" />
@@ -388,7 +388,7 @@ export default function HomePage() {
           <div className={`p-6 rounded-2xl border transition-all ${
             theme === 'light'
               ? 'bg-white border-slate-200 hover:border-amber-500/50 shadow-md text-slate-900'
-              : 'bg-slate-900/60 border-slate-800/80 hover:border-sky-500/40 hover:bg-slate-900/90 shadow-xl backdrop-blur-xl text-white'
+              : 'bg-slate-900/60 border-slate-800/80 hover:border-amber-500/50 hover:bg-slate-900/90 shadow-xl backdrop-blur-xl text-white'
           }`}>
             <div className="w-12 h-12 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-500 flex items-center justify-center mb-4">
               <Scale className="w-6 h-6" />
@@ -402,9 +402,9 @@ export default function HomePage() {
           <div className={`p-6 rounded-2xl border transition-all ${
             theme === 'light'
               ? 'bg-white border-slate-200 hover:border-amber-500/50 shadow-md text-slate-900'
-              : 'bg-slate-900/60 border-slate-800/80 hover:border-sky-500/40 hover:bg-slate-900/90 shadow-xl backdrop-blur-xl text-white'
+              : 'bg-slate-900/60 border-slate-800/80 hover:border-amber-500/50 hover:bg-slate-900/90 shadow-xl backdrop-blur-xl text-white'
           }`}>
-            <div className="w-12 h-12 rounded-xl bg-blue-500/15 border border-blue-500/30 text-blue-500 flex items-center justify-center mb-4">
+            <div className="w-12 h-12 rounded-xl bg-saffron-500/15 border border-saffron-500/30 text-saffron-400 flex items-center justify-center mb-4">
               <ShieldCheck className="w-6 h-6" />
             </div>
             <h3 className={`text-base font-bold mb-2 ${theme === 'light' ? 'text-slate-900' : 'text-white'}`}>DPDP 2023 Data Vault</h3>
@@ -432,7 +432,7 @@ export default function HomePage() {
             <Link
               href="/providers"
               className={`mt-4 sm:mt-0 text-sm font-semibold flex items-center space-x-1 transition-colors ${
-                theme === 'light' ? 'text-saffron-600 hover:text-saffron-700' : 'text-sky-400 hover:text-sky-300'
+                theme === 'light' ? 'text-saffron-600 hover:text-saffron-700' : 'text-amber-400 hover:text-amber-300'
               }`}
             >
               <span>View All 24 Legal Domains</span>
@@ -455,21 +455,21 @@ export default function HomePage() {
                 className={`p-6 rounded-2xl border transition-all group shadow-md ${
                   theme === 'light'
                     ? 'bg-white border-slate-200 hover:border-amber-500/50 hover:shadow-lg'
-                    : 'bg-slate-900/60 border-slate-800/80 hover:border-sky-500/50 hover:bg-slate-900/90 shadow-xl backdrop-blur-xl'
+                    : 'bg-slate-900/60 border-slate-800/80 hover:border-amber-500/50 hover:bg-slate-900/90 shadow-xl backdrop-blur-xl'
                 }`}
               >
                 <div className="flex items-center space-x-3 mb-3">
                   <div className={`w-10 h-10 rounded-lg flex items-center justify-center font-bold ${
                     theme === 'light'
                       ? 'bg-amber-500/10 border border-amber-500/30 text-amber-700'
-                      : 'bg-white/5 border border-white/10 text-sky-400'
+                      : 'bg-white/5 border border-white/10 text-amber-400'
                   }`}>
                     {cat.num}
                   </div>
                   <h3 className={`font-bold transition-colors ${
                     theme === 'light'
                       ? 'text-slate-900 group-hover:text-amber-600'
-                      : 'text-white group-hover:text-sky-400'
+                      : 'text-white group-hover:text-amber-400'
                   }`}>
                     {cat.title}
                   </h3>
@@ -490,13 +490,13 @@ export default function HomePage() {
         <div className={`rounded-3xl p-8 sm:p-14 relative overflow-hidden backdrop-blur-2xl border shadow-2xl transition-colors duration-300 ${
           theme === 'light'
             ? 'bg-gradient-to-r from-amber-50/80 via-white to-amber-50/80 text-slate-900 border-amber-500/30 shadow-slate-200/60'
-            : 'bg-gradient-to-r from-slate-950/90 via-govnavy-900/90 to-slate-950/90 text-white border-sky-500/30 shadow-[0_20px_60px_rgba(0,0,0,0.8)]'
+            : 'bg-gradient-to-r from-[#120e0b]/90 via-[#1c140d]/90 to-[#120e0b]/90 text-white border-amber-500/30 shadow-[0_20px_60px_rgba(0,0,0,0.8)]'
         }`}>
           <div className="max-w-2xl relative z-10 space-y-4">
             <div className={`inline-flex items-center space-x-2 px-3 py-1 rounded-full text-xs font-semibold ${
               theme === 'light'
                 ? 'bg-amber-500/15 border border-amber-500/30 text-amber-700'
-                : 'bg-sky-500/15 border border-sky-500/30 text-sky-400'
+                : 'bg-amber-500/15 border border-amber-500/30 text-amber-400'
             }`}>
               <Award className="w-3.5 h-3.5" />
               <span>Incentive Engine: Founding Member Cohort</span>
