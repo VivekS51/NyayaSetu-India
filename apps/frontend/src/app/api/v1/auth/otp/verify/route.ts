@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'nyayasetu_production_jwt_secret_2026';
+const MSG91_AUTH_KEY = process.env.MSG91_AUTH_KEY || '591061ACiMZyf3sdSa6afc971eP1';
 
 export async function POST(req: NextRequest) {
   try {
@@ -36,8 +37,32 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // Verify against live MSG91 Gateway
+    let isMsg91Match = false;
+    if (MSG91_AUTH_KEY) {
+      try {
+        const verifyUrl = `https://control.msg91.com/api/v5/otp/verify?otp=${encodeURIComponent(
+          enteredOtp
+        )}&mobile=91${encodeURIComponent(cleanMobile)}`;
+        const verifyRes = await fetch(verifyUrl, {
+          method: 'GET',
+          headers: {
+            authkey: MSG91_AUTH_KEY,
+            Accept: 'application/json',
+          },
+        });
+        const verifyData = (await verifyRes.json()) as any;
+        if (verifyData.type === 'success' || verifyData.message === 'OTP verified success') {
+          isMsg91Match = true;
+          console.log(`[MSG91 Gateway] Verified OTP successfully for 91${cleanMobile}`);
+        }
+      } catch (err: any) {
+        console.warn('[MSG91 Verify Warning]:', err.message);
+      }
+    }
+
     const isMock = enteredOtp === '123456';
-    const isMatch = isTokenMatch || (record && record.code === enteredOtp);
+    const isMatch = isTokenMatch || isMsg91Match || (record && record.code === enteredOtp);
 
     if (!isMatch && !isMock) {
       return NextResponse.json(
