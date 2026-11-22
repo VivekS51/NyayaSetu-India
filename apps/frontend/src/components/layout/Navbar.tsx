@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useI18n, Language } from '../../lib/i18n';
 import { ApiClient, AppNotification } from '../../lib/api-client';
@@ -379,14 +380,20 @@ export const Navbar: React.FC = () => {
               <div className="relative" ref={accountRef}>
                 <button
                   onClick={() => setAccountDropdownOpen(!accountDropdownOpen)}
-                  className="animated-top-dock__item flex items-center space-x-1.5 !px-3"
+                  className="animated-top-dock__item animated-top-dock__avatar group transition-all"
                   data-dock-item
+                  title={currentUser.fullName || 'My Account'}
+                  aria-label="My Account"
                 >
-                  <div className="w-4 h-4 rounded-full bg-gradient-to-tr from-saffron-600 to-amber-500 text-white flex items-center justify-center font-black text-[9px] shadow-inner">
-                    {currentUser.fullName ? currentUser.fullName.charAt(0).toUpperCase() : 'U'}
+                  <div className="w-6 h-6 rounded-full bg-slate-100 dark:bg-white/95 flex items-center justify-center overflow-hidden shadow-sm ring-1 ring-amber-500/50">
+                    <Image
+                      src="/images/avatar-person.png"
+                      alt={currentUser.fullName || 'Account Avatar'}
+                      width={22}
+                      height={22}
+                      className="object-contain translate-y-0.5"
+                    />
                   </div>
-                  <span className="font-bold text-xs">My Account</span>
-                  <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
                 </button>
 
                 {/* My Account Dropdown Details Panel */}
@@ -396,8 +403,14 @@ export const Navbar: React.FC = () => {
                     <div className="p-4 bg-white/5 border-b border-white/10">
                       <div className="flex items-start justify-between">
                         <div className="flex items-center space-x-3">
-                          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-saffron-500 to-amber-700 flex items-center justify-center text-white text-lg font-bold border border-saffron-400 shadow-md">
-                            {currentUser.fullName ? currentUser.fullName.charAt(0).toUpperCase() : 'U'}
+                          <div className="w-11 h-11 rounded-xl bg-slate-100 dark:bg-white/95 flex items-center justify-center overflow-hidden border border-saffron-400 shadow-md p-0.5">
+                            <Image
+                              src="/images/avatar-person.png"
+                              alt={currentUser.fullName || 'User Profile'}
+                              width={38}
+                              height={38}
+                              className="object-contain translate-y-1"
+                            />
                           </div>
                           <div>
                             <div className="font-bold text-sm text-white leading-tight">
@@ -487,20 +500,13 @@ export const Navbar: React.FC = () => {
                 )}
               </div>
             ) : (
-              <div className="flex items-center space-x-1.5">
+              <div className="flex items-center">
                 <Link
                   href="/auth/login"
-                  className="animated-top-dock__item !h-8 !px-3 !text-xs font-semibold"
+                  className="animated-top-dock__item !h-8 !px-3.5 !text-xs font-semibold"
                   data-dock-item
                 >
                   Sign In
-                </Link>
-                <Link
-                  href="/onboarding"
-                  className="animated-top-dock__item is-active !h-8 !px-3.5 !text-xs font-bold"
-                  data-dock-item
-                >
-                  <span>Join Platform</span>
                 </Link>
               </div>
             )}
@@ -546,8 +552,14 @@ export const Navbar: React.FC = () => {
             <div className="p-3 bg-slate-100 dark:bg-white/5 rounded-xl border border-slate-300 dark:border-white/10 mb-3 space-y-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
-                  <div className="w-7 h-7 rounded-full bg-saffron-500 text-white flex items-center justify-center font-bold text-xs">
-                    {currentUser.fullName ? currentUser.fullName.charAt(0).toUpperCase() : 'U'}
+                  <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-white/95 flex items-center justify-center overflow-hidden border border-saffron-400 shadow-sm p-0.5">
+                    <Image
+                      src="/images/avatar-person.png"
+                      alt={currentUser.fullName || 'User Profile'}
+                      width={28}
+                      height={28}
+                      className="object-contain translate-y-0.5"
+                    />
                   </div>
                   <div>
                     <div className="text-xs font-bold text-slate-900 dark:text-white">{currentUser.fullName}</div>
@@ -580,20 +592,13 @@ export const Navbar: React.FC = () => {
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-2 gap-2 pb-2">
+            <div className="pb-2">
               <Link
                 href="/auth/login"
                 onClick={() => setMobileMenuOpen(false)}
-                className="py-2 bg-slate-100 dark:bg-white/5 border border-slate-300 dark:border-white/10 rounded-lg text-center text-xs font-bold text-slate-800 dark:text-white"
+                className="block py-2 bg-slate-100 dark:bg-white/5 border border-slate-300 dark:border-white/10 rounded-lg text-center text-xs font-bold text-slate-800 dark:text-white"
               >
                 Sign In
-              </Link>
-              <Link
-                href="/onboarding"
-                onClick={() => setMobileMenuOpen(false)}
-                className="py-2 bg-saffron-600 text-white rounded-lg text-center text-xs font-bold"
-              >
-                Join Platform
               </Link>
             </div>
           )}

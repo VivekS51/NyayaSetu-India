@@ -190,6 +190,20 @@ html.light .portal-navbar-capsule .animated-top-dock__logo,
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
 }
 
+/* ThreeUI Animated Top Dock User Avatar Button (Zero overflow, circular glass) */
+.portal-navbar-capsule .animated-top-dock__avatar,
+.animated-top-dock__avatar {
+  width: 34px !important;
+  min-width: 34px !important;
+  height: 34px !important;
+  padding: 0 !important;
+  border-radius: 9999px !important;
+  overflow: hidden !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
 html.light .portal-navbar-capsule .animated-top-dock__logo,
 [data-theme="light"] .portal-navbar-capsule .animated-top-dock__logo {
   background: rgba(255, 255, 255, 0.85) !important;
