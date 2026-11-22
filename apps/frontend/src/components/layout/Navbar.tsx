@@ -25,8 +25,9 @@ import {
   Wallet,
   Phone,
   Mail,
+  Users2,
 } from 'lucide-react';
-import { AnimatedTopDock } from "../../shaders/animated-top-dock/AnimatedTopDock";
+import { createTopDockController } from '../../shaders/animated-top-dock/topDockController';
 import "../../shaders/threeui.css";
 
 export const Navbar: React.FC = () => {
@@ -41,6 +42,20 @@ export const Navbar: React.FC = () => {
 
   const dropdownRef = useRef<HTMLDivElement>(null);
   const accountRef = useRef<HTMLDivElement>(null);
+  const dockRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    const root = dockRef.current;
+    if (!root) return;
+    return createTopDockController(root, () => ({
+      proximity: 122,
+      spring: 0.19,
+      damping: 0.70,
+      widthGrowth: 17,
+      heightGrowth: 16,
+      drop: 3.5,
+    }));
+  }, []);
 
   const syncAuth = useCallback(() => {
     const stored = ApiClient.getStoredUser();
@@ -123,57 +138,99 @@ export const Navbar: React.FC = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-govnavy-900 text-white shadow-md border-b border-govnavy-700">
-      {/* Tricolor National Emblem Top Ribbon */}
-      <div className="h-1 w-full flex">
-        <div className="w-1/3 bg-saffron-500" />
-        <div className="w-1/3 bg-white" />
-        <div className="w-1/3 bg-govgreen-600" />
-      </div>
-
+    <header className="sticky top-0 z-50 w-full backdrop-blur-2xl bg-[#060a17]/90 border-b border-white/10 text-white shadow-xl transition-all">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-18 py-3">
-          {/* Brand Logo & Statutory Subtitle */}
-          <Link href="/" className="flex items-center space-x-3 group">
-            <div className="w-11 h-11 rounded-lg bg-gradient-to-br from-saffron-500 to-govnavy-700 flex items-center justify-center shadow-inner">
-              <Scale className="w-6 h-6 text-white group-hover:scale-105 transition-transform" />
+        <div className="flex items-center justify-between h-16 py-2">
+          {/* Brand Logo & Statutory Subtitle on Left */}
+          <Link href="/" className="flex items-center space-x-3 group flex-shrink-0">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-saffron-500 to-amber-600 flex items-center justify-center shadow-inner">
+              <Scale className="w-5 h-5 text-white group-hover:scale-105 transition-transform" />
             </div>
             <div>
               <div className="flex items-center space-x-2">
-                <span className="text-xl font-bold tracking-tight text-white">{t.nav.brand}</span>
-                <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-semibold">
+                <span className="text-base font-bold tracking-tight text-white">{t.nav.brand}</span>
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-semibold">
                   National Portal
                 </span>
               </div>
-              <p className="text-xs text-slate-300 font-medium tracking-wide">{t.nav.tagline}</p>
+              <p className="text-[11px] text-slate-400 font-medium tracking-wide hidden sm:block">{t.nav.tagline}</p>
             </div>
           </Link>
 
-          {/* Centered ThreeUI Animated Top Dock (Sable) */}
-          <div className="hidden lg:flex items-center justify-center flex-1 mx-3 h-14 relative overflow-visible shader-frame nav-shader-frame">
-            <AnimatedTopDock
-              variant="sable"
-              proximity={122}
-              spring={0.19}
-              damping={0.70}
-              widthGrowth={17}
-              heightGrowth={16}
-              drop={3.5}
-            />
-          </div>
+          {/* ThreeUI Animated Top Dock Navigation in Center */}
+          <nav
+            ref={dockRef}
+            className="hidden lg:inline-flex portal-dock-nav"
+            aria-label="Primary Navigation"
+            data-dock-state="idle"
+            data-dock-max="0.00"
+          >
+            <Link
+              href="/"
+              className={`animated-top-dock__item animated-top-dock__logo ${pathname === '/' ? 'is-active' : ''}`}
+              data-dock-item
+              aria-label="Home"
+            >
+              <Scale className="w-3.5 h-3.5 text-slate-900" />
+            </Link>
+
+            <Link
+              href="/providers"
+              className={`animated-top-dock__item animated-top-dock__link ${pathname.startsWith('/providers') ? 'border-[#41413e] text-white bg-[rgba(27,27,26,0.94)]' : ''}`}
+              data-dock-item
+            >
+              <span className="animated-top-dock__icon" aria-hidden="true">
+                <ShieldCheck className="w-3.5 h-3.5 text-govgreen-500" />
+              </span>
+              <span>COUNSEL</span>
+            </Link>
+
+            <Link
+              href="/onboarding"
+              className={`animated-top-dock__item animated-top-dock__link ${pathname === '/onboarding' ? 'border-[#41413e] text-white bg-[rgba(27,27,26,0.94)]' : ''}`}
+              data-dock-item
+            >
+              <span className="animated-top-dock__icon" aria-hidden="true">
+                <Users2 className="w-3.5 h-3.5 text-sky-400" />
+              </span>
+              <span>ADVOCATES</span>
+            </Link>
+
+            <Link
+              href="/rewards"
+              className={`animated-top-dock__item animated-top-dock__link ${pathname === '/rewards' ? 'border-[#41413e] text-white bg-[rgba(27,27,26,0.94)]' : ''}`}
+              data-dock-item
+            >
+              <span className="animated-top-dock__icon" aria-hidden="true">
+                <Award className="w-3.5 h-3.5 text-amber-400" />
+              </span>
+              <span>REWARDS</span>
+            </Link>
+
+            <Link
+              href="/admin"
+              className={`animated-top-dock__item animated-top-dock__link ${pathname === '/admin' ? 'border-[#41413e] text-white bg-[rgba(27,27,26,0.94)]' : ''}`}
+              data-dock-item
+            >
+              <span className="animated-top-dock__icon" aria-hidden="true">
+                <LayoutDashboard className="w-3.5 h-3.5 text-saffron-400" />
+              </span>
+              <span>ADMIN</span>
+            </Link>
+          </nav>
 
           {/* Right Section: Notifications, Language Switcher & Auth */}
-          <div className="hidden md:flex items-center space-x-4">
+          <div className="hidden md:flex items-center space-x-3 flex-shrink-0">
             {/* Notifications Bell Dropdown */}
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setNotifDropdownOpen(!notifDropdownOpen)}
-                className="relative p-2 rounded-lg bg-govnavy-800 hover:bg-govnavy-700 text-slate-200 border border-govnavy-700 transition-colors"
+                className="relative p-2 rounded-xl bg-slate-900/80 hover:bg-slate-800 text-slate-200 border border-slate-700/80 transition-colors"
                 title="Notifications"
               >
                 <Bell className="w-4 h-4" />
                 {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 px-1.5 py-0.2 bg-rose-500 text-white text-[10px] font-bold rounded-full border-2 border-govnavy-900 animate-pulse">
+                  <span className="absolute -top-1 -right-1 px-1.5 py-0.2 bg-rose-500 text-white text-[10px] font-bold rounded-full border-2 border-slate-950 animate-pulse">
                     {unreadCount}
                   </span>
                 )}
@@ -256,11 +313,11 @@ export const Navbar: React.FC = () => {
             </div>
 
             {/* Language Selector */}
-            <div className="flex items-center bg-govnavy-800 rounded-lg p-1 border border-govnavy-700 text-xs font-semibold">
+            <div className="flex items-center bg-slate-900/80 rounded-xl p-1 border border-slate-700/80 text-xs font-semibold">
               <Globe className="w-3.5 h-3.5 text-slate-400 ml-1 mr-1.5" />
               <button
                 onClick={() => setLanguage('en')}
-                className={`px-2 py-1 rounded transition-colors ${
+                className={`px-2 py-1 rounded-lg transition-colors ${
                   language === 'en' ? 'bg-saffron-600 text-white shadow-sm' : 'text-slate-300 hover:text-white'
                 }`}
               >
@@ -268,7 +325,7 @@ export const Navbar: React.FC = () => {
               </button>
               <button
                 onClick={() => setLanguage('hi')}
-                className={`px-2 py-1 rounded transition-colors ${
+                className={`px-2 py-1 rounded-lg transition-colors ${
                   language === 'hi' ? 'bg-saffron-600 text-white shadow-sm' : 'text-slate-300 hover:text-white'
                 }`}
               >
@@ -276,7 +333,7 @@ export const Navbar: React.FC = () => {
               </button>
               <button
                 onClick={() => setLanguage('pa')}
-                className={`px-2 py-1 rounded transition-colors ${
+                className={`px-2 py-1 rounded-lg transition-colors ${
                   language === 'pa' ? 'bg-saffron-600 text-white shadow-sm' : 'text-slate-300 hover:text-white'
                 }`}
               >
@@ -289,7 +346,7 @@ export const Navbar: React.FC = () => {
               <div className="relative" ref={accountRef}>
                 <button
                   onClick={() => setAccountDropdownOpen(!accountDropdownOpen)}
-                  className="flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-govnavy-800 hover:bg-govnavy-700 border border-govnavy-700 text-xs font-semibold text-white shadow-sm transition-colors"
+                  className="flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-slate-700/80 text-xs font-semibold text-white shadow-sm transition-colors"
                 >
                   <div className="w-5 h-5 rounded-full bg-gradient-to-tr from-saffron-600 to-amber-500 text-white flex items-center justify-center font-black text-[10px] shadow-inner">
                     {currentUser.fullName ? currentUser.fullName.charAt(0).toUpperCase() : 'U'}
@@ -399,13 +456,13 @@ export const Navbar: React.FC = () => {
               <div className="flex items-center space-x-2">
                 <Link
                   href="/auth/login"
-                  className="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-200 hover:bg-govnavy-800 border border-govnavy-700 transition-colors"
+                  className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-200 hover:bg-slate-800/80 border border-slate-700/80 transition-colors"
                 >
                   {t.nav.login}
                 </Link>
                 <Link
                   href="/onboarding"
-                  className="px-4 py-1.5 rounded-lg text-xs font-semibold text-white bg-saffron-600 hover:bg-saffron-700 shadow transition-colors flex items-center space-x-1.5"
+                  className="px-4 py-1.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-saffron-500 to-amber-600 hover:from-saffron-600 hover:to-amber-700 shadow-md transition-all flex items-center space-x-1.5"
                 >
                   <span>{t.nav.register}</span>
                 </Link>
@@ -414,10 +471,10 @@ export const Navbar: React.FC = () => {
           </div>
 
           {/* Mobile menu button */}
-          <div className="md:hidden flex items-center space-x-2">
+          <div className="lg:hidden flex items-center space-x-2">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-lg bg-govnavy-800 text-slate-300 hover:text-white border border-govnavy-700"
+              className="p-2 rounded-xl bg-slate-900/80 text-slate-300 hover:text-white border border-slate-700/80 transition-colors"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -427,7 +484,7 @@ export const Navbar: React.FC = () => {
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-govnavy-900 border-t border-govnavy-700 px-4 py-4 space-y-3">
+        <div className="lg:hidden bg-slate-950/95 border-t border-slate-800 px-4 py-4 space-y-3 backdrop-blur-2xl animate-in slide-in-from-top-2">
           {currentUser ? (
             <div className="p-3 bg-govnavy-800 rounded-xl border border-govnavy-700 mb-3 space-y-2">
               <div className="flex items-center justify-between">
